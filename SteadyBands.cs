@@ -128,13 +128,13 @@ namespace ForexStrategyBuilder.Indicators.Store
 
             // Reading the parameters
             var maMethod = (MAMethod) IndParam.ListParam[1].Index;
-            var price = (BasePrice) IndParam.ListParam[2].Index;
+            var basePrice = (BasePrice) IndParam.ListParam[2].Index;
             var nMA = (int) IndParam.NumParam[0].Value;
             double dMargin = IndParam.NumParam[1].Value*Point;
             int iPrvs = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
-            double[] adMA = MovingAverage(nMA, 0, maMethod, Price(price));
+            double[] adMA = MovingAverage(nMA, 0, maMethod, Price(basePrice));
             var adUpBand = new double[Bars];
             var adDnBand = new double[Bars];
 

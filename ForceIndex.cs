@@ -85,7 +85,7 @@ namespace ForexStrategyBuilder.Indicators.Store
 
             // Reading the parameters
             var maMethod = (MAMethod) IndParam.ListParam[1].Index;
-            var price = (BasePrice) IndParam.ListParam[2].Index;
+            var basePrice = (BasePrice) IndParam.ListParam[2].Index;
             var iPeriod = (int) IndParam.NumParam[0].Value;
             int iPrvs = IndParam.CheckParam[0].Checked ? 1 : 0;
 
@@ -93,7 +93,7 @@ namespace ForexStrategyBuilder.Indicators.Store
             int iFirstBar = iPeriod + 2;
 
             var adFi = new double[Bars];
-            double[] adMA = MovingAverage(iPeriod, 0, maMethod, Price(price));
+            double[] adMA = MovingAverage(iPeriod, 0, maMethod, Price(basePrice));
 
             for (int iBar = iFirstBar; iBar < Bars; iBar++)
             {

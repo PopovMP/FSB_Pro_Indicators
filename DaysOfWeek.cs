@@ -19,7 +19,6 @@ namespace ForexStrategyBuilder.Indicators.Store
     {
         public DaysOfWeek()
         {
-
             PossibleSlots = SlotTypes.OpenFilter;
             IndicatorName = "Day of Week";
             IsDeafultGroupAll = true;
@@ -38,9 +37,9 @@ namespace ForexStrategyBuilder.Indicators.Store
             // The ComboBox parameters
             IndParam.ListParam[0].Caption = "Logic";
             IndParam.ListParam[0].ItemList = new[]
-                {
-                    "Enter the market between the specified days"
-                };
+            {
+                "Enter the market between the specified days"
+            };
             IndParam.ListParam[0].Index = 0;
             IndParam.ListParam[0].Text = IndParam.ListParam[0].ItemList[IndParam.ListParam[0].Index];
             IndParam.ListParam[0].Enabled = true;
@@ -71,47 +70,47 @@ namespace ForexStrategyBuilder.Indicators.Store
 
             // Calculation
             const int firstBar = 1;
-            var adBars = new double[Bars];
+            var signal = new double[Bars];
 
             // Calculation of the logic
-            for (int iBar = firstBar; iBar < Bars; iBar++)
+            for (int bar = firstBar; bar < Bars; bar++)
             {
                 if (dowFromDay < dowUntilDay)
-                    adBars[iBar] = Time[iBar].DayOfWeek >= dowFromDay &&
-                                   Time[iBar].DayOfWeek < dowUntilDay
-                                       ? 1
-                                       : 0;
+                    signal[bar] = Time[bar].DayOfWeek >= dowFromDay &&
+                                  Time[bar].DayOfWeek < dowUntilDay
+                        ? 1
+                        : 0;
                 else if (dowFromDay > dowUntilDay)
-                    adBars[iBar] = Time[iBar].DayOfWeek >= dowFromDay ||
-                                   Time[iBar].DayOfWeek < dowUntilDay
-                                       ? 1
-                                       : 0;
+                    signal[bar] = Time[bar].DayOfWeek >= dowFromDay ||
+                                  Time[bar].DayOfWeek < dowUntilDay
+                        ? 1
+                        : 0;
                 else
-                    adBars[iBar] = 1;
+                    signal[bar] = 1;
             }
 
             // Saving the components
             Component = new IndicatorComp[2];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "Allow long entry",
-                    DataType = IndComponentType.AllowOpenLong,
-                    ChartType = IndChartType.NoChart,
-                    ShowInDynInfo = false,
-                    FirstBar = firstBar,
-                    Value = adBars
-                };
+            {
+                CompName = "Allow long entry",
+                DataType = IndComponentType.AllowOpenLong,
+                ChartType = IndChartType.NoChart,
+                ShowInDynInfo = false,
+                FirstBar = firstBar,
+                Value = signal
+            };
 
             Component[1] = new IndicatorComp
-                {
-                    CompName = "Allow short entry",
-                    DataType = IndComponentType.AllowOpenShort,
-                    ChartType = IndChartType.NoChart,
-                    ShowInDynInfo = false,
-                    FirstBar = firstBar,
-                    Value = adBars
-                };
+            {
+                CompName = "Allow short entry",
+                DataType = IndComponentType.AllowOpenShort,
+                ChartType = IndChartType.NoChart,
+                ShowInDynInfo = false,
+                FirstBar = firstBar,
+                Value = signal
+            };
         }
 
         public override void SetDescription()
@@ -119,8 +118,10 @@ namespace ForexStrategyBuilder.Indicators.Store
             var dowFromDay = (DayOfWeek) IndParam.ListParam[1].Index;
             var dowUntilDay = (DayOfWeek) IndParam.ListParam[2].Index;
 
-            EntryFilterLongDescription = "the day of week is from " + dowFromDay + " (incl.) to " + dowUntilDay + " (excl.)";
-            EntryFilterShortDescription = "the day of week is from " + dowFromDay + " (incl.) to " + dowUntilDay + " (excl.)";
+            EntryFilterLongDescription = "the day of week is from " + dowFromDay + " (incl.) to " + dowUntilDay +
+                                         " (excl.)";
+            EntryFilterShortDescription = "the day of week is from " + dowFromDay + " (incl.) to " + dowUntilDay +
+                                          " (excl.)";
         }
 
         public override string ToString()
@@ -129,8 +130,8 @@ namespace ForexStrategyBuilder.Indicators.Store
             var dowUntilDay = (DayOfWeek) IndParam.ListParam[2].Index;
 
             return IndicatorName + " (" +
-                    dowFromDay + ", " + // From
-                    dowUntilDay + ")"; // Until
+                   dowFromDay + ", " + // From
+                   dowUntilDay + ")"; // Until
         }
     }
 }

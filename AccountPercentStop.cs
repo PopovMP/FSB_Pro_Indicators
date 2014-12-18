@@ -48,7 +48,8 @@ namespace ForexStrategyBuilder.Indicators.Store
             // The NumericUpDown parameters
             IndParam.NumParam[0].Caption = "Account percent";
             IndParam.NumParam[0].Value = 2;
-            IndParam.NumParam[0].Min = 1;
+            IndParam.NumParam[0].Point = 2;
+            IndParam.NumParam[0].Min = 0.01;
             IndParam.NumParam[0].Max = 20;
             IndParam.NumParam[0].Enabled = true;
             IndParam.NumParam[0].ToolTip = "Maximum account to risk.";

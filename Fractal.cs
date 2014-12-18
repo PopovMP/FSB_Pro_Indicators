@@ -34,27 +34,29 @@ namespace ForexStrategyBuilder.Indicators.Store
 
             // The ComboBox parameters
             IndParam.ListParam[0].Caption = "Logic";
-            if (SlotType == SlotTypes.Open)
+            switch (SlotType)
             {
-                IndParam.ListParam[0].ItemList = new[]
-                {
-                    "Enter long at Up Fractal",
-                    "Enter long at Down Fractal"
-                };
+                case SlotTypes.Open:
+                    IndParam.ListParam[0].ItemList = new[]
+                    {
+                        "Enter long at Up Fractal",
+                        "Enter long at Down Fractal"
+                    };
+                    break;
+                case SlotTypes.Close:
+                    IndParam.ListParam[0].ItemList = new[]
+                    {
+                        "Exit long at Up Fractal",
+                        "Exit long at Down Fractal"
+                    };
+                    break;
+                default:
+                    IndParam.ListParam[0].ItemList = new[]
+                    {
+                        "Not Defined"
+                    };
+                    break;
             }
-            else if (SlotType == SlotTypes.Close)
-            {
-                IndParam.ListParam[0].ItemList = new[]
-                {
-                    "Exit long at Up Fractal",
-                    "Exit long at Down Fractal"
-                };
-            }
-            else
-                IndParam.ListParam[0].ItemList = new[]
-                {
-                    "Not Defined"
-                };
             IndParam.ListParam[0].Index = 0;
             IndParam.ListParam[0].Text = IndParam.ListParam[0].ItemList[IndParam.ListParam[0].Index];
             IndParam.ListParam[0].Enabled = true;
@@ -84,14 +86,14 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            bool isVisible = IndParam.ListParam[1].Text == "Visible";
-            double shift = IndParam.NumParam[0].Value*Point;
+            var isVisible = IndParam.ListParam[1].Text == "Visible";
+            var shift = IndParam.NumParam[0].Value*Point;
             const int firstBar = 8;
 
             var upFractals = new double[Bars];
             var downFractals = new double[Bars];
 
-            for (int bar = 8; bar < Bars - 1; bar++)
+            for (var bar = 8; bar < Bars - 1; bar++)
             {
                 if (High[bar - 1] < High[bar - 2] && High[bar] < High[bar - 2])
                 {
@@ -103,38 +105,38 @@ namespace ForexStrategyBuilder.Indicators.Store
                     // Fractal type 2
                     if (High[bar - 5] < High[bar - 2] &&
                         High[bar - 4] < High[bar - 2] &&
-                        High[bar - 3] == High[bar - 2])
+                        Math.Abs(High[bar - 3] - High[bar - 2]) < Epsilon)
                         upFractals[bar + 1] = High[bar - 2];
 
                     // Fractal type 3, 4
                     if (High[bar - 6] < High[bar - 2] &&
                         High[bar - 5] < High[bar - 2] &&
-                        High[bar - 4] == High[bar - 2] &&
+                        Math.Abs(High[bar - 4] - High[bar - 2]) < Epsilon &&
                         High[bar - 3] <= High[bar - 2])
                         upFractals[bar + 1] = High[bar - 2];
 
                     // Fractal type 5
                     if (High[bar - 7] < High[bar - 2] &&
                         High[bar - 6] < High[bar - 2] &&
-                        High[bar - 5] == High[bar - 2] &&
+                        Math.Abs(High[bar - 5] - High[bar - 2]) < Epsilon &&
                         High[bar - 4] < High[bar - 2] &&
-                        High[bar - 3] == High[bar - 2])
+                        Math.Abs(High[bar - 3] - High[bar - 2]) < Epsilon)
                         upFractals[bar + 1] = High[bar - 2];
 
                     // Fractal type 6
                     if (High[bar - 7] < High[bar - 2] &&
                         High[bar - 6] < High[bar - 2] &&
-                        High[bar - 5] == High[bar - 2] &&
-                        High[bar - 4] == High[bar - 2] &&
+                        Math.Abs(High[bar - 5] - High[bar - 2]) < Epsilon &&
+                        Math.Abs(High[bar - 4] - High[bar - 2]) < Epsilon &&
                         High[bar - 3] < High[bar - 2])
                         upFractals[bar + 1] = High[bar - 2];
 
                     // Fractal type 7
                     if (High[bar - 8] < High[bar - 2] &&
                         High[bar - 7] < High[bar - 2] &&
-                        High[bar - 6] == High[bar - 2] &&
+                        Math.Abs(High[bar - 6] - High[bar - 2]) < Epsilon &&
                         High[bar - 5] < High[bar - 2] &&
-                        High[bar - 4] == High[bar - 2] &&
+                        Math.Abs(High[bar - 4] - High[bar - 2]) < Epsilon &&
                         High[bar - 3] < High[bar - 2])
                         upFractals[bar + 1] = High[bar - 2];
                 }
@@ -149,58 +151,58 @@ namespace ForexStrategyBuilder.Indicators.Store
                     // Fractal type 2
                     if (Low[bar - 5] > Low[bar - 2] &&
                         Low[bar - 4] > Low[bar - 2] &&
-                        Low[bar - 3] == Low[bar - 2])
+                        Math.Abs(Low[bar - 3] - Low[bar - 2]) < Epsilon)
                         downFractals[bar + 1] = Low[bar - 2];
 
                     // Fractal type 3, 4
                     if (Low[bar - 6] > Low[bar - 2] &&
                         Low[bar - 5] > Low[bar - 2] &&
-                        Low[bar - 4] == Low[bar - 2] &&
+                        Math.Abs(Low[bar - 4] - Low[bar - 2]) < Epsilon &&
                         Low[bar - 3] >= Low[bar - 2])
                         downFractals[bar + 1] = Low[bar - 2];
 
                     // Fractal type 5
                     if (Low[bar - 7] > Low[bar - 2] &&
                         Low[bar - 6] > Low[bar - 2] &&
-                        Low[bar - 5] == Low[bar - 2] &&
+                        Math.Abs(Low[bar - 5] - Low[bar - 2]) < Epsilon &&
                         Low[bar - 4] > Low[bar - 2] &&
-                        Low[bar - 3] == Low[bar - 2])
+                        Math.Abs(Low[bar - 3] - Low[bar - 2]) < Epsilon)
                         downFractals[bar + 1] = Low[bar - 2];
 
                     // Fractal type 6
                     if (Low[bar - 7] > Low[bar - 2] &&
                         Low[bar - 6] > Low[bar - 2] &&
-                        Low[bar - 5] == Low[bar - 2] &&
-                        Low[bar - 4] == Low[bar - 2] &&
+                        Math.Abs(Low[bar - 5] - Low[bar - 2]) < Epsilon &&
+                        Math.Abs(Low[bar - 4] - Low[bar - 2]) < Epsilon &&
                         Low[bar - 3] > Low[bar - 2])
                         downFractals[bar + 1] = Low[bar - 2];
 
                     // Fractal type 7
                     if (Low[bar - 8] > Low[bar - 2] &&
                         Low[bar - 7] > Low[bar - 2] &&
-                        Low[bar - 6] == Low[bar - 2] &&
+                        Math.Abs(Low[bar - 6] - Low[bar - 2]) < Epsilon &&
                         Low[bar - 5] > Low[bar - 2] &&
-                        Low[bar - 4] == Low[bar - 2] &&
+                        Math.Abs(Low[bar - 4] - Low[bar - 2]) < Epsilon &&
                         Low[bar - 3] > Low[bar - 2])
                         downFractals[bar + 1] = Low[bar - 2];
                 }
             }
 
-            // Is visible
             if (isVisible)
-                for (int bar = firstBar; bar < Bars; bar++)
+                for (var bar = firstBar; bar < Bars; bar++)
                 {
-                    if (upFractals[bar - 1] > 0 && Math.Abs(upFractals[bar] - 0) < Epsilon &&
-                        High[bar - 1] < upFractals[bar - 1])
+                    if (upFractals[bar] < Epsilon && upFractals[bar - 1] > High[bar - 1])
                         upFractals[bar] = upFractals[bar - 1];
-                    if (downFractals[bar - 1] > 0 && Math.Abs(downFractals[bar] - 0) < Epsilon && Low[bar - 1] > downFractals[bar - 1])
+                    if (downFractals[bar] < Epsilon && downFractals[bar - 1] < Low[bar - 1])
                         downFractals[bar] = downFractals[bar - 1];
                 }
             else
-                for (int bar = firstBar; bar < Bars; bar++)
+                for (var bar = firstBar; bar < Bars; bar++)
                 {
-                    if (Math.Abs(upFractals[bar] - 0) < Epsilon) upFractals[bar] = upFractals[bar - 1];
-                    if (Math.Abs(downFractals[bar] - 0) < Epsilon) downFractals[bar] = downFractals[bar - 1];
+                    if (upFractals[bar] < Epsilon)
+                        upFractals[bar] = upFractals[bar - 1];
+                    if (downFractals[bar] < Epsilon)
+                        downFractals[bar] = downFractals[bar - 1];
                 }
 
             // Saving the components
@@ -259,7 +261,7 @@ namespace ForexStrategyBuilder.Indicators.Store
             {
                 case "Enter long at Up Fractal":
                 case "Exit long at Up Fractal":
-                    for (int bar = firstBar; bar < Bars; bar++)
+                    for (var bar = firstBar; bar < Bars; bar++)
                     {
                         if (upFractals[bar] > Point)
                             Component[2].Value[bar] = upFractals[bar] + shift;
@@ -269,7 +271,7 @@ namespace ForexStrategyBuilder.Indicators.Store
                     break;
                 case "Enter long at Down Fractal":
                 case "Exit long at Down Fractal":
-                    for (int bar = firstBar; bar < Bars; bar++)
+                    for (var bar = firstBar; bar < Bars; bar++)
                     {
                         if (downFractals[bar] > Point)
                             Component[2].Value[bar] = downFractals[bar] - shift;

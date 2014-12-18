@@ -118,7 +118,7 @@ namespace ForexStrategyBuilder.Indicators.Store
 
             // Reading the parameters
             var maMethod = (MAMethod) IndParam.ListParam[1].Index;
-            var price = (BasePrice) IndParam.ListParam[2].Index;
+            var basePrice = (BasePrice) IndParam.ListParam[2].Index;
             var period = (int) IndParam.NumParam[0].Value;
             var shift = (int) IndParam.NumParam[1].Value;
             int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
@@ -126,14 +126,14 @@ namespace ForexStrategyBuilder.Indicators.Store
             // TimeExecution
             if (period == 1 && shift == 0)
             {
-                if (price == BasePrice.Open)
+                if (basePrice == BasePrice.Open)
                     IndParam.ExecutionTime = ExecutionTime.AtBarOpening;
-                else if (price == BasePrice.Close)
+                else if (basePrice == BasePrice.Close)
                     IndParam.ExecutionTime = ExecutionTime.AtBarClosing;
             }
 
             // Calculation
-            double[] movingAverage = MovingAverage(period, shift, maMethod, Price(price));
+            double[] movingAverage = MovingAverage(period, shift, maMethod, Price(basePrice));
             int firstBar = period + shift + 1 + previous;
 
             // Saving the components
