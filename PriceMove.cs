@@ -83,6 +83,8 @@ namespace ForexStrategyBuilder.Indicators.Store
                 IndParam.ExecutionTime = ExecutionTime.AtBarOpening;
             else if (price == BasePrice.Close && Math.Abs(margin - 0) < Epsilon)
                 IndParam.ExecutionTime = ExecutionTime.AtBarClosing;
+            else 
+                IndParam.ExecutionTime = ExecutionTime.DuringTheBar;
 
             // Calculation
             double[] adBasePr = Price(price);
@@ -132,24 +134,20 @@ namespace ForexStrategyBuilder.Indicators.Store
 
         public override void SetDescription()
         {
-            var iMargin = (int) IndParam.NumParam[0].Value;
-            string sBasePrice = IndParam.ListParam[1].ItemList[IndParam.ListParam[1].Index].ToLower();
-            string sPrevious = (IndParam.CheckParam[0].Checked ? " previous" : "");
+            var margin = (int) IndParam.NumParam[0].Value;
+            string basePrice = IndParam.ListParam[1].ItemList[IndParam.ListParam[1].Index].ToLower();
+            string previous = (IndParam.CheckParam[0].Checked ? " previous" : "");
 
             switch (IndParam.ListParam[0].Text)
             {
                 case "Enter long after an upward move":
-                    EntryPointLongDescription = iMargin + " points above the" + sPrevious + " bar " + sBasePrice +
-                                                " price";
-                    EntryPointShortDescription = iMargin + " points below the" + sPrevious + " bar " + sBasePrice +
-                                                 " price";
+                    EntryPointLongDescription = string.Format("{0} points above the{1} bar {2} price", margin, previous, basePrice);
+                    EntryPointShortDescription = string.Format("{0} points below the{1} bar {2} price", margin, previous, basePrice);
                     break;
 
                 case "Enter long after a downward move":
-                    EntryPointLongDescription = iMargin + " points below the" + sPrevious + " bar " + sBasePrice +
-                                                " price";
-                    EntryPointShortDescription = iMargin + " points above the" + sPrevious + " bar " + sBasePrice +
-                                                 " price";
+                    EntryPointLongDescription = string.Format("{0} points below the{1} bar {2} price", margin, previous, basePrice);
+                    EntryPointShortDescription = string.Format("{0} points above the{1} bar {2} price", margin, previous, basePrice);
                     break;
             }
         }

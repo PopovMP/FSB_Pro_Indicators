@@ -38,19 +38,19 @@ namespace ForexStrategyBuilder.Indicators.Store
 
             if (SlotType == SlotTypes.OpenFilter)
                 IndParam.ListParam[0].ItemList = new[]
-                    {
-                        "The price is higher than the PSAR value"
-                    };
+                {
+                    "The price is higher than the PSAR value"
+                };
             else if (SlotType == SlotTypes.Close)
                 IndParam.ListParam[0].ItemList = new[]
-                    {
-                        "Exit the market at PSAR"
-                    };
+                {
+                    "Exit the market at PSAR"
+                };
             else
                 IndParam.ListParam[0].ItemList = new[]
-                    {
-                        "Not Defined"
-                    };
+                {
+                    "Not Defined"
+                };
             IndParam.ListParam[0].Index = 0;
             IndParam.ListParam[0].Text = IndParam.ListParam[0].ItemList[IndParam.ListParam[0].Index];
             IndParam.ListParam[0].Enabled = true;
@@ -86,9 +86,9 @@ namespace ForexStrategyBuilder.Indicators.Store
         {
             DataSet = dataSet;
 
-            double dAfMin = IndParam.NumParam[0].Value;
-            double dAfInc = IndParam.NumParam[1].Value;
-            double dAfMax = IndParam.NumParam[2].Value;
+            var dAfMin = IndParam.NumParam[0].Value;
+            var dAfInc = IndParam.NumParam[1].Value;
+            var dAfMax = IndParam.NumParam[2].Value;
 
             // Reading the parameters
             double dPExtr;
@@ -98,8 +98,8 @@ namespace ForexStrategyBuilder.Indicators.Store
 
             //----	Calculating the initial values
             adPsar[0] = 0;
-            double dAf = dAfMin;
-            int intDirNew = 0;
+            var dAf = dAfMin;
+            var intDirNew = 0;
             if (Close[1] > Open[0])
             {
                 aiDir[0] = 1;
@@ -115,51 +115,51 @@ namespace ForexStrategyBuilder.Indicators.Store
                 adPsar[1] = Math.Max(High[0], High[1]);
             }
 
-            for (int iBar = 2; iBar < Bars; iBar++)
+            for (var bar = 2; bar < Bars; bar++)
             {
                 //----	PSAR for the current period
                 if (intDirNew != 0)
                 {
                     // The direction was changed during the last period
-                    aiDir[iBar] = intDirNew;
+                    aiDir[bar] = intDirNew;
                     intDirNew = 0;
-                    adPsar[iBar] = dPsarNew + dAf*(dPExtr - dPsarNew);
+                    adPsar[bar] = dPsarNew + dAf*(dPExtr - dPsarNew);
                 }
                 else
                 {
-                    aiDir[iBar] = aiDir[iBar - 1];
-                    adPsar[iBar] = adPsar[iBar - 1] + dAf*(dPExtr - adPsar[iBar - 1]);
+                    aiDir[bar] = aiDir[bar - 1];
+                    adPsar[bar] = adPsar[bar - 1] + dAf*(dPExtr - adPsar[bar - 1]);
                 }
 
                 // PSAR has to be out of the previous two bars limits
-                if (aiDir[iBar] > 0 && adPsar[iBar] > Math.Min(Low[iBar - 1], Low[iBar - 2]))
-                    adPsar[iBar] = Math.Min(Low[iBar - 1], Low[iBar - 2]);
-                else if (aiDir[iBar] < 0 && adPsar[iBar] < Math.Max(High[iBar - 1], High[iBar - 2]))
-                    adPsar[iBar] = Math.Max(High[iBar - 1], High[iBar - 2]);
+                if (aiDir[bar] > 0 && adPsar[bar] > Math.Min(Low[bar - 1], Low[bar - 2]))
+                    adPsar[bar] = Math.Min(Low[bar - 1], Low[bar - 2]);
+                else if (aiDir[bar] < 0 && adPsar[bar] < Math.Max(High[bar - 1], High[bar - 2]))
+                    adPsar[bar] = Math.Max(High[bar - 1], High[bar - 2]);
 
                 //----	PSAR for the next period
 
                 // Calculation of the new values of flPExtr and flAF
                 // if there is a new extreme price in the PSAR direction
-                if (aiDir[iBar] > 0 && High[iBar] > dPExtr)
+                if (aiDir[bar] > 0 && High[bar] > dPExtr)
                 {
-                    dPExtr = High[iBar];
+                    dPExtr = High[bar];
                     dAf = Math.Min(dAf + dAfInc, dAfMax);
                 }
 
-                if (aiDir[iBar] < 0 && Low[iBar] < dPExtr)
+                if (aiDir[bar] < 0 && Low[bar] < dPExtr)
                 {
-                    dPExtr = Low[iBar];
+                    dPExtr = Low[bar];
                     dAf = Math.Min(dAf + dAfInc, dAfMax);
                 }
 
                 // Whether the price reaches PSAR
-                if (Low[iBar] <= adPsar[iBar] && adPsar[iBar] <= High[iBar])
+                if (Low[bar] <= adPsar[bar] && adPsar[bar] <= High[bar])
                 {
-                    intDirNew = -aiDir[iBar];
+                    intDirNew = -aiDir[bar];
                     dPsarNew = dPExtr;
                     dAf = dAfMin;
-                    dPExtr = intDirNew > 0 ? High[iBar] : Low[iBar];
+                    dPExtr = intDirNew > 0 ? High[bar] : Low[bar];
                 }
             }
             const int firstBar = 8;
@@ -168,16 +168,15 @@ namespace ForexStrategyBuilder.Indicators.Store
             Component = new IndicatorComp[1];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "PSAR value",
-                    DataType =
-                        SlotType == SlotTypes.Close ? IndComponentType.ClosePrice : IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Dot,
-                    ChartColor = Color.Violet,
-                    FirstBar = firstBar,
-                    PosPriceDependence = PositionPriceDependence.BuyHigherSellLower,
-                    Value = adPsar
-                };
+            {
+                CompName = "PSAR value",
+                DataType = SlotType == SlotTypes.Close ? IndComponentType.ClosePrice : IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Dot,
+                ChartColor = Color.Violet,
+                FirstBar = firstBar,
+                PosPriceDependence = PositionPriceDependence.BuyHigherSellLower,
+                Value = adPsar
+            };
         }
 
         public override void SetDescription()

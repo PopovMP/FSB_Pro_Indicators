@@ -36,12 +36,16 @@ namespace ForexStrategyBuilder.Indicators.Store
             // The ComboBox parameters
             IndParam.ListParam[0].Caption = "Logic";
             IndParam.ListParam[0].ItemList = new[]
-                {
-                    "Ease of Movement rises",
-                    "Ease of Movement falls",
-                    "Ease of Movement changes its direction upward",
-                    "Ease of Movement changes its direction downward"
-                };
+            {
+                "Ease of Movement rises",
+                "Ease of Movement falls",
+                "Ease of Movement is higher than the zero line",
+                "Ease of Movement is lower than the zero line",
+                "Ease of Movement crosses the zero line upward",
+                "Ease of Movement crosses the zero line downward",
+                "Ease of Movement changes its direction upward",
+                "Ease of Movement changes its direction downward"
+            };
             IndParam.ListParam[0].Index = 0;
             IndParam.ListParam[0].Text = IndParam.ListParam[0].ItemList[IndParam.ListParam[0].Index];
             IndParam.ListParam[0].Enabled = true;
@@ -62,13 +66,6 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.NumParam[0].Enabled = true;
             IndParam.NumParam[0].ToolTip = "The smoothing period.";
 
-            IndParam.NumParam[1].Caption = "Volume divisor";
-            IndParam.NumParam[1].Value = 10000;
-            IndParam.NumParam[1].Min = 1;
-            IndParam.NumParam[1].Max = 100000;
-            IndParam.NumParam[1].Enabled = true;
-            IndParam.NumParam[1].ToolTip = "This number is used to scale the volume.";
-
             // The CheckBox parameters
             IndParam.CheckParam[0].Caption = "Use previous bar value";
             IndParam.CheckParam[0].Enabled = true;
@@ -82,19 +79,25 @@ namespace ForexStrategyBuilder.Indicators.Store
             // Reading the parameters
             var maMethod = (MAMethod) IndParam.ListParam[1].Index;
             var period = (int) IndParam.NumParam[0].Value;
-            var divisor = (int) IndParam.NumParam[1].Value;
-            int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
+            var previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
-            int iFirstBar = period + 2;
+            var firstBar = period + 2;
 
             var avEom = new double[Bars];
 
-            for (int bar = 1; bar < Bars; bar++)
+            double divisor = 1000000000;
+            for (var bar = 1; bar < Bars; bar++)
             {
-                avEom[bar] = divisor*(High[bar] - Low[bar])*
-                             ((High[bar] + Low[bar])/2 - (High[bar - 1] - Low[bar - 1])/2)/
-                             Math.Max(Volume[bar], 1);
+                avEom[bar] = (High[bar] - Low[bar])*
+                             ((High[bar] + Low[bar])/2 - (High[bar - 1] + Low[bar - 1])/2)/
+                             (Math.Max(Volume[bar], 1)/divisor);
+
+                if (avEom[bar] > 10000)
+                {
+                    divisor /= 10;
+                    bar = 1;
+                }
             }
 
             avEom = MovingAverage(period, 0, maMethod, avEom);
@@ -103,28 +106,28 @@ namespace ForexStrategyBuilder.Indicators.Store
             Component = new IndicatorComp[3];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "Ease of Movement",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Line,
-                    ChartColor = Color.LightSeaGreen,
-                    FirstBar = iFirstBar,
-                    Value = avEom
-                };
+            {
+                CompName = "Ease of Movement",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Line,
+                ChartColor = Color.LightSeaGreen,
+                FirstBar = firstBar,
+                Value = avEom
+            };
 
             Component[1] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = iFirstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             Component[2] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = iFirstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             // Sets the Component's type
             if (SlotType == SlotTypes.OpenFilter)
@@ -155,6 +158,22 @@ namespace ForexStrategyBuilder.Indicators.Store
                     indLogic = IndicatorLogic.The_indicator_falls;
                     break;
 
+                case "Ease of Movement is higher than the zero line":
+                    indLogic = IndicatorLogic.The_indicator_is_higher_than_the_level_line;
+                    break;
+
+                case "Ease of Movement is lower than the zero line":
+                    indLogic = IndicatorLogic.The_indicator_is_lower_than_the_level_line;
+                    break;
+
+                case "Ease of Movement crosses the zero line upward":
+                    indLogic = IndicatorLogic.The_indicator_crosses_the_level_line_upward;
+                    break;
+
+                case "Ease of Movement crosses the zero line downward":
+                    indLogic = IndicatorLogic.The_indicator_crosses_the_level_line_downward;
+                    break;
+
                 case "Ease of Movement changes its direction upward":
                     indLogic = IndicatorLogic.The_indicator_changes_its_direction_upward;
                     break;
@@ -164,7 +183,7 @@ namespace ForexStrategyBuilder.Indicators.Store
                     break;
             }
 
-            OscillatorLogic(iFirstBar, previous, avEom, 0, 0, ref Component[1], ref Component[2], indLogic);
+            OscillatorLogic(firstBar, previous, avEom, 0, 0, ref Component[1], ref Component[2], indLogic);
         }
 
         public override void SetDescription()
@@ -190,6 +209,34 @@ namespace ForexStrategyBuilder.Indicators.Store
                     ExitFilterShortDescription += "rises";
                     break;
 
+                case "Ease of Movement is higher than the zero line":
+                    EntryFilterLongDescription += "is higher than the zero line";
+                    EntryFilterShortDescription += "is lower than the zero line";
+                    ExitFilterLongDescription += "is higher than the zero line";
+                    ExitFilterShortDescription += "is lower than the zero line";
+                    break;
+
+                case "Ease of Movement is lower than the zero line":
+                    EntryFilterLongDescription += "is lower than the zero line";
+                    EntryFilterShortDescription += "is higher than the zero line";
+                    ExitFilterLongDescription += "is lower than the zero line";
+                    ExitFilterShortDescription += "is higher than the zero line";
+                    break;
+
+                case "Ease of Movement crosses the zero line upward":
+                    EntryFilterLongDescription += "crosses the zero line upward";
+                    EntryFilterShortDescription += "crosses the zero line downward";
+                    ExitFilterLongDescription += "crosses the zero line upward";
+                    ExitFilterShortDescription += "crosses the zero line downward";
+                    break;
+
+                case "Ease of Movement crosses the zero line downward":
+                    EntryFilterLongDescription += "crosses the zero line downward";
+                    EntryFilterShortDescription += "crosses the zero line upward";
+                    ExitFilterLongDescription += "crosses the zero line downward";
+                    ExitFilterShortDescription += "crosses the zero line upward";
+                    break;
+
                 case "Ease of Movement changes its direction upward":
                     EntryFilterLongDescription += "changes its direction upward";
                     EntryFilterShortDescription += "changes its direction downward";
@@ -211,8 +258,7 @@ namespace ForexStrategyBuilder.Indicators.Store
             return IndicatorName +
                    (IndParam.CheckParam[0].Checked ? "* (" : " (") +
                    IndParam.ListParam[1].Text + ", " + // Method
-                   IndParam.NumParam[0].ValueToString + ", " + // Period
-                   IndParam.NumParam[1].ValueToString + ")"; // Divisor
+                   IndParam.NumParam[0].ValueToString + ")"; // Period
         }
     }
 }

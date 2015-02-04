@@ -131,6 +131,8 @@ namespace ForexStrategyBuilder.Indicators.Store
                 else if (basePrice == BasePrice.Close)
                     IndParam.ExecutionTime = ExecutionTime.AtBarClosing;
             }
+            else
+                IndParam.ExecutionTime = ExecutionTime.DuringTheBar;
 
             // Calculation
             double[] movingAverage = MovingAverage(period, shift, maMethod, Price(basePrice));

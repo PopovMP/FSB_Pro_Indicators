@@ -24,7 +24,7 @@ namespace ForexStrategyBuilder.Indicators.Store
             PossibleSlots = SlotTypes.Open | SlotTypes.OpenFilter | SlotTypes.Close | SlotTypes.CloseFilter;
 
             IndicatorAuthor = "Miroslav Popov";
-            IndicatorVersion = "2.0";
+            IndicatorVersion = "2.1";
             IndicatorDescription = "Bundled in FSB distribution.";
         }
 
@@ -123,68 +123,69 @@ namespace ForexStrategyBuilder.Indicators.Store
         {
             DataSet = dataSet;
 
-            var fromHour = (int) IndParam.NumParam[0].Value;
-            var fromMin = (int) IndParam.NumParam[1].Value;
+            var fromHour  = (int) IndParam.NumParam[0].Value;
+            var fromMin   = (int) IndParam.NumParam[1].Value;
             var untilHour = (int) IndParam.NumParam[2].Value;
-            var untilMin = (int) IndParam.NumParam[3].Value;
+            var untilMin  = (int) IndParam.NumParam[3].Value;
 
-            var tsFromTime = new TimeSpan(fromHour, fromMin, 0);
-            var tsUntilTime = new TimeSpan(untilHour, untilMin, 0);
+            var fromTime = new TimeSpan(fromHour,  fromMin,  0);
+            var toTime   = new TimeSpan(untilHour, untilMin, 0);
 
             double shift = IndParam.NumParam[4].Value*Point;
 
             const int firstBar = 2;
 
             // Calculation
-            var adHighPrice = new double[Bars];
-            var adLowPrice = new double[Bars];
+            var highPrice = new double[Bars];
+            var lowPrice  = new double[Bars];
 
-            double dMinPrice = double.MaxValue;
-            double dMaxPrice = double.MinValue;
-            adHighPrice[0] = 0;
-            adLowPrice[0] = 0;
+            double minPrice = Double.MaxValue;
+            double maxPrice = Double.MinValue;
+            highPrice[0] = 0;
+            lowPrice[0]  = 0;
 
-            bool bPrevPeriod = false;
-            for (int iBar = 1; iBar < Bars; iBar++)
+            bool isOnTimePrev = false;
+            for (int bar = 1; bar < Bars; bar++)
             {
-                bool bPeriod;
+                bool isOnTime;
 
-                if (tsFromTime < tsUntilTime)
-                    bPeriod = Time[iBar].TimeOfDay >= tsFromTime && Time[iBar].TimeOfDay < tsUntilTime;
-                else if (tsFromTime > tsUntilTime)
-                    bPeriod = Time[iBar].TimeOfDay >= tsFromTime || Time[iBar].TimeOfDay < tsUntilTime;
+                TimeSpan barTime = Time[bar].TimeOfDay;
+                if (fromTime < toTime)
+                    isOnTime = barTime >= fromTime && barTime < toTime;
+                else if (fromTime > toTime)
+                    isOnTime = barTime >= fromTime || barTime < toTime;
                 else
-                    bPeriod = true;
+                    isOnTime = barTime != toTime;
 
-                if (bPeriod)
+                if (isOnTime)
                 {
-                    if (dMaxPrice < High[iBar]) dMaxPrice = High[iBar];
-                    if (dMinPrice > Low[iBar]) dMinPrice = Low[iBar];
+                    if (maxPrice < High[bar]) maxPrice = High[bar];
+                    if (minPrice > Low[bar])  minPrice = Low[bar];
                 }
 
-                if (!bPeriod && bPrevPeriod)
+                if (!isOnTime && isOnTimePrev)
                 {
-                    adHighPrice[iBar] = dMaxPrice;
-                    adLowPrice[iBar] = dMinPrice;
-                    dMaxPrice = double.MinValue;
-                    dMinPrice = double.MaxValue;
+                    highPrice[bar] = maxPrice;
+                    lowPrice[bar]  = minPrice;
+                    maxPrice = Double.MinValue;
+                    minPrice = Double.MaxValue;
                 }
                 else
                 {
-                    adHighPrice[iBar] = adHighPrice[iBar - 1];
-                    adLowPrice[iBar] = adLowPrice[iBar - 1];
+                    highPrice[bar] = highPrice[bar - 1];
+                    lowPrice[bar]  = lowPrice[bar - 1];
                 }
 
-                bPrevPeriod = bPeriod;
+                isOnTimePrev = isOnTime;
             }
 
             // Shifting the price
-            var adUpperBand = new double[Bars];
-            var adLowerBand = new double[Bars];
-            for (int iBar = firstBar; iBar < Bars; iBar++)
+            var upperBand = new double[Bars];
+            var lowerBand = new double[Bars];
+            for (int bar = firstBar; bar < Bars; bar++)
             {
-                adUpperBand[iBar] = adHighPrice[iBar] + shift;
-                adLowerBand[iBar] = adLowPrice[iBar] - shift;
+                upperBand[bar] = highPrice[bar] + shift;
+                lowerBand[bar] = lowPrice[bar]  - shift;
             }
 
             // Saving the components
@@ -197,7 +198,7 @@ namespace ForexStrategyBuilder.Indicators.Store
                     ChartType = IndChartType.Level,
                     ChartColor = Color.DarkGreen,
                     FirstBar = firstBar,
-                    Value = adHighPrice
+                    Value = highPrice
                 };
 
             Component[1] = new IndicatorComp
@@ -207,7 +208,7 @@ namespace ForexStrategyBuilder.Indicators.Store
                     ChartType = IndChartType.Level,
                     ChartColor = Color.DarkRed,
                     FirstBar = firstBar,
-                    Value = adLowPrice
+                    Value = lowPrice
                 };
 
             Component[2] = new IndicatorComp
@@ -258,29 +259,25 @@ namespace ForexStrategyBuilder.Indicators.Store
             {
                 case "Enter long at the hourly high":
                 case "Exit long at the hourly high":
-                    Component[2].Value = adUpperBand;
-                    Component[3].Value = adLowerBand;
+                    Component[2].Value = upperBand;
+                    Component[3].Value = lowerBand;
                     break;
                 case "Enter long at the hourly low":
                 case "Exit long at the hourly low":
-                    Component[2].Value = adLowerBand;
-                    Component[3].Value = adUpperBand;
+                    Component[2].Value = lowerBand;
+                    Component[3].Value = upperBand;
                     break;
                 case "The bar closes below the hourly high":
-                    BandIndicatorLogic(firstBar, 0, adUpperBand, adLowerBand, ref Component[2], ref Component[3],
-                                       BandIndLogic.The_bar_closes_below_the_Upper_Band);
+                    BandIndicatorLogic(firstBar, 0, upperBand, lowerBand, ref Component[2], ref Component[3], BandIndLogic.The_bar_closes_below_the_Upper_Band);
                     break;
                 case "The bar closes above the hourly high":
-                    BandIndicatorLogic(firstBar, 0, adUpperBand, adLowerBand, ref Component[2], ref Component[3],
-                                       BandIndLogic.The_bar_closes_above_the_Upper_Band);
+                    BandIndicatorLogic(firstBar, 0, upperBand, lowerBand, ref Component[2], ref Component[3], BandIndLogic.The_bar_closes_above_the_Upper_Band);
                     break;
                 case "The bar closes below the hourly low":
-                    BandIndicatorLogic(firstBar, 0, adUpperBand, adLowerBand, ref Component[2], ref Component[3],
-                                       BandIndLogic.The_bar_closes_below_the_Lower_Band);
+                    BandIndicatorLogic(firstBar, 0, upperBand, lowerBand, ref Component[2], ref Component[3], BandIndLogic.The_bar_closes_below_the_Lower_Band);
                     break;
                 case "The bar closes above the hourly low":
-                    BandIndicatorLogic(firstBar, 0, adUpperBand, adLowerBand, ref Component[2], ref Component[3],
-                                       BandIndLogic.The_bar_closes_above_the_Lower_Band);
+                    BandIndicatorLogic(firstBar, 0, upperBand, lowerBand, ref Component[2], ref Component[3], BandIndLogic.The_bar_closes_above_the_Lower_Band);
                     break;
                 case "The position opens above the hourly high":
                     Component[0].DataType = IndComponentType.Other;
@@ -291,8 +288,8 @@ namespace ForexStrategyBuilder.Indicators.Store
                     Component[3].CompName = "Shifted hourly low";
                     Component[3].DataType = IndComponentType.Other;
                     Component[3].PosPriceDependence = PositionPriceDependence.PriceSellLower;
-                    Component[2].Value = adUpperBand;
-                    Component[3].Value = adLowerBand;
+                    Component[2].Value = upperBand;
+                    Component[3].Value = lowerBand;
                     break;
                 case "The position opens below the hourly high":
                     Component[0].DataType = IndComponentType.Other;
@@ -303,8 +300,8 @@ namespace ForexStrategyBuilder.Indicators.Store
                     Component[3].CompName = "Shifted hourly low";
                     Component[3].DataType = IndComponentType.Other;
                     Component[3].PosPriceDependence = PositionPriceDependence.PriceSellHigher;
-                    Component[2].Value = adUpperBand;
-                    Component[3].Value = adLowerBand;
+                    Component[2].Value = upperBand;
+                    Component[3].Value = lowerBand;
                     break;
                 case "The position opens above the hourly low":
                     Component[0].DataType = IndComponentType.Other;
@@ -315,8 +312,8 @@ namespace ForexStrategyBuilder.Indicators.Store
                     Component[3].CompName = "Shifted hourly high";
                     Component[3].DataType = IndComponentType.Other;
                     Component[3].PosPriceDependence = PositionPriceDependence.PriceSellLower;
-                    Component[2].Value = adLowerBand;
-                    Component[3].Value = adUpperBand;
+                    Component[2].Value = lowerBand;
+                    Component[3].Value = upperBand;
                     break;
                 case "The position opens below the hourly low":
                     Component[0].DataType = IndComponentType.Other;
@@ -327,132 +324,123 @@ namespace ForexStrategyBuilder.Indicators.Store
                     Component[3].CompName = "Shifted hourly high";
                     Component[3].DataType = IndComponentType.Other;
                     Component[3].PosPriceDependence = PositionPriceDependence.PriceSellHigher;
-                    Component[2].Value = adLowerBand;
-                    Component[3].Value = adUpperBand;
+                    Component[2].Value = lowerBand;
+                    Component[3].Value = upperBand;
                     break;
             }
         }
 
         public override void SetDescription()
         {
-            var iShift = (int) IndParam.NumParam[4].Value;
+            var shift = (int) IndParam.NumParam[4].Value;
 
-            var iFromHour = (int) IndParam.NumParam[0].Value;
-            var iFromMin = (int) IndParam.NumParam[1].Value;
-            var iUntilHour = (int) IndParam.NumParam[2].Value;
-            var iUntilMin = (int) IndParam.NumParam[3].Value;
+            var fromHour = (int) IndParam.NumParam[0].Value;
+            var fromMin  = (int) IndParam.NumParam[1].Value;
+            var toHour   = (int) IndParam.NumParam[2].Value;
+            var toMin    = (int) IndParam.NumParam[3].Value;
 
-            string sFromTime = iFromHour.ToString("00") + ":" + iFromMin.ToString("00");
-            string sUntilTime = iUntilHour.ToString("00") + ":" + iUntilMin.ToString("00");
-            string sInterval = "(" + sFromTime + " - " + sUntilTime + ")";
+            string fromTime = fromHour.ToString("00") + ":" + fromMin.ToString("00");
+            string toTimne  = toHour.ToString("00") + ":" + toMin.ToString("00");
+            string interval = "(" + fromTime + " - " + toTimne + ")";
 
-            string sUpperTrade;
-            string sLowerTrade;
+            string upperTrade;
+            string lowerTrade;
 
-            if (iShift > 0)
+            if (shift > 0)
             {
-                sUpperTrade = iShift + " points above the ";
-                sLowerTrade = iShift + " points below the ";
+                upperTrade = shift + " points above the ";
+                lowerTrade = shift + " points below the ";
             }
-            else if (iShift == 0)
+            else if (shift == 0)
             {
                 if (IndParam.ListParam[0].Text == "Enter long at the hourly high" ||
                     IndParam.ListParam[0].Text == "Enter long at the hourly low" ||
                     IndParam.ListParam[0].Text == "Exit long at the hourly high" ||
                     IndParam.ListParam[0].Text == "Exit long at the hourly low")
                 {
-                    sUpperTrade = "at the ";
-                    sLowerTrade = "at the ";
+                    upperTrade = "at the ";
+                    lowerTrade = "at the ";
                 }
                 else
                 {
-                    sUpperTrade = "the ";
-                    sLowerTrade = "the ";
+                    upperTrade = "the ";
+                    lowerTrade = "the ";
                 }
             }
             else
             {
-                sUpperTrade = -iShift + " points below the ";
-                sLowerTrade = -iShift + " points above the ";
+                upperTrade = -shift + " points below the ";
+                lowerTrade = -shift + " points above the ";
             }
 
             switch (IndParam.ListParam[0].Text)
             {
                 case "Enter long at the hourly high":
-                    EntryPointLongDescription = sUpperTrade + "hourly high " + sInterval;
-                    EntryPointShortDescription = sLowerTrade + "hourly low " + sInterval;
+                    EntryPointLongDescription = upperTrade + "hourly high " + interval;
+                    EntryPointShortDescription = lowerTrade + "hourly low " + interval;
                     break;
                 case "Enter long at the hourly low":
-                    EntryPointLongDescription = sLowerTrade + "hourly low " + sInterval;
-                    EntryPointShortDescription = sUpperTrade + "hourly high " + sInterval;
+                    EntryPointLongDescription = lowerTrade + "hourly low " + interval;
+                    EntryPointShortDescription = upperTrade + "hourly high " + interval;
                     break;
                 case "Exit long at the hourly high":
-                    ExitPointLongDescription = sUpperTrade + "hourly high " + sInterval;
-                    ExitPointShortDescription = sLowerTrade + "hourly low " + sInterval;
+                    ExitPointLongDescription = upperTrade + "hourly high " + interval;
+                    ExitPointShortDescription = lowerTrade + "hourly low " + interval;
                     break;
                 case "Exit long at the hourly low":
-                    ExitPointLongDescription = sLowerTrade + "hourly low " + sInterval;
-                    ExitPointShortDescription = sUpperTrade + "hourly high " + sInterval;
+                    ExitPointLongDescription = lowerTrade + "hourly low " + interval;
+                    ExitPointShortDescription = upperTrade + "hourly high " + interval;
                     break;
 
                 case "The position opens below the hourly high":
-                    EntryFilterLongDescription = "the position opens lower than " + sUpperTrade + "hourly high " +
-                                                 sInterval;
-                    EntryFilterShortDescription = "the position opens higher than " + sLowerTrade + "hourly low " +
-                                                  sInterval;
+                    EntryFilterLongDescription = "the position opens lower than " + upperTrade + "hourly high " + interval;
+                    EntryFilterShortDescription = "the position opens higher than " + lowerTrade + "hourly low " + interval;
                     break;
                 case "The position opens above the hourly high":
-                    EntryFilterLongDescription = "the position opens higher than " + sUpperTrade + "hourly high " +
-                                                 sInterval;
-                    EntryFilterShortDescription = "the position opens lower than " + sLowerTrade + "hourly low " +
-                                                  sInterval;
+                    EntryFilterLongDescription = "the position opens higher than " + upperTrade + "hourly high " + interval;
+                    EntryFilterShortDescription = "the position opens lower than " + lowerTrade + "hourly low " + interval;
                     break;
                 case "The position opens below the hourly low":
-                    EntryFilterLongDescription = "the position opens lower than " + sLowerTrade + "hourly low " +
-                                                 sInterval;
-                    EntryFilterShortDescription = "the position opens higher than " + sUpperTrade + "hourly high " +
-                                                  sInterval;
+                    EntryFilterLongDescription = "the position opens lower than " + lowerTrade + "hourly low " + interval;
+                    EntryFilterShortDescription = "the position opens higher than " + upperTrade + "hourly high " + interval;
                     break;
                 case "The position opens above the hourly low":
-                    EntryFilterLongDescription = "the position opens higher than " + sLowerTrade + "hourly low " +
-                                                 sInterval;
-                    EntryFilterShortDescription = "the position opens lower than " + sUpperTrade + "hourly high " +
-                                                  sInterval;
+                    EntryFilterLongDescription = "the position opens higher than " + lowerTrade + "hourly low " + interval;
+                    EntryFilterShortDescription = "the position opens lower than " + upperTrade + "hourly high " + interval;
                     break;
 
                 case "The bar closes below the hourly high":
-                    ExitFilterLongDescription = "the bar closes lower than " + sUpperTrade + "hourly high " + sInterval;
-                    ExitFilterShortDescription = "the bar closes higher than " + sLowerTrade + "hourly low " + sInterval;
+                    ExitFilterLongDescription = "the bar closes lower than " + upperTrade + "hourly high " + interval;
+                    ExitFilterShortDescription = "the bar closes higher than " + lowerTrade + "hourly low " + interval;
                     break;
                 case "The bar closes above the hourly high":
-                    ExitFilterLongDescription = "the bar closes higher than " + sUpperTrade + "hourly high " + sInterval;
-                    ExitFilterShortDescription = "the bar closes lower than " + sLowerTrade + "hourly low " + sInterval;
+                    ExitFilterLongDescription = "the bar closes higher than " + upperTrade + "hourly high " + interval;
+                    ExitFilterShortDescription = "the bar closes lower than " + lowerTrade + "hourly low " + interval;
                     break;
                 case "The bar closes below the hourly low":
-                    ExitFilterLongDescription = "the bar closes lower than " + sLowerTrade + "hourly low " + sInterval;
-                    ExitFilterShortDescription = "the bar closes higher than " + sUpperTrade + "hourly high " +
-                                                 sInterval;
+                    ExitFilterLongDescription = "the bar closes lower than " + lowerTrade + "hourly low " + interval;
+                    ExitFilterShortDescription = "the bar closes higher than " + upperTrade + "hourly high " + interval;
                     break;
                 case "The bar closes above the hourly low":
-                    ExitFilterLongDescription = "the bar closes higher than " + sLowerTrade + "hourly low " + sInterval;
-                    ExitFilterShortDescription = "the bar closes lower than " + sUpperTrade + "hourly high " + sInterval;
+                    ExitFilterLongDescription = "the bar closes higher than " + lowerTrade + "hourly low " + interval;
+                    ExitFilterShortDescription = "the bar closes lower than " + upperTrade + "hourly high " + interval;
                     break;
             }
         }
 
         public override string ToString()
         {
-            var fromHour = (int) IndParam.NumParam[0].Value;
-            var fromMin = (int) IndParam.NumParam[1].Value;
-            var untilHour = (int) IndParam.NumParam[2].Value;
-            var untilMin = (int) IndParam.NumParam[3].Value;
+            var fromHour  = (int) IndParam.NumParam[0].Value;
+            var fromMin   = (int) IndParam.NumParam[1].Value;
+            var toHour = (int) IndParam.NumParam[2].Value;
+            var toMin  = (int) IndParam.NumParam[3].Value;
 
-            string fromTime = fromHour.ToString("00") + ":" + fromMin.ToString("00");
-            string untilTime = untilHour.ToString("00") + ":" + untilMin.ToString("00");
+            string fromTime  = fromHour.ToString("00")  + ":" + fromMin.ToString("00");
+            string toTime = toHour.ToString("00") + ":" + toMin.ToString("00");
 
             return IndicatorName + " (" +
                    fromTime + " - " + // Start time
-                   untilTime + ", " + // End time
+                   toTime + ", " + // End time
                    IndParam.NumParam[4].ValueToString + ")"; // Vertical shift
         }
     }
