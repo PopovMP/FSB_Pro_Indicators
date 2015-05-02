@@ -67,7 +67,7 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.NumParam[2].Enabled = true;
             IndParam.NumParam[2].ToolTip = "End of the entry period.";
 
-            IndParam.NumParam[3].Caption = "Until min( excl.)";
+            IndParam.NumParam[3].Caption = "Until min (excl.)";
             IndParam.NumParam[3].Value = 0;
             IndParam.NumParam[3].Min = 0;
             IndParam.NumParam[3].Max = 59;
