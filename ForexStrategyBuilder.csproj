@@ -1,0 +1,204 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{BB5C70DD-8457-42BE-AAF0-12B2DF36A0BD}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ForexStrategyBuilder</RootNamespace>
+    <AssemblyName>ForexStrategyBuilder</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>lib\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Drawing" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Indicators\Custom\AdaptiveMovingAverage.cs" />
+    <Compile Include="Indicators\Custom\AverageHighLowBand.cs" />
+    <Compile Include="Indicators\Custom\TripleMovingAverage.cs" />
+    <Compile Include="Indicators\Indicator.cs" />
+    <Compile Include="Indicators\IndicatorBaseCalc.cs" />
+    <Compile Include="Indicators\MainChartBandsIndicator.cs" />
+    <Compile Include="Indicators\MainChartSingleLineIndicator.cs" />
+    <Compile Include="Indicators\Store\AcceleratorOscillator.cs" />
+    <Compile Include="Indicators\Store\AccountPercentStop.cs" />
+    <Compile Include="Indicators\Store\AccumulationDistribution.cs" />
+    <Compile Include="Indicators\Store\ADX.cs" />
+    <Compile Include="Indicators\Store\Alligator.cs" />
+    <Compile Include="Indicators\Store\AroonHistogram.cs" />
+    <Compile Include="Indicators\Store\AtrMaOscillator.cs" />
+    <Compile Include="Indicators\Store\AtrStop.cs" />
+    <Compile Include="Indicators\Store\AverageTrueRange.cs" />
+    <Compile Include="Indicators\Store\AwesomeOscillator.cs" />
+    <Compile Include="Indicators\Store\BalanceOfPower.cs" />
+    <Compile Include="Indicators\Store\BarClosing.cs" />
+    <Compile Include="Indicators\Store\BarOpening.cs" />
+    <Compile Include="Indicators\Store\BarRange.cs" />
+    <Compile Include="Indicators\Store\BbpMaOscillator.cs" />
+    <Compile Include="Indicators\Store\BearsPower.cs" />
+    <Compile Include="Indicators\Store\BollingerBands.cs" />
+    <Compile Include="Indicators\Store\BullsBearsPower.cs" />
+    <Compile Include="Indicators\Store\BullsPower.cs" />
+    <Compile Include="Indicators\Store\CciMAOscillator.cs" />
+    <Compile Include="Indicators\Store\CloseAndReverse.cs" />
+    <Compile Include="Indicators\Store\CommodityChannelIndex.cs" />
+    <Compile Include="Indicators\Store\CumulativeSum.cs" />
+    <Compile Include="Indicators\Store\DataBarsFilter.cs" />
+    <Compile Include="Indicators\Store\DateFilter.cs" />
+    <Compile Include="Indicators\Store\DayClosing.cs" />
+    <Compile Include="Indicators\Store\DayClosing2.cs" />
+    <Compile Include="Indicators\Store\DayOpening.cs" />
+    <Compile Include="Indicators\Store\DaysOfWeek.cs" />
+    <Compile Include="Indicators\Store\DeMarker.cs" />
+    <Compile Include="Indicators\Store\DetrendedOscillator.cs" />
+    <Compile Include="Indicators\Store\DirectionalIndicators.cs" />
+    <Compile Include="Indicators\Store\DonchianChannel.cs" />
+    <Compile Include="Indicators\Store\EaseOfMovement.cs" />
+    <Compile Include="Indicators\Store\EnterOnce.cs" />
+    <Compile Include="Indicators\Store\EntryHour.cs" />
+    <Compile Include="Indicators\Store\EntryTime.cs" />
+    <Compile Include="Indicators\Store\Envelopes.cs" />
+    <Compile Include="Indicators\Store\ExitHour.cs" />
+    <Compile Include="Indicators\Store\FisherTransform.cs" />
+    <Compile Include="Indicators\Store\ForceIndex.cs" />
+    <Compile Include="Indicators\Store\Fractal.cs" />
+    <Compile Include="Indicators\Store\HeikenAshi.cs" />
+    <Compile Include="Indicators\Store\HourlyHighLow.cs" />
+    <Compile Include="Indicators\Store\IchimokuKinkoHyo.cs" />
+    <Compile Include="Indicators\Store\InsideBar.cs" />
+    <Compile Include="Indicators\Store\KeltnerChannel.cs" />
+    <Compile Include="Indicators\Store\LongOrShort.cs" />
+    <Compile Include="Indicators\Store\MACD.cs" />
+    <Compile Include="Indicators\Store\MACDHistogram.cs" />
+    <Compile Include="Indicators\Store\MAOscillator.cs" />
+    <Compile Include="Indicators\Store\MarketFacilitationIndex.cs" />
+    <Compile Include="Indicators\Store\Momentum.cs" />
+    <Compile Include="Indicators\Store\MomentumMAOscillator.cs" />
+    <Compile Include="Indicators\Store\MoneyFlow.cs" />
+    <Compile Include="Indicators\Store\MoneyFlowIndex.cs" />
+    <Compile Include="Indicators\Store\MovingAverage.cs" />
+    <Compile Include="Indicators\Store\MovingAveragesCrossover.cs" />
+    <Compile Include="Indicators\Store\NarrowRange.cs" />
+    <Compile Include="Indicators\Store\NBarsExit.cs" />
+    <Compile Include="Indicators\Store\ObosMaOscillator.cs" />
+    <Compile Include="Indicators\Store\OnBalanceVolume.cs" />
+    <Compile Include="Indicators\Store\OscillatorOfAtr.cs" />
+    <Compile Include="Indicators\Store\OscillatorOfBbp.cs" />
+    <Compile Include="Indicators\Store\OscillatorOfCci.cs" />
+    <Compile Include="Indicators\Store\OscillatorOfMACD.cs" />
+    <Compile Include="Indicators\Store\OscillatorOfMomentum.cs" />
+    <Compile Include="Indicators\Store\OscillatorOfObos.cs" />
+    <Compile Include="Indicators\Store\OscillatorOfRoc.cs" />
+    <Compile Include="Indicators\Store\OscillatorOfRsi.cs" />
+    <Compile Include="Indicators\Store\OscillatorOfTrix.cs" />
+    <Compile Include="Indicators\Store\OverboughtOversoldIndex.cs" />
+    <Compile Include="Indicators\Store\ParabolicSar.cs" />
+    <Compile Include="Indicators\Store\PercentChange.cs" />
+    <Compile Include="Indicators\Store\PivotPoints.cs" />
+    <Compile Include="Indicators\Store\PreviousBarClosing.cs" />
+    <Compile Include="Indicators\Store\PreviousBarOpening.cs" />
+    <Compile Include="Indicators\Store\PreviousHighLow.cs" />
+    <Compile Include="Indicators\Store\PriceMove.cs" />
+    <Compile Include="Indicators\Store\PriceOscillator.cs" />
+    <Compile Include="Indicators\Store\RandomFilter.cs" />
+    <Compile Include="Indicators\Store\RateOfChange.cs" />
+    <Compile Include="Indicators\Store\RelativeVigorIndex.cs" />
+    <Compile Include="Indicators\Store\RocMaOscillator.cs" />
+    <Compile Include="Indicators\Store\RossHook.cs" />
+    <Compile Include="Indicators\Store\RoundNumber.cs" />
+    <Compile Include="Indicators\Store\RSI.cs" />
+    <Compile Include="Indicators\Store\RsiMaOscillator.cs" />
+    <Compile Include="Indicators\Store\StandardDeviation.cs" />
+    <Compile Include="Indicators\Store\StarcBands.cs" />
+    <Compile Include="Indicators\Store\SteadyBands.cs" />
+    <Compile Include="Indicators\Store\Stochastics.cs" />
+    <Compile Include="Indicators\Store\StopLimit.cs" />
+    <Compile Include="Indicators\Store\StopLoss.cs" />
+    <Compile Include="Indicators\Store\TakeProfit.cs" />
+    <Compile Include="Indicators\Store\TopBottomPrice.cs" />
+    <Compile Include="Indicators\Store\TrailingStop.cs" />
+    <Compile Include="Indicators\Store\TrailingStopLimit.cs" />
+    <Compile Include="Indicators\Store\TrixIndex.cs" />
+    <Compile Include="Indicators\Store\TrixMAOscillator.cs" />
+    <Compile Include="Indicators\Store\WeekClosing.cs" />
+    <Compile Include="Indicators\Store\WeekClosing2.cs" />
+    <Compile Include="Indicators\Store\WilliamsPercentRange.cs" />
+    <Compile Include="Infrastructure\Entities\Bar.cs" />
+    <Compile Include="Infrastructure\Entities\CheckParam.cs" />
+    <Compile Include="Infrastructure\Entities\DataId.cs" />
+    <Compile Include="Infrastructure\Entities\DataParams.cs" />
+    <Compile Include="Infrastructure\Entities\DataSet.cs" />
+    <Compile Include="Infrastructure\Entities\DataSource.cs" />
+    <Compile Include="Infrastructure\Entities\DataStats.cs" />
+    <Compile Include="Infrastructure\Entities\IndicatorComp.cs" />
+    <Compile Include="Infrastructure\Entities\IndicatorParam.cs" />
+    <Compile Include="Infrastructure\Entities\InfoRecord.cs" />
+    <Compile Include="Infrastructure\Entities\InstrumentProperties.cs" />
+    <Compile Include="Infrastructure\Entities\ListParam.cs" />
+    <Compile Include="Infrastructure\Entities\NumericParam.cs" />
+    <Compile Include="Infrastructure\Enums\BandIndLogic.cs" />
+    <Compile Include="Infrastructure\Enums\BasePrice.cs" />
+    <Compile Include="Infrastructure\Enums\CommissionScope.cs" />
+    <Compile Include="Infrastructure\Enums\CommissionTime.cs" />
+    <Compile Include="Infrastructure\Enums\CommissionType.cs" />
+    <Compile Include="Infrastructure\Enums\DataPeriod.cs" />
+    <Compile Include="Infrastructure\Enums\ExecutionTime.cs" />
+    <Compile Include="Infrastructure\Enums\IndChartType.cs" />
+    <Compile Include="Infrastructure\Enums\IndComponentType.cs" />
+    <Compile Include="Infrastructure\Enums\IndicatorLogic.cs" />
+    <Compile Include="Infrastructure\Enums\InfoRecordFlag.cs" />
+    <Compile Include="Infrastructure\Enums\InstrumentType.cs" />
+    <Compile Include="Infrastructure\Enums\MAMethod.cs" />
+    <Compile Include="Infrastructure\Enums\PositionPriceDependence.cs" />
+    <Compile Include="Infrastructure\Enums\SlotTypes.cs" />
+    <Compile Include="Infrastructure\Enums\TypeOfIndicator.cs" />
+    <Compile Include="Infrastructure\Interfaces\IDataSet.cs" />
+    <Compile Include="Infrastructure\Interfaces\IDataSource.cs" />
+    <Compile Include="Infrastructure\Interfaces\IIndicator.cs" />
+    <Compile Include="Infrastructure\Interfaces\IIndicatorParam.cs" />
+    <Compile Include="Infrastructure\Interfaces\IInstrumentProperties.cs" />
+    <Compile Include="Infrastructure\Interfaces\ITranslationManager.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\DataLoader.cs" />
+    <Compile Include="Services\DataParser.cs" />
+    <Compile Include="Services\IndicatorTester.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
