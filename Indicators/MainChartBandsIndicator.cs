@@ -460,18 +460,5 @@ namespace ForexStrategyBuilder.Indicators
                     break;
             }
         }
-
-        public override string ToString()
-        {
-            var name = IndicatorName + (IndParam.CheckParam[0].Checked ? "* " : " ");
-            var parameters = "(";
-            for (int i = 1; i < 5; i++)
-                if (IndParam.ListParam[i].Enabled)
-                    parameters += IndParam.ListParam[i].Text + ", ";
-            for (int i = 0; i < 6; i++)
-                if (IndParam.NumParam[i].Enabled)
-                    parameters += IndParam.NumParam[i].Value + ", ";
-            return name + parameters.Substring(0, parameters.Length - 2) + ")";
-        }
     }
 }
