@@ -29,16 +29,17 @@ namespace ForexStrategyBuilder.Indicators.Custom
         {
             base.Initialize(slotType);
 
-            // List parameters
+            // Sets default smoothing method - Smoothed
             IndParam.ListParam[1].Index = (int) MAMethod.Smoothed;
             IndParam.ListParam[1].Text  = MAMethod.Smoothed.ToString();
 
+            // Sets default base price - Median (High + Low) / 2
             IndParam.ListParam[2].Index = (int) BasePrice.Median;
             IndParam.ListParam[2].Text  = BasePrice.Median.ToString();
 
-            // Adds two numeric parameters more
-            IndParam.NumParam[0].Value = 13; // Default period
-            IndParam.NumParam[1].Value = 8;  // Default shift
+            // Sets default period and shift
+            IndParam.NumParam[0].Value = 13;
+            IndParam.NumParam[1].Value = 8;
         }
 
         public override void Calculate(IDataSet dataSet)
