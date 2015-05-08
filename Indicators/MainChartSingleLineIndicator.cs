@@ -22,6 +22,7 @@ namespace ForexStrategyBuilder.Indicators
         protected BasePrice IndicatorBasePrice { get; set; }
         protected MAMethod  IndicatorMaMethod  { get; set; }
         protected int       IndicatorPeriod    { get; set; }
+        protected int       IndicatorShift     { get; set; }
         protected bool      UsePreviousBar     { get; set; }
 
         // Indicator values
@@ -108,6 +109,13 @@ namespace ForexStrategyBuilder.Indicators
             IndParam.NumParam[0].Enabled = true;
             IndParam.NumParam[0].ToolTip = "The indicator period.";
 
+            IndParam.NumParam[1].Caption = "Shift";
+            IndParam.NumParam[1].Value   = 0;
+            IndParam.NumParam[1].Min     = 0;
+            IndParam.NumParam[1].Max     = 200;
+            IndParam.NumParam[1].Enabled = true;
+            IndParam.NumParam[1].ToolTip = "The indicator shift in bars.";
+
             // The CheckBox parameters
             IndParam.CheckParam[0].Caption = "Use previous bar value";
             IndParam.CheckParam[0].Enabled = true;
@@ -122,6 +130,7 @@ namespace ForexStrategyBuilder.Indicators
             IndicatorMaMethod  = (MAMethod)IndParam.ListParam[1].Index;
             IndicatorBasePrice = (BasePrice)IndParam.ListParam[2].Index;
             IndicatorPeriod    = (int)IndParam.NumParam[0].Value;
+            IndicatorShift     = (int)IndParam.NumParam[1].Value;
             UsePreviousBar     = IndParam.CheckParam[0].Checked;
 
             // TimeExecution
@@ -136,7 +145,7 @@ namespace ForexStrategyBuilder.Indicators
                 IndParam.ExecutionTime = ExecutionTime.DuringTheBar;
 
             // Initilaization
-            FirstBar = IndicatorPeriod + 2;
+            FirstBar = IndicatorPeriod + IndicatorShift + 2;
             IndicatorLine = new double[Bars];
         }
 

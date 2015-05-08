@@ -40,10 +40,10 @@ namespace ForexStrategyBuilder.Indicators.Custom
             double[] emaOfEma = MovingAverage(IndicatorPeriod, 0, IndicatorMaMethod, ema);
             double[] emaOfEmaOfEma = MovingAverage(IndicatorPeriod, 0, IndicatorMaMethod, emaOfEma);
 
-            for (int bar = 0; bar < Bars; bar++)
-                IndicatorLine[bar] = 3*ema[bar] - 3*emaOfEma[bar] + emaOfEmaOfEma[bar];
+            for (int bar = 0; bar < Bars - IndicatorShift; bar++)
+                IndicatorLine[bar + IndicatorShift] = 3*ema[bar] - 3*emaOfEma[bar] + emaOfEmaOfEma[bar];
 
-            FirstBar = 3*IndicatorPeriod + 2;
+            FirstBar = 3*IndicatorPeriod + IndicatorShift + 2;
 
             PostCalculation();
         }
