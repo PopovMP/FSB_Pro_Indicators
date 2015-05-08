@@ -34,7 +34,7 @@ namespace ForexStrategyBuilder.Indicators.Custom
             IndParam.ListParam[1].Text  = MAMethod.Smoothed.ToString();
 
             // Adds two numeric parameters more
-            IndParam.NumParam[0].Value = 15; // Deafult period
+            IndParam.NumParam[0].Value = 15; // Default period
             IndParam.NumParam[1].Value = 8;  // Default shift
         }
 
