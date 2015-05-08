@@ -33,8 +33,11 @@ namespace ForexStrategyBuilder.Indicators.Custom
             IndParam.ListParam[1].Index = (int) MAMethod.Smoothed;
             IndParam.ListParam[1].Text  = MAMethod.Smoothed.ToString();
 
+            IndParam.ListParam[2].Index = (int) BasePrice.Median;
+            IndParam.ListParam[2].Text  = BasePrice.Median.ToString();
+
             // Adds two numeric parameters more
-            IndParam.NumParam[0].Value = 15; // Default period
+            IndParam.NumParam[0].Value = 13; // Default period
             IndParam.NumParam[1].Value = 8;  // Default shift
         }
 
