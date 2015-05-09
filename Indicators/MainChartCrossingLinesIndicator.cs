@@ -66,14 +66,14 @@ namespace ForexStrategyBuilder.Indicators
             IndParam.ListParam[2].Caption  = "Fast line smoothing";
             IndParam.ListParam[2].ItemList = Enum.GetNames(typeof(MAMethod));
             IndParam.ListParam[2].Index    = (int)MAMethod.Simple;
-            IndParam.ListParam[2].Text     = IndParam.ListParam[3].ItemList[IndParam.ListParam[3].Index];
+            IndParam.ListParam[2].Text     = IndParam.ListParam[2].ItemList[IndParam.ListParam[2].Index];
             IndParam.ListParam[2].Enabled  = true;
             IndParam.ListParam[2].ToolTip  = "Smoothing method for Fast line.";
 
             IndParam.ListParam[3].Caption  = "Slow line smoothing";
             IndParam.ListParam[3].ItemList = Enum.GetNames(typeof(MAMethod));
             IndParam.ListParam[3].Index    = (int)MAMethod.Simple;
-            IndParam.ListParam[3].Text     = IndParam.ListParam[4].ItemList[IndParam.ListParam[4].Index];
+            IndParam.ListParam[3].Text     = IndParam.ListParam[3].ItemList[IndParam.ListParam[3].Index];
             IndParam.ListParam[3].Enabled  = true;
             IndParam.ListParam[3].ToolTip  = "Smoothing method for Slow line.";
 
