@@ -65,19 +65,20 @@ namespace ForexStrategyBuilder.Indicators
 
         private double[] NormalizeComponentValue(double[] componentValue, DateTime[] strategyTime)
         {
-            var value = new double[strategyTime.Length];
+            var strategyBars = strategyTime.Length;
+            var value = new double[strategyBars];
             int reachedBar = 0;
-            for (int htfBar = 0; htfBar < DataSet.Time.Length; htfBar++)
+            for (int ltfBar = 1; ltfBar < DataSet.Time.Length; ltfBar++)
             {
-                DateTime htfOpenTime = DataSet.Time[htfBar];
-                DateTime htfCloseTime = htfOpenTime.AddMinutes((int) DataSet.DataParams.Period);
-                for (int bar = reachedBar; bar < strategyTime.Length; bar++)
+                DateTime ltfOpenTime = DataSet.Time[ltfBar];
+                DateTime ltfCloseTime = ltfOpenTime.AddMinutes((int)DataSet.DataParams.Period);
+                for (int bar = reachedBar; bar < strategyBars; bar++)
                 {
                     reachedBar = bar;
                     DateTime time = strategyTime[bar];
-                    if (time >= htfOpenTime && time < htfCloseTime)
-                        value[bar] = componentValue[htfBar];
-                    else if (time >= htfCloseTime)
+                    if (time >= ltfOpenTime && time < ltfCloseTime)
+                        value[bar] = componentValue[ltfBar - 1];
+                    else if (time >= ltfCloseTime)
                         break;
                 }
             }
