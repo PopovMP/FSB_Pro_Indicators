@@ -35,18 +35,7 @@ namespace ForexStrategyBuilder.Infrastructure.Interfaces
         DataParams DataParams { get; set; }
         DateTime ServerTime { get; }
         string LoadingNote { get; set; }
-        bool IsLoadingErrors { get; set; }
 
         void UpdateBar(int index, Bar bar);
-        void SetBidAsk(double bid, double ask);
-        void SetServerTime(DateTime time);
-        void ResetData(int barsCount);
-        void AddOrUpdate(Bar bar, int length);
-        IDataSet GetClone();
-
-        DataStats CalculateStats();
-        string ToCsvString();
-        DateTime Updated { get; }
-        Bar Bar(int bar);
     }
 }

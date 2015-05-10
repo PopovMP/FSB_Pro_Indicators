@@ -62,29 +62,24 @@ namespace ForexStrategyBuilder.Services
             Console.WriteLine("Slot type: {0}", indicator.IndParam.SlotType);
             Console.WriteLine("Logic rule: {0}", indicator.IndParam.ListParam[0].Text);
 
-            for (int i = 0; i < indicator.Component.Length; i++)
+            foreach (IndicatorComp component in indicator.Component)
             {
-                if(indicator.Component[i] == null) continue;
-
-                IndComponentType type = indicator.Component[i].DataType;
-
-                int bars = indicator.Component[i].Value.Length;
-                string name = indicator.Component[i].CompName;
-                double value = indicator.Component[i].Value[bars - 1];
+                if(component == null) continue;
+                IndComponentType type = component.DataType;
+                int bars = component.Value.Length;
+                string name = component.CompName;
+                double value = component.Value[bars - 1];
 
                 double val = Math.Abs(value);
                 string format = val < 10 ? "F5" : val < 100 ? "F4" : val < 1000 ? "F3" : val < 10000 ? "F2" : val < 100000 ? "F1" : "F0";
-                if (indicator.Component[i].ShowInDynInfo)
-                {
-                    if (type == IndComponentType.AllowOpenLong || type == IndComponentType.AllowOpenShort ||
-                       type == IndComponentType.ForceClose || type == IndComponentType.ForceCloseLong ||
-                       type == IndComponentType.ForceCloseShort)
-                        Console.WriteLine("{0}: {1}   ", name,  (value < 1 ? "No" : "Yes"));
-                    else
-                        Console.WriteLine("{0}: {1}", name, value.ToString(format));
-                }
+                if (!component.ShowInDynInfo) continue;
+                if (type == IndComponentType.AllowOpenLong || type == IndComponentType.AllowOpenShort ||
+                    type == IndComponentType.ForceClose || type == IndComponentType.ForceCloseLong ||
+                    type == IndComponentType.ForceCloseShort)
+                    Console.WriteLine("{0}: {1}   ", name,  (value < 1 ? "No" : "Yes"));
+                else
+                    Console.WriteLine("{0}: {1}", name, value.ToString(format));
             }
-
 
             Console.WriteLine();
         }
