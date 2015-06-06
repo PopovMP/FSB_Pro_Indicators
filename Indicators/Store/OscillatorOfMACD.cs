@@ -157,9 +157,6 @@ namespace ForexStrategyBuilder.Indicators.Store
 
             // Calculation
             int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
-            var period1 = (int) IndParam.NumParam[0].Value;
-            var period2 = (int) IndParam.NumParam[1].Value;
-            int firstBar = period1 + period2 + 2;
             double[] adIndicator1;
             double[] adIndicator2;
 
@@ -178,6 +175,16 @@ namespace ForexStrategyBuilder.Indicators.Store
                     adIndicator2 = macd2.Component[2].Value;
                     break;
             }
+
+            int firstBar = 0;
+            for (int c = 0; c < macd1.Component.Length; c++)
+            {
+                if (firstBar < macd1.Component[c].FirstBar)
+                    firstBar = macd1.Component[c].FirstBar;
+                if (firstBar < macd2.Component[c].FirstBar)
+                    firstBar = macd2.Component[c].FirstBar;
+            }
+            firstBar += 3;
 
             var adOscillator = new double[Bars];
             for (int bar = firstBar; bar < Bars; bar++)

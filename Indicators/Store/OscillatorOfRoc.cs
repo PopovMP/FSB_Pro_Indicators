@@ -93,12 +93,9 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            var period1 = (int) IndParam.NumParam[0].Value;
-            var period2 = (int) IndParam.NumParam[1].Value;
             int prvs = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
-            int firstBar = period1 + period2 + 2;
             var adOscillator = new double[Bars];
 
 // ---------------------------------------------------------
@@ -121,6 +118,16 @@ namespace ForexStrategyBuilder.Indicators.Store
             double[] adIndicator1 = roc1.Component[0].Value;
             double[] adIndicator2 = roc2.Component[0].Value;
 // ----------------------------------------------------------
+
+            int firstBar = 0;
+            for (int c = 0; c < roc1.Component.Length; c++)
+            {
+                if (firstBar < roc1.Component[c].FirstBar)
+                    firstBar = roc1.Component[c].FirstBar;
+                if (firstBar < roc2.Component[c].FirstBar)
+                    firstBar = roc2.Component[c].FirstBar;
+            }
+            firstBar += 3;
 
             for (int bar = firstBar; bar < Bars; bar++)
             {
