@@ -38,7 +38,7 @@ namespace ForexStrategyBuilder
             }
 
             // Create an indicator for testing
-            IIndicator indicator = new AdaptiveMovingAverage();
+            IIndicator indicator = new PriceMARelation();
 
             tester.CalculateIndicatorWithRandomParameters(indicator, dataSet, 25);
 
