@@ -41,18 +41,10 @@
     <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Indicators\Custom\AdaptiveMovingAverage.cs" />
-    <Compile Include="Indicators\Custom\AlligatorJaw.cs" />
-    <Compile Include="Indicators\Custom\AverageHighLowBand.cs" />
     <Compile Include="Indicators\Custom\PriceMARelation.cs" />
     <Compile Include="Indicators\Custom\CandleColor.cs" />
-    <Compile Include="Indicators\Custom\TripleMovingAverage.cs" />
-    <Compile Include="Indicators\Custom\TwoLinesCrossover.cs" />
     <Compile Include="Indicators\Indicator.cs" />
     <Compile Include="Indicators\IndicatorBaseCalc.cs" />
-    <Compile Include="Indicators\MainChartBandsIndicator.cs" />
-    <Compile Include="Indicators\MainChartCrossingLinesIndicator.cs" />
-    <Compile Include="Indicators\MainChartSingleLineIndicator.cs" />
     <Compile Include="Indicators\Store\AcceleratorOscillator.cs" />
     <Compile Include="Indicators\Store\AccountPercentStop.cs" />
     <Compile Include="Indicators\Store\AccumulationDistribution.cs" />
