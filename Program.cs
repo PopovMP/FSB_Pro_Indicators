@@ -38,7 +38,7 @@ namespace ForexStrategyBuilder
             }
 
             // Create an indicator for testing
-            IIndicator indicator = new PriceMARelation();
+            IIndicator indicator = new TimePriceChannel();
 
             tester.CalculateIndicatorWithRandomParameters(indicator, dataSet, 25);
 

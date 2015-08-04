@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="Indicators\Custom\PriceMARelation.cs" />
     <Compile Include="Indicators\Custom\CandleColor.cs" />
+    <Compile Include="Indicators\Custom\TimePriceChannel.cs" />
     <Compile Include="Indicators\Indicator.cs" />
     <Compile Include="Indicators\IndicatorBaseCalc.cs" />
     <Compile Include="Indicators\Store\AcceleratorOscillator.cs" />
