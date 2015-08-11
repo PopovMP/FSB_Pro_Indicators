@@ -38,7 +38,7 @@ namespace ForexStrategyBuilder
             }
 
             // Create an indicator for testing
-            IIndicator indicator = new TimePriceChannel();
+            IIndicator indicator = new OpenCloseGap();
 
             tester.CalculateIndicatorWithRandomParameters(indicator, dataSet, 25);
 
