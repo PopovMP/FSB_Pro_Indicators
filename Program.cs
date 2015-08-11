@@ -38,7 +38,7 @@ namespace ForexStrategyBuilder
             }
 
             // Create an indicator for testing
-            IIndicator indicator = new OpenCloseGap();
+            IIndicator indicator = new ExitTime();
 
             tester.CalculateIndicatorWithRandomParameters(indicator, dataSet, 25);
 
