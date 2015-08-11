@@ -23,6 +23,8 @@ namespace ForexStrategyBuilder.Indicators.Custom
             IndicatorName = "Open Close Gap";
             PossibleSlots = SlotTypes.OpenFilter;
             SeparatedChart = true;
+            IsDeafultGroupAll = true;
+            IsGeneratable = false;
 
             IndicatorAuthor = "Miroslav Popov";
             IndicatorVersion = "1.0";
@@ -158,8 +160,8 @@ namespace ForexStrategyBuilder.Indicators.Custom
             string posGapText = gapLimit.ToString(CultureInfo.InvariantCulture);
             string negGapText = (-gapLimit).ToString(CultureInfo.InvariantCulture);
 
-            EntryFilterLongDescription = "Open Close gap ";
-            EntryFilterShortDescription = "Open Close gap ";
+            EntryFilterLongDescription = "Open Close Gap ";
+            EntryFilterShortDescription = "Open Close Gap ";
 
             if (IndParam.ListParam[0].Text == "Do not trade on gap")
             {
