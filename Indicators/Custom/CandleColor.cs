@@ -24,8 +24,8 @@ namespace ForexStrategyBuilder.Indicators.Custom
             PossibleSlots = SlotTypes.OpenFilter | SlotTypes.CloseFilter;
 
             IndicatorAuthor = "Miroslav Popov";
-            IndicatorVersion = "1";
-            IndicatorDescription = "Detects white and black candles.";
+            IndicatorVersion = "1.1";
+            IndicatorDescription = "Detects bullish and bearish candles.";
         }
 
         public override void Initialize(SlotTypes slotType)
@@ -36,8 +36,8 @@ namespace ForexStrategyBuilder.Indicators.Custom
             IndParam.ListParam[0].Caption = "Logic";
             IndParam.ListParam[0].ItemList = new[]
             {
-                "White Candle formed",
-                "Black Candle formed"
+                "Bullish Candle formed",
+                "Bearish Candle formed"
             };
             IndParam.ListParam[0].Index = 0;
             IndParam.ListParam[0].Text = IndParam.ListParam[0].ItemList[IndParam.ListParam[0].Index];
@@ -127,13 +127,13 @@ namespace ForexStrategyBuilder.Indicators.Custom
                 Component[1].CompName = "Close out short position";
             }
 
-            if(IndParam.ListParam[0].Text == "White Candle formed")
+            if(IndParam.ListParam[0].Text == "Bullish Candle formed")
                 for (int b = firstBar; b < Bars; b++)
                 {
                     Component[0].Value[b] = whiteCandles[b] >= consecutive ? 1 : 0;
                     Component[1].Value[b] = blackCandles[b] >= consecutive ? 1 : 0;
                 }
-            else if(IndParam.ListParam[0].Text == "Black Candle formed")
+            else if(IndParam.ListParam[0].Text == "Bearish Candle formed")
                 for (int b = firstBar; b < Bars; b++)
                 {
                     Component[1].Value[b] = whiteCandles[b] >= consecutive ? 1 : 0;
@@ -145,22 +145,22 @@ namespace ForexStrategyBuilder.Indicators.Custom
         {
             var consecutive = (int) IndParam.NumParam[1].Value;
             string white = consecutive == 1
-                ? "a white candle is formed"
-                : consecutive + " white candles are formed";
+                ? "a bullish candle is formed"
+                : consecutive + " bullish candles are formed";
             string black = consecutive == 1
-                ? "a black candle is formed"
-                : consecutive + " black candles are formed";
+                ? "a bearish candle is formed"
+                : consecutive + " bearish candles are formed";
 
             switch (IndParam.ListParam[0].Text)
             {
-                case "White Candle formed":
+                case "Bullish Candle formed":
                     EntryFilterLongDescription  = white;
                     EntryFilterShortDescription = black;
                     ExitFilterLongDescription   = white;
                     ExitFilterShortDescription  = black;
                     break;
 
-                case "Black Candle formed":
+                case "Bearish Candle formed":
                     EntryFilterLongDescription  = black;
                     EntryFilterShortDescription = white;
                     ExitFilterLongDescription   = black;
