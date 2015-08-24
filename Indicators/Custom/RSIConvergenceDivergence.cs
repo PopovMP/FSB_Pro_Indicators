@@ -52,10 +52,10 @@ namespace ForexStrategyBuilder.Indicators.Custom
             IndParam.ListParam[1].Enabled = true;
             IndParam.ListParam[1].ToolTip = "The Moving Average method used for smoothing RSI value.";
 
-            IndParam.ListParam[2].Caption = "RSI Base price";
-            IndParam.ListParam[2].ItemList = new[] {"Close"};
-            IndParam.ListParam[2].Index = 0;
-            IndParam.ListParam[2].Text = "Close";
+            IndParam.ListParam[2].Caption = "Base price";
+            IndParam.ListParam[2].ItemList = Enum.GetNames(typeof(BasePrice));
+            IndParam.ListParam[2].Index = (int)BasePrice.Close;
+            IndParam.ListParam[2].Text = IndParam.ListParam[2].ItemList[IndParam.ListParam[2].Index];
             IndParam.ListParam[2].Enabled = true;
             IndParam.ListParam[2].ToolTip = "The price RSI is based on.";
 

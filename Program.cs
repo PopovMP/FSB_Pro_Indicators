@@ -9,6 +9,7 @@
 //==============================================================
 
 using System;
+using System.Text;
 using ForexStrategyBuilder.Indicators.Custom;
 using ForexStrategyBuilder.Indicators.Store;
 using ForexStrategyBuilder.Infrastructure.Enums;
@@ -38,13 +39,30 @@ namespace ForexStrategyBuilder
             }
 
             // Create an indicator for testing
-            IIndicator indicator = new ExitTime();
+            IIndicator indicator = new RSIConvergenceDivergence();
+            indicator.Initialize(SlotTypes.OpenFilter);
+            indicator.Calculate(dataSet);
 
-            tester.CalculateIndicatorWithRandomParameters(indicator, dataSet, 25);
+            // Print first values
+            PrintFirstValues(indicator, 0, 50);
+
+            // Calculate indicator with random parameters for all available slots.
+            //tester.CalculateIndicatorWithRandomParameters(indicator, dataSet, 25);
 
             Console.WriteLine("Test completed without errors.");
             Console.WriteLine("Press a key to continue!");
             Console.ReadKey();
+        }
+
+        private static void PrintFirstValues(IIndicator indicator, int componentIndex, int countOfValuesToPrint)
+        {
+            int firstBar = indicator.Component[componentIndex].FirstBar;
+            var sb = new StringBuilder();
+            sb.AppendLine("bar        value");
+            sb.AppendLine("--------------------------");
+            for (int bar = firstBar; bar < firstBar + countOfValuesToPrint; bar++)
+                sb.AppendLine(bar + "    : " + indicator.Component[componentIndex].Value[bar]);
+            Console.WriteLine(sb.ToString());
         }
     }
 }
