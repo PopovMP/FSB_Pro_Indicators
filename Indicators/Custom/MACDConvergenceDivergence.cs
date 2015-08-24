@@ -64,12 +64,19 @@ namespace ForexStrategyBuilder.Indicators.Custom
             IndParam.NumParam[1].Enabled = true;
             IndParam.NumParam[1].ToolTip = "The period of Fast MA.";
 
-            IndParam.NumParam[2].Caption = "Reference MA period";
-            IndParam.NumParam[2].Value = 14;
+            IndParam.NumParam[2].Caption = "Signal line period";
+            IndParam.NumParam[2].Value = 9;
             IndParam.NumParam[2].Min = 1;
             IndParam.NumParam[2].Max = 200;
             IndParam.NumParam[2].Enabled = true;
-            IndParam.NumParam[2].ToolTip = "Convergence/divergence reference MA period.";
+            IndParam.NumParam[2].ToolTip = "The period of Signal line.";
+
+            IndParam.NumParam[3].Caption = "Reference MA period";
+            IndParam.NumParam[3].Value = 14;
+            IndParam.NumParam[3].Min = 1;
+            IndParam.NumParam[3].Max = 200;
+            IndParam.NumParam[3].Enabled = true;
+            IndParam.NumParam[3].ToolTip = "Convergence/divergence reference MA period.";
 
             // The CheckBox parameters
             IndParam.CheckParam[0].Caption = "Use previous bar value";
@@ -82,7 +89,7 @@ namespace ForexStrategyBuilder.Indicators.Custom
             DataSet = dataSet;
 
             // Reading the parameters
-            var referencePeriod = (int)IndParam.NumParam[2].Value;
+            var referencePeriod = (int)IndParam.NumParam[3].Value;
             int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
@@ -92,8 +99,10 @@ namespace ForexStrategyBuilder.Indicators.Custom
             macd.Initialize(SlotType);
             macd.IndParam.ListParam[1].Index = IndParam.ListParam[1].Index;
             macd.IndParam.ListParam[2].Index = IndParam.ListParam[2].Index;
+            macd.IndParam.ListParam[3].Index = 0;
             macd.IndParam.NumParam[0].Value = IndParam.NumParam[0].Value;
             macd.IndParam.NumParam[1].Value = IndParam.NumParam[1].Value;
+            macd.IndParam.NumParam[2].Value = IndParam.NumParam[2].Value;
             macd.IndParam.CheckParam[0].Checked = IndParam.CheckParam[0].Checked;
             macd.Calculate(DataSet);
 
@@ -116,7 +125,7 @@ namespace ForexStrategyBuilder.Indicators.Custom
 
             Component[0] = new IndicatorComp
             {
-                CompName = "MACD",
+                CompName = "MACD Histogram",
                 DataType = IndComponentType.IndicatorValue,
                 ChartType = IndChartType.Line,
                 ChartColor = Color.RoyalBlue,
@@ -167,7 +176,7 @@ namespace ForexStrategyBuilder.Indicators.Custom
 
         public override void SetDescription()
         {
-            var logic = "There is a " + IndParam.ListParam[0].Text + " between the market's MA and indicator's MA";
+            var logic = "There is a " + IndParam.ListParam[0].Text + " between the market's MA and the indicator's MA";
             EntryFilterLongDescription = logic;
             EntryFilterShortDescription = logic;
             ExitFilterLongDescription = logic;

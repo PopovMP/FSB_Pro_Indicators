@@ -178,7 +178,7 @@ namespace ForexStrategyBuilder.Indicators.Custom
 
         public override void SetDescription()
         {
-            var logic = "There is a " + IndParam.ListParam[0].Text + " between the market's MA and indicator's MA";
+            var logic = "There is a " + IndParam.ListParam[0].Text + " between the market's MA and the indicator's MA";
             EntryFilterLongDescription = logic;
             EntryFilterShortDescription = logic;
             ExitFilterLongDescription = logic;
