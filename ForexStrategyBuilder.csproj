@@ -41,10 +41,12 @@
     <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Indicators\Custom\CCIConvergenceDivergence.cs" />
     <Compile Include="Indicators\Custom\ExitTime.cs" />
     <Compile Include="Indicators\Custom\OpenCloseGap.cs" />
     <Compile Include="Indicators\Custom\PriceMARelation.cs" />
     <Compile Include="Indicators\Custom\CandleColor.cs" />
+    <Compile Include="Indicators\Custom\RSIConvergenceDivergence.cs" />
     <Compile Include="Indicators\Custom\TimePriceChannel.cs" />
     <Compile Include="Indicators\Indicator.cs" />
     <Compile Include="Indicators\IndicatorBaseCalc.cs" />
