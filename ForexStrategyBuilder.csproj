@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="Indicators\Custom\CCIConvergenceDivergence.cs" />
     <Compile Include="Indicators\Custom\ExitTime.cs" />
+    <Compile Include="Indicators\Custom\MACDConvergenceDivergence.cs" />
     <Compile Include="Indicators\Custom\OpenCloseGap.cs" />
     <Compile Include="Indicators\Custom\PriceMARelation.cs" />
     <Compile Include="Indicators\Custom\CandleColor.cs" />

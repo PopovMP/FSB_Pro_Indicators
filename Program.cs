@@ -39,7 +39,7 @@ namespace ForexStrategyBuilder
             }
 
             // Create an indicator for testing
-            IIndicator indicator = new RSIConvergenceDivergence();
+            IIndicator indicator = new MACDConvergenceDivergence();
             indicator.Initialize(SlotTypes.OpenFilter);
             indicator.Calculate(dataSet);
 
@@ -47,7 +47,7 @@ namespace ForexStrategyBuilder
             PrintFirstValues(indicator, 0, 50);
 
             // Calculate indicator with random parameters for all available slots.
-            //tester.CalculateIndicatorWithRandomParameters(indicator, dataSet, 25);
+            tester.CalculateIndicatorWithRandomParameters(indicator, dataSet, 25);
 
             Console.WriteLine("Test completed without errors.");
             Console.WriteLine("Press a key to continue!");
