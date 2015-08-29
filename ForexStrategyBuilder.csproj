@@ -193,7 +193,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\DataLoader.cs" />
     <Compile Include="Services\DataParser.cs" />
+    <Compile Include="Services\DocGenerator.cs" />
     <Compile Include="Services\IndicatorTester.cs" />
+    <Compile Include="Services\Repository.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
