@@ -85,6 +85,7 @@ namespace ForexStrategyBuilder.Indicators.Custom
             DataSet = dataSet;
 
             // Reading the parameters
+            var basePrice = (BasePrice) IndParam.ListParam[2].Index;
             var referencePeriod = (int) IndParam.NumParam[1].Value;
             int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
@@ -100,7 +101,7 @@ namespace ForexStrategyBuilder.Indicators.Custom
             rsi.Calculate(DataSet);
 
             double[] indicatorMa = MovingAverage(referencePeriod, previous, MAMethod.Simple, rsi.Component[0].Value);
-            double[] marketMa = MovingAverage(referencePeriod, previous, MAMethod.Simple, Close);
+            double[] marketMa = MovingAverage(referencePeriod, previous, MAMethod.Simple, Price(basePrice));
             // ----------------------------------------------------------
 
             int firstBar = rsi.Component[0].FirstBar + referencePeriod + 2;
