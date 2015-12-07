@@ -41,6 +41,7 @@
     <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Indicators\Custom\CCIBuySellZones.cs" />
     <Compile Include="Indicators\Custom\CCIConvergenceDivergence.cs" />
     <Compile Include="Indicators\Custom\ExitTime.cs" />
     <Compile Include="Indicators\Custom\MACDConvergenceDivergence.cs" />

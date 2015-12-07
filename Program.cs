@@ -42,7 +42,7 @@ namespace ForexStrategyBuilder
             }
 
             // Create an indicator for testing
-            IIndicator indicator = new PreviousHighLow();
+            IIndicator indicator = new CCIBuySellZones();
             indicator.Initialize(SlotTypes.Open);
             indicator.Calculate(dataSet);
 
