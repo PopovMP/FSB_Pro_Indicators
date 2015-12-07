@@ -25,32 +25,32 @@ namespace ForexStrategyBuilder
             var doc = new DocGenerator();
             doc.GenerateDocs();
 
-            //DataLoader dataLoader = new DataLoader();
-            //IndicatorTester tester = new IndicatorTester();
+            DataLoader dataLoader = new DataLoader();
+            IndicatorTester tester = new IndicatorTester();
 
-            //dataLoader.UserFilesFolder = @"C:\Program Files\Forex Strategy Builder Pro\User Files";
+            dataLoader.UserFilesFolder = @"C:\Program Files\Forex Strategy Builder Pro\User Files";
 
-            //// Set Data Source name, symbol, and period
-            //IDataSet dataSet = dataLoader.LoadDataSet("FSB Demo Data", "EURUSD", DataPeriod.M15);
+            // Set Data Source name, symbol, and period
+            IDataSet dataSet = dataLoader.LoadDataSet("FSB Demo Data", "EURUSD", DataPeriod.M15);
 
-            //if (dataSet == null)
-            //{
-            //    Console.WriteLine("Data file is not loaded!");
-            //    Console.WriteLine("Press a key to continue!");
-            //    Console.ReadKey();
-            //    return;
-            //}
+            if (dataSet == null)
+            {
+                Console.WriteLine("Data file is not loaded!");
+                Console.WriteLine("Press a key to continue!");
+                Console.ReadKey();
+                return;
+            }
 
-            //// Create an indicator for testing
-            //IIndicator indicator = new MACDConvergenceDivergence();
-            //indicator.Initialize(SlotTypes.OpenFilter);
-            //indicator.Calculate(dataSet);
+            // Create an indicator for testing
+            IIndicator indicator = new PreviousHighLow();
+            indicator.Initialize(SlotTypes.Open);
+            indicator.Calculate(dataSet);
 
-            //// Print first values
-            //PrintFirstValues(indicator, 0, 50);
+            // Print first values
+            PrintFirstValues(indicator, 0, 50);
 
-            //// Calculate indicator with random parameters for all available slots.
-            //tester.CalculateIndicatorWithRandomParameters(indicator, dataSet, 25);
+            // Calculate indicator with random parameters for all available slots.
+            tester.CalculateIndicatorWithRandomParameters(indicator, dataSet, 25);
 
             Console.WriteLine("Test completed without errors.");
             Console.WriteLine("Press a key to continue!");
