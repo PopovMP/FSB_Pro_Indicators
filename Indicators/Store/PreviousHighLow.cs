@@ -90,7 +90,7 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.NumParam[0].Max = +2000;
             IndParam.NumParam[0].Enabled = true;
             IndParam.NumParam[0].ToolTip = "A vertical shift above the high and below the low price.";
-
+   
             // The CheckBox parameters
             IndParam.CheckParam[0].Caption = "Use previous bar value";
             IndParam.CheckParam[0].Enabled = true;

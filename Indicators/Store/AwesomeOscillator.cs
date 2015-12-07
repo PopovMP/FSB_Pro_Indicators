@@ -100,21 +100,21 @@ namespace ForexStrategyBuilder.Indicators.Store
             // Reading the parameters
             var maMethod = (MAMethod) IndParam.ListParam[1].Index;
             var basePrice = (BasePrice) IndParam.ListParam[2].Index;
-            var nSlow = (int) IndParam.NumParam[0].Value;
-            var nFast = (int) IndParam.NumParam[1].Value;
+            var periodSlow = (int) IndParam.NumParam[0].Value;
+            var periodFast = (int) IndParam.NumParam[1].Value;
             double level = IndParam.NumParam[3].Value;
-            int iPrvs = IndParam.CheckParam[0].Checked ? 1 : 0;
+            int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
-            int iFirstBar = nSlow + 2;
+            int firstBar = periodSlow + 2;
 
-            double[] adMASlow = MovingAverage(nSlow, 0, maMethod, Price(basePrice));
-            double[] adMAFast = MovingAverage(nFast, 0, maMethod, Price(basePrice));
-            var adAO = new double[Bars];
+            double[] maSlow = MovingAverage(periodSlow, 0, maMethod, Price(basePrice));
+            double[] maFast = MovingAverage(periodFast, 0, maMethod, Price(basePrice));
+            var awesomeOscillator = new double[Bars];
 
-            for (int iBar = nSlow - 1; iBar < Bars; iBar++)
+            for (int bar = periodSlow - 1; bar < Bars; bar++)
             {
-                adAO[iBar] = adMAFast[iBar] - adMASlow[iBar];
+                awesomeOscillator[bar] = maFast[bar] - maSlow[bar];
             }
 
             // Saving the components
@@ -125,21 +125,21 @@ namespace ForexStrategyBuilder.Indicators.Store
                     CompName = "AO",
                     DataType = IndComponentType.IndicatorValue,
                     ChartType = IndChartType.Histogram,
-                    FirstBar = iFirstBar,
-                    Value = adAO
+                    FirstBar = firstBar,
+                    Value = awesomeOscillator
                 };
 
             Component[1] = new IndicatorComp
                 {
                     ChartType = IndChartType.NoChart,
-                    FirstBar = iFirstBar,
+                    FirstBar = firstBar,
                     Value = new double[Bars]
                 };
 
             Component[2] = new IndicatorComp
                 {
                     ChartType = IndChartType.NoChart,
-                    FirstBar = iFirstBar,
+                    FirstBar = firstBar,
                     Value = new double[Bars]
                 };
 
@@ -205,7 +205,7 @@ namespace ForexStrategyBuilder.Indicators.Store
                     break;
             }
 
-            OscillatorLogic(iFirstBar, iPrvs, adAO, level, -level, ref Component[1], ref Component[2], indicatorLogic);
+            OscillatorLogic(firstBar, previous, awesomeOscillator, level, -level, ref Component[1], ref Component[2], indicatorLogic);
         }
 
         /// <summary>
@@ -213,12 +213,12 @@ namespace ForexStrategyBuilder.Indicators.Store
         /// </summary>
         public override void SetDescription()
         {
-            string sLevelLong = (Math.Abs(IndParam.NumParam[3].Value - 0) < Epsilon
-                                     ? "0"
-                                     : IndParam.NumParam[3].ValueToString);
-            string sLevelShort = (Math.Abs(IndParam.NumParam[3].Value - 0) < Epsilon
-                                      ? "0"
-                                      : "-" + IndParam.NumParam[3].ValueToString);
+            string levelLong = Math.Abs(IndParam.NumParam[3].Value - 0) < Epsilon
+                ? "0"
+                : IndParam.NumParam[3].ValueToString;
+            string levelShort = Math.Abs(IndParam.NumParam[3].Value - 0) < Epsilon
+                ? "0"
+                : "-" + IndParam.NumParam[3].ValueToString;
 
             EntryFilterLongDescription = ToString() + " ";
             EntryFilterShortDescription = ToString() + " ";
@@ -242,31 +242,31 @@ namespace ForexStrategyBuilder.Indicators.Store
                     break;
 
                 case "AO is higher than the Level line":
-                    EntryFilterLongDescription += "is higher than the Level " + sLevelLong;
-                    EntryFilterShortDescription += "is lower than the Level " + sLevelShort;
-                    ExitFilterLongDescription += "is higher than the Level " + sLevelLong;
-                    ExitFilterShortDescription += "is lower than the Level " + sLevelShort;
+                    EntryFilterLongDescription += "is higher than the Level " + levelLong;
+                    EntryFilterShortDescription += "is lower than the Level " + levelShort;
+                    ExitFilterLongDescription += "is higher than the Level " + levelLong;
+                    ExitFilterShortDescription += "is lower than the Level " + levelShort;
                     break;
 
                 case "AO is lower than the Level line":
-                    EntryFilterLongDescription += "is lower than the Level " + sLevelLong;
-                    EntryFilterShortDescription += "is higher than the Level " + sLevelShort;
-                    ExitFilterLongDescription += "is lower than the Level " + sLevelLong;
-                    ExitFilterShortDescription += "is higher than the Level " + sLevelShort;
+                    EntryFilterLongDescription += "is lower than the Level " + levelLong;
+                    EntryFilterShortDescription += "is higher than the Level " + levelShort;
+                    ExitFilterLongDescription += "is lower than the Level " + levelLong;
+                    ExitFilterShortDescription += "is higher than the Level " + levelShort;
                     break;
 
                 case "AO crosses the Level line upward":
-                    EntryFilterLongDescription += "crosses the Level " + sLevelLong + " upward";
-                    EntryFilterShortDescription += "crosses the Level " + sLevelShort + " downward";
-                    ExitFilterLongDescription += "crosses the Level " + sLevelLong + " upward";
-                    ExitFilterShortDescription += "crosses the Level " + sLevelShort + " downward";
+                    EntryFilterLongDescription += "crosses the Level " + levelLong + " upward";
+                    EntryFilterShortDescription += "crosses the Level " + levelShort + " downward";
+                    ExitFilterLongDescription += "crosses the Level " + levelLong + " upward";
+                    ExitFilterShortDescription += "crosses the Level " + levelShort + " downward";
                     break;
 
                 case "AO crosses the Level line downward":
-                    EntryFilterLongDescription += "crosses the Level " + sLevelLong + " downward";
-                    EntryFilterShortDescription += "crosses the Level " + sLevelShort + " upward";
-                    ExitFilterLongDescription += "crosses the Level " + sLevelLong + " downward";
-                    ExitFilterShortDescription += "crosses the Level " + sLevelShort + " upward";
+                    EntryFilterLongDescription += "crosses the Level " + levelLong + " downward";
+                    EntryFilterShortDescription += "crosses the Level " + levelShort + " upward";
+                    ExitFilterLongDescription += "crosses the Level " + levelLong + " downward";
+                    ExitFilterShortDescription += "crosses the Level " + levelShort + " upward";
                     break;
 
                 case "AO changes its direction upward":

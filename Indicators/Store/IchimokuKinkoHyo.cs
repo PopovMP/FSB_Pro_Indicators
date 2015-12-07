@@ -350,12 +350,10 @@ namespace ForexStrategyBuilder.Indicators.Store
                     }
                     Component[5].PosPriceDependence = PositionPriceDependence.PriceBuyHigher;
                     Component[5].DataType = IndComponentType.Other;
-                    Component[5].UsePreviousBar = previousBar;
                     Component[5].ShowInDynInfo = false;
 
                     Component[6].PosPriceDependence = PositionPriceDependence.PriceSellLower;
                     Component[6].DataType = IndComponentType.Other;
-                    Component[6].UsePreviousBar = previousBar;
                     Component[6].ShowInDynInfo = false;
                     break;
 
@@ -367,12 +365,10 @@ namespace ForexStrategyBuilder.Indicators.Store
                     }
                     Component[5].PosPriceDependence = PositionPriceDependence.PriceBuyHigher;
                     Component[5].DataType = IndComponentType.Other;
-                    Component[5].UsePreviousBar = previousBar;
                     Component[5].ShowInDynInfo = false;
 
                     Component[6].PosPriceDependence = PositionPriceDependence.PriceSellLower;
                     Component[6].DataType = IndComponentType.Other;
-                    Component[6].UsePreviousBar = previousBar;
                     Component[6].ShowInDynInfo = false;
                     break;
 

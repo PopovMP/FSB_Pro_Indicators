@@ -316,8 +316,6 @@ namespace ForexStrategyBuilder.Indicators.Store
                     case "The position opens above Upper Band":
                         Component[0].PosPriceDependence = PositionPriceDependence.PriceBuyHigher;
                         Component[1].PosPriceDependence = PositionPriceDependence.PriceSellLower;
-                        Component[0].UsePreviousBar = iPrvs;
-                        Component[1].UsePreviousBar = iPrvs;
                         Component[2].DataType = IndComponentType.Other;
                         Component[3].DataType = IndComponentType.Other;
                         Component[2].ShowInDynInfo = false;
@@ -327,8 +325,6 @@ namespace ForexStrategyBuilder.Indicators.Store
                     case "The position opens below Upper Band":
                         Component[0].PosPriceDependence = PositionPriceDependence.PriceBuyLower;
                         Component[1].PosPriceDependence = PositionPriceDependence.PriceSellHigher;
-                        Component[0].UsePreviousBar = iPrvs;
-                        Component[1].UsePreviousBar = iPrvs;
                         Component[2].DataType = IndComponentType.Other;
                         Component[3].DataType = IndComponentType.Other;
                         Component[2].ShowInDynInfo = false;
@@ -338,8 +334,6 @@ namespace ForexStrategyBuilder.Indicators.Store
                     case "The position opens above Lower Band":
                         Component[0].PosPriceDependence = PositionPriceDependence.PriceSellLower;
                         Component[1].PosPriceDependence = PositionPriceDependence.PriceBuyHigher;
-                        Component[0].UsePreviousBar = iPrvs;
-                        Component[1].UsePreviousBar = iPrvs;
                         Component[2].DataType = IndComponentType.Other;
                         Component[3].DataType = IndComponentType.Other;
                         Component[2].ShowInDynInfo = false;
@@ -349,8 +343,6 @@ namespace ForexStrategyBuilder.Indicators.Store
                     case "The position opens below Lower Band":
                         Component[0].PosPriceDependence = PositionPriceDependence.PriceSellHigher;
                         Component[1].PosPriceDependence = PositionPriceDependence.PriceBuyLower;
-                        Component[0].UsePreviousBar = iPrvs;
-                        Component[1].UsePreviousBar = iPrvs;
                         Component[2].DataType = IndComponentType.Other;
                         Component[3].DataType = IndComponentType.Other;
                         Component[2].ShowInDynInfo = false;

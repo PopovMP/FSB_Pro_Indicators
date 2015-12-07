@@ -170,7 +170,7 @@ namespace ForexStrategyBuilder.Indicators.Store
                         break;
 
                     case "The position opens below the previous Bar Closing":
-                        Component[0].PosPriceDependence = PositionPriceDependence.BuyLowerSelHigher;
+                        Component[0].PosPriceDependence = PositionPriceDependence.BuyLowerSellHigher;
                         Component[1].DataType = IndComponentType.Other;
                         Component[2].DataType = IndComponentType.Other;
                         Component[1].ShowInDynInfo = false;

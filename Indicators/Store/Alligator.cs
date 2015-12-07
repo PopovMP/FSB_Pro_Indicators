@@ -124,21 +124,21 @@ namespace ForexStrategyBuilder.Indicators.Store
 
             var maMethod = (MAMethod) IndParam.ListParam[1].Index;
             var basePrice = (BasePrice) IndParam.ListParam[2].Index;
-            var iNJaws = (int) IndParam.NumParam[0].Value;
-            var iSJaws = (int) IndParam.NumParam[1].Value;
-            var iNTeeth = (int) IndParam.NumParam[2].Value;
-            var iSTeeth = (int) IndParam.NumParam[3].Value;
-            var iNLips = (int) IndParam.NumParam[4].Value;
-            var iSLips = (int) IndParam.NumParam[5].Value;
-            int iPrvs = IndParam.CheckParam[0].Checked ? 1 : 0;
+            var periodJaws = (int) IndParam.NumParam[0].Value;
+            var shiftJaws = (int) IndParam.NumParam[1].Value;
+            var periodTeeth = (int) IndParam.NumParam[2].Value;
+            var shiftTeeth = (int) IndParam.NumParam[3].Value;
+            var periodLips = (int) IndParam.NumParam[4].Value;
+            var shiftLips = (int) IndParam.NumParam[5].Value;
+            int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
-            int iFirstBar = Math.Max(iNJaws + iSJaws + 2, iNTeeth + iSTeeth + 2);
-            iFirstBar = Math.Max(iFirstBar, iNLips + iSLips + 2);
+            int firstBar = Math.Max(periodJaws + shiftJaws + 2, periodTeeth + shiftTeeth + 2);
+            firstBar = Math.Max(firstBar, periodLips + shiftLips + 2);
 
             // Calculation
-            double[] adJaws = MovingAverage(iNJaws, iSJaws, maMethod, Price(basePrice));
-            double[] adTeeth = MovingAverage(iNTeeth, iSTeeth, maMethod, Price(basePrice));
-            double[] adLips = MovingAverage(iNLips, iSLips, maMethod, Price(basePrice));
+            double[] jaws = MovingAverage(periodJaws, shiftJaws, maMethod, Price(basePrice));
+            double[] teeth = MovingAverage(periodTeeth, shiftTeeth, maMethod, Price(basePrice));
+            double[] lips = MovingAverage(periodLips, shiftLips, maMethod, Price(basePrice));
 
             // Saving the components
             Component = new IndicatorComp[5];
@@ -149,8 +149,8 @@ namespace ForexStrategyBuilder.Indicators.Store
                     DataType = IndComponentType.IndicatorValue,
                     ChartType = IndChartType.Line,
                     ChartColor = Color.Blue,
-                    FirstBar = iFirstBar,
-                    Value = adJaws
+                    FirstBar = firstBar,
+                    Value = jaws
                 };
 
             Component[1] = new IndicatorComp
@@ -159,8 +159,8 @@ namespace ForexStrategyBuilder.Indicators.Store
                     DataType = IndComponentType.IndicatorValue,
                     ChartType = IndChartType.Line,
                     ChartColor = Color.Red,
-                    FirstBar = iFirstBar,
-                    Value = adTeeth
+                    FirstBar = firstBar,
+                    Value = teeth
                 };
 
             Component[2] = new IndicatorComp
@@ -169,21 +169,21 @@ namespace ForexStrategyBuilder.Indicators.Store
                     DataType = IndComponentType.IndicatorValue,
                     ChartType = IndChartType.Line,
                     ChartColor = Color.Lime,
-                    FirstBar = iFirstBar,
-                    Value = adLips
+                    FirstBar = firstBar,
+                    Value = lips
                 };
 
             Component[3] = new IndicatorComp
                 {
                     ChartType = IndChartType.NoChart,
-                    FirstBar = iFirstBar,
+                    FirstBar = firstBar,
                     Value = new double[Bars]
                 };
 
             Component[4] = new IndicatorComp
                 {
                     ChartType = IndChartType.NoChart,
-                    FirstBar = iFirstBar,
+                    FirstBar = firstBar,
                     Value = new double[Bars]
                 };
 
@@ -206,56 +206,56 @@ namespace ForexStrategyBuilder.Indicators.Store
             switch (IndParam.ListParam[0].Text)
             {
                 case "The Jaws rises":
-                    IndicatorRisesLogic(iFirstBar, iPrvs, adJaws, ref Component[3], ref Component[4]);
+                    IndicatorRisesLogic(firstBar, previous, jaws, ref Component[3], ref Component[4]);
                     break;
 
                 case "The Jaws falls":
-                    IndicatorFallsLogic(iFirstBar, iPrvs, adJaws, ref Component[3], ref Component[4]);
+                    IndicatorFallsLogic(firstBar, previous, jaws, ref Component[3], ref Component[4]);
                     break;
 
                 case "The Teeth rises":
-                    IndicatorRisesLogic(iFirstBar, iPrvs, adTeeth, ref Component[3], ref Component[4]);
+                    IndicatorRisesLogic(firstBar, previous, teeth, ref Component[3], ref Component[4]);
                     break;
 
                 case "The Teeth falls":
-                    IndicatorFallsLogic(iFirstBar, iPrvs, adTeeth, ref Component[3], ref Component[4]);
+                    IndicatorFallsLogic(firstBar, previous, teeth, ref Component[3], ref Component[4]);
                     break;
 
                 case "The Lips rises":
-                    IndicatorRisesLogic(iFirstBar, iPrvs, adLips, ref Component[3], ref Component[4]);
+                    IndicatorRisesLogic(firstBar, previous, lips, ref Component[3], ref Component[4]);
                     break;
 
                 case "The Lips falls":
-                    IndicatorFallsLogic(iFirstBar, iPrvs, adLips, ref Component[3], ref Component[4]);
+                    IndicatorFallsLogic(firstBar, previous, lips, ref Component[3], ref Component[4]);
                     break;
 
                 case "The Lips crosses the Teeth upward":
-                    IndicatorCrossesAnotherIndicatorUpwardLogic(iFirstBar, iPrvs, adLips, adTeeth, ref Component[3],
+                    IndicatorCrossesAnotherIndicatorUpwardLogic(firstBar, previous, lips, teeth, ref Component[3],
                                                                 ref Component[4]);
                     break;
 
                 case "The Lips crosses the Teeth downward":
-                    IndicatorCrossesAnotherIndicatorDownwardLogic(iFirstBar, iPrvs, adLips, adTeeth, ref Component[3],
+                    IndicatorCrossesAnotherIndicatorDownwardLogic(firstBar, previous, lips, teeth, ref Component[3],
                                                                   ref Component[4]);
                     break;
 
                 case "The Lips crosses the Jaws upward":
-                    IndicatorCrossesAnotherIndicatorUpwardLogic(iFirstBar, iPrvs, adLips, adJaws, ref Component[3],
+                    IndicatorCrossesAnotherIndicatorUpwardLogic(firstBar, previous, lips, jaws, ref Component[3],
                                                                 ref Component[4]);
                     break;
 
                 case "The Lips crosses the Jaws downward":
-                    IndicatorCrossesAnotherIndicatorDownwardLogic(iFirstBar, iPrvs, adLips, adJaws, ref Component[3],
+                    IndicatorCrossesAnotherIndicatorDownwardLogic(firstBar, previous, lips, jaws, ref Component[3],
                                                                   ref Component[4]);
                     break;
 
                 case "The Teeth crosses the Jaws upward":
-                    IndicatorCrossesAnotherIndicatorUpwardLogic(iFirstBar, iPrvs, adTeeth, adJaws, ref Component[3],
+                    IndicatorCrossesAnotherIndicatorUpwardLogic(firstBar, previous, teeth, jaws, ref Component[3],
                                                                 ref Component[4]);
                     break;
 
                 case "The Teeth crosses the Jaws downward":
-                    IndicatorCrossesAnotherIndicatorDownwardLogic(iFirstBar, iPrvs, adTeeth, adJaws, ref Component[3],
+                    IndicatorCrossesAnotherIndicatorDownwardLogic(firstBar, previous, teeth, jaws, ref Component[3],
                                                                   ref Component[4]);
                     break;
             }

@@ -57,34 +57,34 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            int iPrvs = IndParam.CheckParam[0].Checked ? 1 : 0;
+            int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
             const int firstBar = 3;
 
-            var adAd = new double[Bars];
+            var accumulationDistribution = new double[Bars];
 
-            adAd[0] = (Close[0] - Low[0]) - (High[0] - Close[0]);
+            accumulationDistribution[0] = (Close[0] - Low[0]) - (High[0] - Close[0]);
             if ((High[0] - Low[0]) > 0)
             {
-                adAd[0] = adAd[0]/(High[0] - Low[0])*Volume[0];
+                accumulationDistribution[0] = accumulationDistribution[0]/(High[0] - Low[0])*Volume[0];
             }
             else
             {
-                adAd[0] = 0;
+                accumulationDistribution[0] = 0;
             }
 
-            for (int iBar = 1; iBar < Bars; iBar++)
+            for (int bar = 1; bar < Bars; bar++)
             {
-                double dDelta = 0;
-                double dRange = High[iBar] - Low[iBar];
+                double delta = 0;
+                double range = High[bar] - Low[bar];
 
-                if (dRange > 0)
+                if (range > 0)
                 {
-                    dDelta = Volume[iBar]*(2*Close[iBar] - High[iBar] - Low[iBar])/dRange;
+                    delta = Volume[bar]*(2*Close[bar] - High[bar] - Low[bar])/range;
                 }
 
-                adAd[iBar] = adAd[iBar - 1] + dDelta;
+                accumulationDistribution[bar] = accumulationDistribution[bar - 1] + delta;
             }
 
             // Saving the components
@@ -97,7 +97,7 @@ namespace ForexStrategyBuilder.Indicators.Store
                     ChartType = IndChartType.Line,
                     ChartColor = Color.Blue,
                     FirstBar = firstBar,
-                    Value = adAd
+                    Value = accumulationDistribution
                 };
 
             Component[1] = new IndicatorComp
@@ -152,7 +152,7 @@ namespace ForexStrategyBuilder.Indicators.Store
                     break;
             }
 
-            OscillatorLogic(firstBar, iPrvs, adAd, 0, 0, ref Component[1], ref Component[2], indLogic);
+            OscillatorLogic(firstBar, previous, accumulationDistribution, 0, 0, ref Component[1], ref Component[2], indLogic);
         }
 
         public override void SetDescription()

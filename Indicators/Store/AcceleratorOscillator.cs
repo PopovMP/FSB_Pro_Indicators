@@ -114,25 +114,25 @@ namespace ForexStrategyBuilder.Indicators.Store
             var fast = (int) IndParam.NumParam[1].Value;
             var accelerator = (int) IndParam.NumParam[2].Value;
             double level = IndParam.NumParam[3].Value;
-            int prvs = IndParam.CheckParam[0].Checked ? 1 : 0;
+            int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
             int firstBar = slow + accelerator + 2;
             double[] maSlow = MovingAverage(slow, 0, maMethod, Price(basePrice));
             double[] maFast = MovingAverage(fast, 0, maMethod, Price(basePrice));
-            var ao = new double[Bars];
-            var ac = new double[Bars];
+            var awesomeOscillator = new double[Bars];
+            var acceleratorOscillator = new double[Bars];
 
             for (int bar = slow - 1; bar < Bars; bar++)
             {
-                ao[bar] = maFast[bar] - maSlow[bar];
+                awesomeOscillator[bar] = maFast[bar] - maSlow[bar];
             }
 
-            double[] movingAverage = MovingAverage(accelerator, 0, maMethod, ao);
+            double[] movingAverage = MovingAverage(accelerator, 0, maMethod, awesomeOscillator);
 
             for (int bar = firstBar; bar < Bars; bar++)
             {
-                ac[bar] = ao[bar] - movingAverage[bar];
+                acceleratorOscillator[bar] = awesomeOscillator[bar] - movingAverage[bar];
             }
 
             // Saving the components
@@ -144,7 +144,7 @@ namespace ForexStrategyBuilder.Indicators.Store
                     DataType = IndComponentType.IndicatorValue,
                     ChartType = IndChartType.Histogram,
                     FirstBar = firstBar,
-                    Value = ac
+                    Value = acceleratorOscillator
                 };
 
             Component[1] = new IndicatorComp
@@ -225,14 +225,14 @@ namespace ForexStrategyBuilder.Indicators.Store
                     break;
             }
 
-            OscillatorLogic(firstBar, prvs, ac, level, -level, ref Component[1], ref Component[2], indicatorLogic);
+            OscillatorLogic(firstBar, previous, acceleratorOscillator, level, -level, ref Component[1], ref Component[2], indicatorLogic);
         }
 
         public override void SetDescription()
         {
             bool isLevelZero = Math.Abs(IndParam.NumParam[3].Value - 0) < Epsilon;
-            string levelLong = (isLevelZero ? "0" : IndParam.NumParam[3].ValueToString);
-            string levelShort = (isLevelZero ? "0" : "-" + levelLong);
+            string levelLong = isLevelZero ? "0" : IndParam.NumParam[3].ValueToString;
+            string levelShort = isLevelZero ? "0" : "-" + levelLong;
 
             EntryFilterLongDescription = ToString() + " ";
             EntryFilterShortDescription = ToString() + " ";
@@ -303,7 +303,7 @@ namespace ForexStrategyBuilder.Indicators.Store
         {
             return string.Format("{0}{1} ({2}, {3}, {4}, {5}, {6})",
                                  IndicatorName,
-                                 (IndParam.CheckParam[0].Checked ? "*" : ""),
+                                 IndParam.CheckParam[0].Checked ? "*" : "",
                                  IndParam.ListParam[1].Text,
                                  IndParam.ListParam[2].Text,
                                  IndParam.NumParam[0].ValueToString,

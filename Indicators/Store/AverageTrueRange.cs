@@ -95,7 +95,7 @@ namespace ForexStrategyBuilder.Indicators.Store
             var maMethod = (MAMethod) IndParam.ListParam[1].Index;
             var period = (int) IndParam.NumParam[0].Value;
             double level = Point*IndParam.NumParam[1].Value;
-            int prev = IndParam.CheckParam[0].Checked ? 1 : 0;
+            int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
             int firstBar = period + 2;
@@ -193,7 +193,7 @@ namespace ForexStrategyBuilder.Indicators.Store
             }
 
             // ATR rises equal signals in both directions!
-            NoDirectionOscillatorLogic(firstBar, prev, atr, level, ref Component[1], indLogic);
+            NoDirectionOscillatorLogic(firstBar, previous, atr, level, ref Component[1], indLogic);
             Component[2].Value = Component[1].Value;
         }
 

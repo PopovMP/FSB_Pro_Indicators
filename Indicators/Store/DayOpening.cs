@@ -59,9 +59,9 @@ namespace ForexStrategyBuilder.Indicators.Store
             // Calculation
             var adOpenPrice = new double[Bars];
 
-            for (int iBar = 1; iBar < Bars; iBar++)
-                if (Time[iBar - 1].Day != Time[iBar].Day)
-                    adOpenPrice[iBar] = Open[iBar];
+            for (int bar = 1; bar < Bars; bar++)
+                if (Time[bar - 1].Day != Time[bar].Day)
+                    adOpenPrice[bar] = Open[bar];
 
             // Saving the components
             Component = new IndicatorComp[1];

@@ -104,8 +104,8 @@ namespace ForexStrategyBuilder.Indicators.Store
             // Calculation
             int firstBar = 2*period + 2;
 
-            var diPos = new double[Bars];
-            var diNeg = new double[Bars];
+            var positive = new double[Bars];
+            var negative = new double[Bars];
 
             for (int bar = 1; bar < Bars; bar++)
             {
@@ -118,30 +118,31 @@ namespace ForexStrategyBuilder.Indicators.Store
                 double deltaLow = Low[bar - 1] - Low[bar];
 
                 if (deltaHigh > 0 && deltaHigh > deltaLow)
-                    diPos[bar] = 100*deltaHigh/trueRange;
+                    positive[bar] = 100*deltaHigh/trueRange;
                 else
-                    diPos[bar] = 0;
+                    positive[bar] = 0;
 
                 if (deltaLow > 0 && deltaLow > deltaHigh)
-                    diNeg[bar] = 100*deltaLow/trueRange;
+                    negative[bar] = 100*deltaLow/trueRange;
                 else
-                    diNeg[bar] = 0;
+                    negative[bar] = 0;
             }
 
-            double[] adiPos = MovingAverage(period, 0, maMethod, diPos);
-            double[] adiNeg = MovingAverage(period, 0, maMethod, diNeg);
+            double[] averagePositive = MovingAverage(period, 0, maMethod, positive);
+            double[] averageNegative = MovingAverage(period, 0, maMethod, negative);
 
-            var dx = new double[Bars];
+            var directionalIndex = new double[Bars];
 
             for (int bar = 0; bar < Bars; bar++)
             {
-                if (Math.Abs(adiPos[bar] - adiNeg[bar]) < Epsilon)
-                    dx[bar] = 0;
+                if (Math.Abs(averagePositive[bar] - averageNegative[bar]) < Epsilon)
+                    directionalIndex[bar] = 0;
                 else
-                    dx[bar] = 100*Math.Abs((adiPos[bar] - adiNeg[bar])/(adiPos[bar] + adiNeg[bar]));
+                    directionalIndex[bar] = 100*Math.Abs((averagePositive[bar] - averageNegative[bar])/
+                                                         (averagePositive[bar] + averageNegative[bar]));
             }
 
-            double[] adx = MovingAverage(period, 0, maMethod, dx);
+            double[] averageDirectionalIndex = MovingAverage(period, 0, maMethod, directionalIndex);
 
             // Saving the components
             Component = new IndicatorComp[5];
@@ -153,7 +154,7 @@ namespace ForexStrategyBuilder.Indicators.Store
                     ChartType = IndChartType.Line,
                     ChartColor = Color.Blue,
                     FirstBar = firstBar,
-                    Value = adx
+                    Value = averageDirectionalIndex
                 };
 
             Component[1] = new IndicatorComp
@@ -163,7 +164,7 @@ namespace ForexStrategyBuilder.Indicators.Store
                     ChartType = IndChartType.Line,
                     ChartColor = Color.Green,
                     FirstBar = firstBar,
-                    Value = adiPos
+                    Value = averagePositive
                 };
 
             Component[2] = new IndicatorComp
@@ -173,7 +174,7 @@ namespace ForexStrategyBuilder.Indicators.Store
                     ChartType = IndChartType.Line,
                     ChartColor = Color.Red,
                     FirstBar = firstBar,
-                    Value = adiNeg
+                    Value = averageNegative
                 };
 
             Component[3] = new IndicatorComp
@@ -246,7 +247,7 @@ namespace ForexStrategyBuilder.Indicators.Store
             }
 
             // ADX rises equal signals in both directions!
-            NoDirectionOscillatorLogic(firstBar, previous, adx, level, ref Component[3], logicRule);
+            NoDirectionOscillatorLogic(firstBar, previous, averageDirectionalIndex, level, ref Component[3], logicRule);
             Component[4].Value = Component[3].Value;
         }
 
@@ -324,7 +325,7 @@ namespace ForexStrategyBuilder.Indicators.Store
         {
             return string.Format("{0}{1} ({2}, {3}, {4})",
                                  IndicatorName,
-                                 (IndParam.CheckParam[0].Checked ? "*" : ""),
+                                 IndParam.CheckParam[0].Checked ? "*" : "",
                                  IndParam.ListParam[1].Text,
                                  IndParam.ListParam[2].Text,
                                  IndParam.NumParam[0].ValueToString);

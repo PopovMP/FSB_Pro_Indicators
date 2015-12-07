@@ -34,16 +34,16 @@ namespace ForexStrategyBuilder.Indicators.Store
 
             IndParam.ListParam[0].Caption = "Logic";
             IndParam.ListParam[0].ItemList = new[]
-                {
-                    "Balance of Power rises",
-                    "Balance of Power falls",
-                    "Balance of Power is higher than the zero line",
-                    "Balance of Power is lower than the zero line",
-                    "Balance of Power crosses the zero line upward",
-                    "Balance of Power crosses the zero line downward",
-                    "Balance of Power changes its direction upward",
-                    "Balance of Power changes its direction downward"
-                };
+            {
+                "Balance of Power rises",
+                "Balance of Power falls",
+                "Balance of Power is higher than the zero line",
+                "Balance of Power is lower than the zero line",
+                "Balance of Power crosses the zero line upward",
+                "Balance of Power crosses the zero line downward",
+                "Balance of Power changes its direction upward",
+                "Balance of Power changes its direction downward"
+            };
             IndParam.ListParam[0].Index = 0;
             IndParam.ListParam[0].Text = IndParam.ListParam[0].ItemList[IndParam.ListParam[0].Index];
             IndParam.ListParam[0].Enabled = true;
@@ -76,49 +76,49 @@ namespace ForexStrategyBuilder.Indicators.Store
 
             // Reading the parameters
             var maMethod = (MAMethod) IndParam.ListParam[1].Index;
-            var iPeriod = (int) IndParam.NumParam[0].Value;
-            int iPrvs = IndParam.CheckParam[0].Checked ? 1 : 0;
+            var period = (int) IndParam.NumParam[0].Value;
+            int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
-            int iFirstBar = iPeriod + 2;
+            int firstBar = period + 2;
 
-            var adBop = new double[Bars];
+            var bop = new double[Bars];
 
-            for (int iBar = 1; iBar < Bars; iBar++)
+            for (int bar = 1; bar < Bars; bar++)
             {
-                if (High[iBar] - Low[iBar] > Point)
-                    adBop[iBar] = (Close[iBar] - Open[iBar])/(High[iBar] - Low[iBar]);
+                if (High[bar] - Low[bar] > Point)
+                    bop[bar] = (Close[bar] - Open[bar])/(High[bar] - Low[bar]);
                 else
-                    adBop[iBar] = 0;
+                    bop[bar] = 0;
             }
 
-            adBop = MovingAverage(iPeriod, 0, maMethod, adBop);
+            bop = MovingAverage(period, 0, maMethod, bop);
 
             // Saving the components
             Component = new IndicatorComp[3];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "Balance of Power",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Histogram,
-                    FirstBar = iFirstBar,
-                    Value = adBop
-                };
+            {
+                CompName = "Balance of Power",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Histogram,
+                FirstBar = firstBar,
+                Value = bop
+            };
 
             Component[1] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = iFirstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             Component[2] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = iFirstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             // Sets the Component's type
             if (SlotType == SlotTypes.OpenFilter)
@@ -174,7 +174,7 @@ namespace ForexStrategyBuilder.Indicators.Store
                     break;
             }
 
-            OscillatorLogic(iFirstBar, iPrvs, adBop, 0, 0, ref Component[1], ref Component[2], indLogic);
+            OscillatorLogic(firstBar, previous, bop, 0, 0, ref Component[1], ref Component[2], indLogic);
         }
 
         public override void SetDescription()
@@ -247,9 +247,9 @@ namespace ForexStrategyBuilder.Indicators.Store
         public override string ToString()
         {
             return IndicatorName +
-                    (IndParam.CheckParam[0].Checked ? "* (" : " (") +
-                    IndParam.ListParam[1].Text + ", " + // Method
-                    IndParam.NumParam[0].ValueToString + ")"; // Period
+                   (IndParam.CheckParam[0].Checked ? "* (" : " (") +
+                   IndParam.ListParam[1].Text + ", " + // Method
+                   IndParam.NumParam[0].ValueToString + ")"; // Period
         }
     }
 }

@@ -236,7 +236,6 @@ namespace ForexStrategyBuilder.Indicators.Store
 
                     case "The position opens above Moving Average":
                         Component[0].PosPriceDependence = PositionPriceDependence.BuyHigherSellLower;
-                        Component[0].UsePreviousBar = previous;
                         Component[1].DataType = IndComponentType.Other;
                         Component[1].ShowInDynInfo = false;
                         Component[2].DataType = IndComponentType.Other;
@@ -244,8 +243,7 @@ namespace ForexStrategyBuilder.Indicators.Store
                         break;
 
                     case "The position opens below Moving Average":
-                        Component[0].PosPriceDependence = PositionPriceDependence.BuyLowerSelHigher;
-                        Component[0].UsePreviousBar = previous;
+                        Component[0].PosPriceDependence = PositionPriceDependence.BuyLowerSellHigher;
                         Component[1].DataType = IndComponentType.Other;
                         Component[1].ShowInDynInfo = false;
                         Component[2].DataType = IndComponentType.Other;

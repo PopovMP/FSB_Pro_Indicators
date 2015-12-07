@@ -37,12 +37,12 @@ namespace ForexStrategyBuilder.Indicators.Store
             // The ComboBox parameters
             IndParam.ListParam[0].Caption = "Logic";
             IndParam.ListParam[0].ItemList = new[]
-                {
-                    "Bar Range rises",
-                    "Bar Range falls",
-                    "Bar Range is higher than the Level line",
-                    "Bar Range is lower than the Level line"
-                };
+            {
+                "Bar Range rises",
+                "Bar Range falls",
+                "Bar Range is higher than the Level line",
+                "Bar Range is lower than the Level line"
+            };
             IndParam.ListParam[0].Index = 0;
             IndParam.ListParam[0].Text = IndParam.ListParam[0].ItemList[IndParam.ListParam[0].Index];
             IndParam.ListParam[0].Enabled = true;
@@ -75,56 +75,56 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            var nBars = (int) IndParam.NumParam[0].Value;
-            double dLevel = IndParam.NumParam[1].Value;
-            int iPrvs = IndParam.CheckParam[0].Checked ? 1 : 0;
+            var barsNumber = (int) IndParam.NumParam[0].Value;
+            double level = IndParam.NumParam[1].Value;
+            int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
-            int iFirstBar = nBars + 1;
+            int firstBar = barsNumber + 1;
 
-            var adRange = new double[Bars];
+            var range = new double[Bars];
 
-            for (int iBar = iFirstBar; iBar < Bars; iBar++)
+            for (int bar = firstBar; bar < Bars; bar++)
             {
                 double maxHigh = double.MinValue;
                 double minLow = double.MaxValue;
-                for (int i = 0; i < nBars; i++)
+                for (int i = 0; i < barsNumber; i++)
                 {
-                    if (High[iBar - i] > maxHigh)
-                        maxHigh = High[iBar - i];
-                    if (Low[iBar - i] < minLow)
-                        minLow = Low[iBar - i];
+                    if (High[bar - i] > maxHigh)
+                        maxHigh = High[bar - i];
+                    if (Low[bar - i] < minLow)
+                        minLow = Low[bar - i];
                 }
-                adRange[iBar] = maxHigh - minLow;
+                range[bar] = maxHigh - minLow;
             }
 
             // Saving the components
             Component = new IndicatorComp[3];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "Bar Range",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Histogram,
-                    FirstBar = iFirstBar,
-                    Value = new double[Bars]
-                };
-            for (int i = 0; i < Bars; i++)
-                Component[0].Value[i] = Math.Round(adRange[i]/Point);
+            {
+                CompName = "Bar Range",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Histogram,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
+            for (int bar = 0; bar < Bars; bar++)
+                Component[0].Value[bar] = Math.Round(range[bar]/Point);
 
             Component[1] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = iFirstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             Component[2] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = iFirstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             // Sets the Component's type
             if (SlotType == SlotTypes.OpenFilter)
@@ -157,26 +157,26 @@ namespace ForexStrategyBuilder.Indicators.Store
 
                 case "Bar Range is higher than the Level line":
                     indLogic = IndicatorLogic.The_indicator_is_higher_than_the_level_line;
-                    SpecialValues = new[] {dLevel};
+                    SpecialValues = new[] {level};
                     break;
 
                 case "Bar Range is lower than the Level line":
                     indLogic = IndicatorLogic.The_indicator_is_lower_than_the_level_line;
-                    SpecialValues = new[] {dLevel};
+                    SpecialValues = new[] {level};
                     break;
             }
 
-            NoDirectionOscillatorLogic(iFirstBar, iPrvs, adRange, dLevel*Point, ref Component[1], indLogic);
+            NoDirectionOscillatorLogic(firstBar, previous, range, level*Point, ref Component[1], indLogic);
             Component[2].Value = Component[1].Value;
         }
 
         public override void SetDescription()
         {
-            var nBars = (int) IndParam.NumParam[0].Value;
-            string sLevelLong = IndParam.NumParam[1].ValueToString;
-            string sLevelShort = sLevelLong;
+            var barsNumber = (int) IndParam.NumParam[0].Value;
+            string levelLong = IndParam.NumParam[1].ValueToString;
+            string levelShort = levelLong;
 
-            if (nBars == 1)
+            if (barsNumber == 1)
             {
                 EntryFilterLongDescription = "the range of the bar ";
                 EntryFilterShortDescription = "the range of the bar ";
@@ -185,13 +185,16 @@ namespace ForexStrategyBuilder.Indicators.Store
             }
             else
             {
-                EntryFilterLongDescription = "the range of the last " + nBars.ToString(CultureInfo.InvariantCulture) +
+                EntryFilterLongDescription = "the range of the last " +
+                                             barsNumber.ToString(CultureInfo.InvariantCulture) +
                                              " bars ";
-                EntryFilterShortDescription = "the range of the last " + nBars.ToString(CultureInfo.InvariantCulture) +
+                EntryFilterShortDescription = "the range of the last " +
+                                              barsNumber.ToString(CultureInfo.InvariantCulture) +
                                               " bars ";
-                ExitFilterLongDescription = "the range of the last " + nBars.ToString(CultureInfo.InvariantCulture) +
+                ExitFilterLongDescription = "the range of the last " + barsNumber.ToString(CultureInfo.InvariantCulture) +
                                             " bars ";
-                ExitFilterShortDescription = "the range of the last " + nBars.ToString(CultureInfo.InvariantCulture) +
+                ExitFilterShortDescription = "the range of the last " +
+                                             barsNumber.ToString(CultureInfo.InvariantCulture) +
                                              " bars ";
             }
             switch (IndParam.ListParam[0].Text)
@@ -211,17 +214,17 @@ namespace ForexStrategyBuilder.Indicators.Store
                     break;
 
                 case "Bar Range is higher than the Level line":
-                    EntryFilterLongDescription += "is higher than " + sLevelLong + " points";
-                    EntryFilterShortDescription += "is higher than " + sLevelShort + " points";
-                    ExitFilterLongDescription += "is higher than " + sLevelLong + " points";
-                    ExitFilterShortDescription += "is higher than " + sLevelShort + " points";
+                    EntryFilterLongDescription += "is higher than " + levelLong + " points";
+                    EntryFilterShortDescription += "is higher than " + levelShort + " points";
+                    ExitFilterLongDescription += "is higher than " + levelLong + " points";
+                    ExitFilterShortDescription += "is higher than " + levelShort + " points";
                     break;
 
                 case "Bar Range is lower than the Level line":
-                    EntryFilterLongDescription += "is lower than " + sLevelLong + " points";
-                    EntryFilterShortDescription += "is lower than " + sLevelShort + " points";
-                    ExitFilterLongDescription += "is lower than " + sLevelLong + " points";
-                    ExitFilterShortDescription += "is lower than " + sLevelShort + " points";
+                    EntryFilterLongDescription += "is lower than " + levelLong + " points";
+                    EntryFilterShortDescription += "is lower than " + levelShort + " points";
+                    ExitFilterLongDescription += "is lower than " + levelLong + " points";
+                    ExitFilterShortDescription += "is lower than " + levelShort + " points";
                     break;
             }
         }
@@ -229,9 +232,9 @@ namespace ForexStrategyBuilder.Indicators.Store
         public override string ToString()
         {
             return IndicatorName +
-                (IndParam.CheckParam[0].Checked ? "* (" : " (") +
-                IndParam.NumParam[0].ValueToString + ", " + // Number of bars
-                IndParam.NumParam[1].ValueToString + ")"; // Level
+                   (IndParam.CheckParam[0].Checked ? "* (" : " (") +
+                   IndParam.NumParam[0].ValueToString + ", " + // Number of bars
+                   IndParam.NumParam[1].ValueToString + ")"; // Level
         }
     }
 }

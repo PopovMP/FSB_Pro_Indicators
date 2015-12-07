@@ -54,15 +54,15 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.ListParam[0].ToolTip = "Logic of application of the indicator.";
 
             IndParam.ListParam[1].Caption = "Smoothing method";
-            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof (MAMethod));
-            IndParam.ListParam[1].Index = (int) MAMethod.Simple;
+            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof(MAMethod));
+            IndParam.ListParam[1].Index = (int)MAMethod.Simple;
             IndParam.ListParam[1].Text = IndParam.ListParam[1].ItemList[IndParam.ListParam[1].Index];
             IndParam.ListParam[1].Enabled = true;
             IndParam.ListParam[1].ToolTip = "The Moving Average method used for smoothing CCI value.";
 
             IndParam.ListParam[2].Caption = "Base price";
-            IndParam.ListParam[2].ItemList = Enum.GetNames(typeof (BasePrice));
-            IndParam.ListParam[2].Index = (int) BasePrice.Typical;
+            IndParam.ListParam[2].ItemList = Enum.GetNames(typeof(BasePrice));
+            IndParam.ListParam[2].Index = (int)BasePrice.Typical;
             IndParam.ListParam[2].Text = IndParam.ListParam[2].ItemList[IndParam.ListParam[2].Index];
             IndParam.ListParam[2].Enabled = true;
             IndParam.ListParam[2].ToolTip = "The price the indicator is based on.";
@@ -101,9 +101,9 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            var maMethod = (MAMethod) IndParam.ListParam[1].Index;
-            var basePrice = (BasePrice) IndParam.ListParam[2].Index;
-            var period = (int) IndParam.NumParam[0].Value;
+            var maMethod = (MAMethod)IndParam.ListParam[1].Index;
+            var basePrice = (BasePrice)IndParam.ListParam[2].Index;
+            var period = (int)IndParam.NumParam[0].Value;
             double level = IndParam.NumParam[1].Value;
             double multiplier = IndParam.NumParam[2].Value;
             int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
@@ -119,7 +119,7 @@ namespace ForexStrategyBuilder.Indicators.Store
                 double sum = 0;
                 for (int i = 0; i < period; i++)
                     sum += Math.Abs(price[bar - i] - movingAverage[bar]);
-                meanDev[bar] = multiplier*sum/period;
+                meanDev[bar] = multiplier * sum / period;
             }
 
             var cci = new double[Bars];
@@ -127,7 +127,7 @@ namespace ForexStrategyBuilder.Indicators.Store
             for (int bar = firstBar; bar < Bars; bar++)
             {
                 if (Math.Abs(meanDev[bar] - 0) > Epsilon)
-                    cci[bar] = (price[bar] - movingAverage[bar])/meanDev[bar];
+                    cci[bar] = (price[bar] - movingAverage[bar]) / meanDev[bar];
                 else
                     cci[bar] = 0;
             }
@@ -182,42 +182,42 @@ namespace ForexStrategyBuilder.Indicators.Store
             {
                 case "CCI rises":
                     indLogic = IndicatorLogic.The_indicator_rises;
-                    SpecialValues = new double[] {-100, 0, 100};
+                    SpecialValues = new double[] { -100, 0, 100 };
                     break;
 
                 case "CCI falls":
                     indLogic = IndicatorLogic.The_indicator_falls;
-                    SpecialValues = new double[] {-100, 0, 100};
+                    SpecialValues = new double[] { -100, 0, 100 };
                     break;
 
                 case "CCI is higher than the Level line":
                     indLogic = IndicatorLogic.The_indicator_is_higher_than_the_level_line;
-                    SpecialValues = new[] {level, 0, -level};
+                    SpecialValues = new[] { level, 0, -level };
                     break;
 
                 case "CCI is lower than the Level line":
                     indLogic = IndicatorLogic.The_indicator_is_lower_than_the_level_line;
-                    SpecialValues = new[] {level, 0, -level};
+                    SpecialValues = new[] { level, 0, -level };
                     break;
 
                 case "CCI crosses the Level line upward":
                     indLogic = IndicatorLogic.The_indicator_crosses_the_level_line_upward;
-                    SpecialValues = new[] {level, 0, -level};
+                    SpecialValues = new[] { level, 0, -level };
                     break;
 
                 case "CCI crosses the Level line downward":
                     indLogic = IndicatorLogic.The_indicator_crosses_the_level_line_downward;
-                    SpecialValues = new[] {level, 0, -level};
+                    SpecialValues = new[] { level, 0, -level };
                     break;
 
                 case "CCI changes its direction upward":
                     indLogic = IndicatorLogic.The_indicator_changes_its_direction_upward;
-                    SpecialValues = new double[] {-100, 0, 100};
+                    SpecialValues = new double[] { -100, 0, 100 };
                     break;
 
                 case "CCI changes its direction downward":
                     indLogic = IndicatorLogic.The_indicator_changes_its_direction_downward;
-                    SpecialValues = new double[] {-100, 0, 100};
+                    SpecialValues = new double[] { -100, 0, 100 };
                     break;
             }
 
