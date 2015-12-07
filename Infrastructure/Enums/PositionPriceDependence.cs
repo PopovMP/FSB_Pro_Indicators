@@ -21,14 +21,7 @@ namespace ForexStrategyBuilder.Infrastructure.Enums
         PriceSellHigher,
         PriceSellLower,
         BuyHigherSellLower,
-        BuyLowerSelHigher,
-        PriceBuyCrossesUpBandInwards,
-        PriceBuyCrossesUpBandOutwards,
-        PriceBuyCrossesDownBandInwards,
-        PriceBuyCrossesDownBandOutwards,
-        PriceSellCrossesUpBandInwards,
-        PriceSellCrossesUpBandOutwards,
-        PriceSellCrossesDownBandInwards,
-        PriceSellCrossesDownBandOutwards
+        BuyLowerSelHigher, // Deprecated
+        BuyLowerSellHigher,
     }
 }
