@@ -35,7 +35,7 @@ namespace ForexStrategyBuilder.Indicators.Custom
             IndParam.ListParam[0].Caption = "Logic";
             IndParam.ListParam[0].ItemList = new[]
             {
-                "Higher average volume"
+                "Volume higher than the average"
             };
             IndParam.ListParam[0].Index = 0;
             IndParam.ListParam[0].Text = IndParam.ListParam[0].ItemList[IndParam.ListParam[0].Index];
