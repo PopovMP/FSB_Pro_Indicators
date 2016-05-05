@@ -8,6 +8,7 @@
 // A PARTICULAR PURPOSE.
 //==============================================================
 
+using System;
 using System.Drawing;
 using ForexStrategyBuilder.Infrastructure.Entities;
 using ForexStrategyBuilder.Infrastructure.Enums;
@@ -83,19 +84,22 @@ namespace ForexStrategyBuilder.Indicators.Store
             int prvs = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
-            int iFirstBar = period + 2;
+            int firstBar = period + 2;
 
-            var adObos = new double[Bars];
-            for (int iBar = period; iBar < Bars; iBar++)
+            var obos = new double[Bars];
+            for (int bar = period; bar < Bars; bar++)
             {
-                double dMin = double.MaxValue;
-                double dMax = double.MinValue;
+                double min = double.MaxValue;
+                double max = double.MinValue;
                 for (int index = 0; index < period; index++)
                 {
-                    if (High[iBar - index] > dMax) dMax = High[iBar - index];
-                    if (Low[iBar - index] < dMin) dMin = Low[iBar - index];
+                    if (High[bar - index] > max) max = High[bar - index];
+                    if (Low[bar - index] < min) min = Low[bar - index];
                 }
-                adObos[iBar] = 100*(Close[iBar] - dMin)/(dMax - dMin);
+                if (Math.Abs(min - max) < 0.00001)
+                    obos[bar] = 0;
+                else
+                    obos[bar] = 100*(Close[bar] - min)/(max - min);
             }
 
             // Saving the components
@@ -107,21 +111,21 @@ namespace ForexStrategyBuilder.Indicators.Store
                     DataType = IndComponentType.IndicatorValue,
                     ChartType = IndChartType.Line,
                     ChartColor = Color.Brown,
-                    FirstBar = iFirstBar,
-                    Value = adObos
+                    FirstBar = firstBar,
+                    Value = obos
                 };
 
             Component[1] = new IndicatorComp
                 {
                     ChartType = IndChartType.NoChart,
-                    FirstBar = iFirstBar,
+                    FirstBar = firstBar,
                     Value = new double[Bars]
                 };
 
             Component[2] = new IndicatorComp
                 {
                     ChartType = IndChartType.NoChart,
-                    FirstBar = iFirstBar,
+                    FirstBar = firstBar,
                     Value = new double[Bars]
                 };
 
@@ -187,7 +191,7 @@ namespace ForexStrategyBuilder.Indicators.Store
                     break;
             }
 
-            OscillatorLogic(iFirstBar, prvs, adObos, level, 100 - level, ref Component[1], ref Component[2], indLogic);
+            OscillatorLogic(firstBar, prvs, obos, level, 100 - level, ref Component[1], ref Component[2], indLogic);
         }
 
         public override void SetDescription()
