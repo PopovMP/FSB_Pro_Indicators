@@ -37,13 +37,16 @@ namespace ForexStrategyBuilder.Indicators.Store
 
             // The ComboBox parameters
             IndParam.ListParam[0].Caption = "Logic";
-            if (slotType == SlotTypes.Open)
-                IndParam.ListParam[0].ItemList = new[]
+            switch (slotType)
+            {
+                case SlotTypes.Open:
+                    IndParam.ListParam[0].ItemList = new[]
                     {
                         "Enter the market at Moving Average"
                     };
-            else if (slotType == SlotTypes.OpenFilter)
-                IndParam.ListParam[0].ItemList = new[]
+                    break;
+                case SlotTypes.OpenFilter:
+                    IndParam.ListParam[0].ItemList = new[]
                     {
                         "Moving Average rises",
                         "Moving Average falls",
@@ -54,24 +57,29 @@ namespace ForexStrategyBuilder.Indicators.Store
                         "The position opens above Moving Average",
                         "The position opens below Moving Average"
                     };
-            else if (slotType == SlotTypes.Close)
-                IndParam.ListParam[0].ItemList = new[]
+                    break;
+                case SlotTypes.Close:
+                    IndParam.ListParam[0].ItemList = new[]
                     {
                         "Exit the market at Moving Average"
                     };
-            else if (slotType == SlotTypes.CloseFilter)
-                IndParam.ListParam[0].ItemList = new[]
+                    break;
+                case SlotTypes.CloseFilter:
+                    IndParam.ListParam[0].ItemList = new[]
                     {
                         "Moving Average rises",
                         "Moving Average falls",
                         "The bar closes below Moving Average",
                         "The bar closes above Moving Average"
                     };
-            else
-                IndParam.ListParam[0].ItemList = new[]
+                    break;
+                default:
+                    IndParam.ListParam[0].ItemList = new[]
                     {
                         "Not Defined"
                     };
+                    break;
+            }
             IndParam.ListParam[0].Index = 0;
             IndParam.ListParam[0].Text = IndParam.ListParam[0].ItemList[IndParam.ListParam[0].Index];
             IndParam.ListParam[0].Enabled = true;
@@ -121,7 +129,7 @@ namespace ForexStrategyBuilder.Indicators.Store
             var basePrice = (BasePrice) IndParam.ListParam[2].Index;
             var period = (int) IndParam.NumParam[0].Value;
             var shift = (int) IndParam.NumParam[1].Value;
-            int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
+            var previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // TimeExecution
             if (period == 1 && shift == 0)
@@ -132,11 +140,13 @@ namespace ForexStrategyBuilder.Indicators.Store
                     IndParam.ExecutionTime = ExecutionTime.AtBarClosing;
             }
             else
+            {
                 IndParam.ExecutionTime = ExecutionTime.DuringTheBar;
+            }
 
             // Calculation
-            double[] movingAverage = MovingAverage(period, shift, maMethod, Price(basePrice));
-            int firstBar = period + shift + 1 + previous;
+            var movingAverage = MovingAverage(period, shift, maMethod, Price(basePrice));
+            var firstBar = period + shift + 1 + previous;
 
             // Saving the components
             if (SlotType == SlotTypes.Open || SlotType == SlotTypes.Close)
@@ -145,18 +155,18 @@ namespace ForexStrategyBuilder.Indicators.Store
 
                 Component[1] = new IndicatorComp {Value = new double[Bars]};
 
-                for (int bar = firstBar; bar < Bars; bar++)
+                for (var bar = firstBar; bar < Bars; bar++)
                 {
-                    // Covers the cases when the price can pass through the MA without a signal
-                    double value = movingAverage[bar - previous]; // Current value
-                    double value1 = movingAverage[bar - previous - 1]; // Previous value
-                    double tempVal = value;
-                    if ((value1 > High[bar - 1] && value < Open[bar]) || // The Open price jumps above the indicator
-                        (value1 < Low[bar - 1] && value > Open[bar]) || // The Open price jumps below the indicator
-                        (Close[bar - 1] < value && value < Open[bar]) || // The Open price is in a positive gap
-                        (Close[bar - 1] > value && value > Open[bar])) // The Open price is in a negative gap
-                        tempVal = Open[bar];
-                    Component[1].Value[bar] = tempVal; // Entry or exit value
+                    var value = movingAverage[bar - previous];
+                    var previousValue = movingAverage[bar - previous - 1];
+                    var open = Open[bar];
+                    var tempVal = value;
+                    if (High[bar - 1] < previousValue && open > value ||
+                        Low[bar - 1] > previousValue && open < value ||
+                        Close[bar - 1] < value && open > value ||
+                        Close[bar - 1] > value && open < value)
+                        tempVal = open;
+                    Component[1].Value[bar] = tempVal;
                 }
             }
             else
@@ -164,21 +174,29 @@ namespace ForexStrategyBuilder.Indicators.Store
                 Component = new IndicatorComp[3];
 
                 Component[1] = new IndicatorComp
-                    {ChartType = IndChartType.NoChart, FirstBar = firstBar, Value = new double[Bars]};
+                {
+                    ChartType = IndChartType.NoChart,
+                    FirstBar = firstBar,
+                    Value = new double[Bars]
+                };
 
                 Component[2] = new IndicatorComp
-                    {ChartType = IndChartType.NoChart, FirstBar = firstBar, Value = new double[Bars]};
+                {
+                    ChartType = IndChartType.NoChart,
+                    FirstBar = firstBar,
+                    Value = new double[Bars]
+                };
             }
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "MA Value",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Line,
-                    ChartColor = Color.Red,
-                    FirstBar = firstBar,
-                    Value = movingAverage
-                };
+            {
+                CompName = "MA Value",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Line,
+                ChartColor = Color.Red,
+                FirstBar = firstBar,
+                Value = movingAverage
+            };
 
             switch (SlotType)
             {
@@ -225,13 +243,11 @@ namespace ForexStrategyBuilder.Indicators.Store
                         break;
 
                     case "The bar opens above Moving Average after opening below it":
-                        BarOpensAboveIndicatorAfterOpeningBelowLogic(firstBar, previous, movingAverage, ref Component[1],
-                                                                     ref Component[2]);
+                        BarOpensAboveIndicatorAfterOpeningBelowLogic(firstBar, previous, movingAverage, ref Component[1], ref Component[2]);
                         break;
 
                     case "The bar opens below Moving Average after opening above it":
-                        BarOpensBelowIndicatorAfterOpeningAboveLogic(firstBar, previous, movingAverage, ref Component[1],
-                                                                     ref Component[2]);
+                        BarOpensBelowIndicatorAfterOpeningAboveLogic(firstBar, previous, movingAverage, ref Component[1], ref Component[2]);
                         break;
 
                     case "The position opens above Moving Average":
@@ -329,12 +345,12 @@ namespace ForexStrategyBuilder.Indicators.Store
         public override string ToString()
         {
             return string.Format("{0}{1} ({2}, {3}, {4}, {5})",
-                                 IndicatorName,
-                                 (IndParam.CheckParam[0].Checked ? "*" : ""),
-                                 IndParam.ListParam[1].Text,
-                                 IndParam.ListParam[2].Text,
-                                 IndParam.NumParam[0].ValueToString,
-                                 IndParam.NumParam[1].ValueToString);
+                IndicatorName,
+                IndParam.CheckParam[0].Checked ? "*" : "",
+                IndParam.ListParam[1].Text,
+                IndParam.ListParam[2].Text,
+                IndParam.NumParam[0].ValueToString,
+                IndParam.NumParam[1].ValueToString);
         }
     }
 }
