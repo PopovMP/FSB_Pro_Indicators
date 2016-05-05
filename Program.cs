@@ -9,9 +9,11 @@
 //==============================================================
 
 using System;
+using System.IO;
 using System.Text;
 using ForexStrategyBuilder.Indicators.Custom;
 using ForexStrategyBuilder.Indicators.Store;
+using ForexStrategyBuilder.Infrastructure.Entities;
 using ForexStrategyBuilder.Infrastructure.Enums;
 using ForexStrategyBuilder.Infrastructure.Interfaces;
 using ForexStrategyBuilder.Services;
@@ -22,8 +24,6 @@ namespace ForexStrategyBuilder
     {
         public static void Main(string[] args)
         {
-            var doc = new DocGenerator();
-            doc.GenerateDocs();
 
             DataLoader dataLoader = new DataLoader();
             IndicatorTester tester = new IndicatorTester();
@@ -31,7 +31,7 @@ namespace ForexStrategyBuilder
             dataLoader.UserFilesFolder = @"C:\Program Files\Forex Strategy Builder Pro\User Files";
 
             // Set Data Source name, symbol, and period
-            IDataSet dataSet = dataLoader.LoadDataSet("FSB Demo Data", "EURUSD", DataPeriod.M15);
+            IDataSet dataSet = dataLoader.LoadDataSet("FSB Demo Data", "EURUSD", DataPeriod.D1);
 
             if (dataSet == null)
             {
@@ -42,7 +42,7 @@ namespace ForexStrategyBuilder
             }
 
             // Create an indicator for testing
-            IIndicator indicator = new CCIBuySellZones();
+            IIndicator indicator = new BollingerBands();
             indicator.Initialize(SlotTypes.Open);
             indicator.Calculate(dataSet);
 
@@ -50,7 +50,7 @@ namespace ForexStrategyBuilder
             PrintFirstValues(indicator, 0, 50);
 
             // Calculate indicator with random parameters for all available slots.
-            tester.CalculateIndicatorWithRandomParameters(indicator, dataSet, 25);
+           // tester.CalculateIndicatorWithRandomParameters(indicator, dataSet, 25);
 
             Console.WriteLine("Test completed without errors.");
             Console.WriteLine("Press a key to continue!");
@@ -60,11 +60,15 @@ namespace ForexStrategyBuilder
         private static void PrintFirstValues(IIndicator indicator, int componentIndex, int countOfValuesToPrint)
         {
             int firstBar = indicator.Component[componentIndex].FirstBar;
+            IndicatorComp component = indicator.Component[componentIndex];
             var sb = new StringBuilder();
+            sb.AppendLine("Indicator: " + indicator.IndicatorName);
+            sb.AppendLine("Component: " + component.CompName);
+            sb.AppendLine();
             sb.AppendLine("bar        value");
             sb.AppendLine("--------------------------");
             for (int bar = firstBar; bar < firstBar + countOfValuesToPrint; bar++)
-                sb.AppendLine(bar + "    : " + indicator.Component[componentIndex].Value[bar]);
+                sb.AppendLine(bar + "    : " + component.Value[bar]);
             Console.WriteLine(sb.ToString());
         }
     }
