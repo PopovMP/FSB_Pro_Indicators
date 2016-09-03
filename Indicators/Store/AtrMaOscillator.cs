@@ -53,15 +53,15 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.ListParam[0].ToolTip = "Logic of application of the indicator.";
 
             IndParam.ListParam[1].Caption = "Smoothing method";
-            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof (MAMethod));
-            IndParam.ListParam[1].Index = (int) MAMethod.Simple;
+            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof(MAMethod));
+            IndParam.ListParam[1].Index = (int)MAMethod.Simple;
             IndParam.ListParam[1].Text = IndParam.ListParam[1].ItemList[IndParam.ListParam[1].Index];
             IndParam.ListParam[1].Enabled = true;
             IndParam.ListParam[1].ToolTip = "The Moving Average method used for smoothing the ATR value.";
 
             IndParam.ListParam[2].Caption = "Signal line method";
-            IndParam.ListParam[2].ItemList = Enum.GetNames(typeof (MAMethod));
-            IndParam.ListParam[2].Index = (int) MAMethod.Exponential;
+            IndParam.ListParam[2].ItemList = Enum.GetNames(typeof(MAMethod));
+            IndParam.ListParam[2].Index = (int)MAMethod.Exponential;
             IndParam.ListParam[2].Text = IndParam.ListParam[2].ItemList[IndParam.ListParam[2].Index];
             IndParam.ListParam[2].Enabled = true;
             IndParam.ListParam[2].ToolTip = "The Moving Average method used for smoothing the signal line.";
@@ -92,16 +92,16 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            var maSignalMaMethod = (MAMethod) IndParam.ListParam[2].Index;
-            var period1 = (int) IndParam.NumParam[0].Value;
-            var period2 = (int) IndParam.NumParam[1].Value;
+            var maMethod = (MAMethod)IndParam.ListParam[2].Index;
+            var period1 = (int)IndParam.NumParam[0].Value;
+            var period2 = (int)IndParam.NumParam[1].Value;
             int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
-            int firstBar = period1 + period2 + 2;
+            int firstBar = Math.Max(period1, period2) + previous + 2;
             var oscillator = new double[Bars];
 
-// ---------------------------------------------------------
+            // ---------------------------------------------------------
             var atr = new AverageTrueRange();
             atr.Initialize(SlotType);
             atr.IndParam.ListParam[1].Index = IndParam.ListParam[1].Index;
@@ -110,8 +110,8 @@ namespace ForexStrategyBuilder.Indicators.Store
             atr.Calculate(dataSet);
 
             double[] indicator1 = atr.Component[0].Value;
-            double[] indicator2 = MovingAverage(period2, 0, maSignalMaMethod, indicator1);
-// ----------------------------------------------------------
+            double[] indicator2 = MovingAverage(period2, 0, maMethod, indicator1);
+            // ----------------------------------------------------------
 
             for (int bar = firstBar; bar < Bars; bar++)
             {
@@ -122,27 +122,27 @@ namespace ForexStrategyBuilder.Indicators.Store
             Component = new IndicatorComp[3];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "Histogram",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Histogram,
-                    FirstBar = firstBar,
-                    Value = oscillator
-                };
+            {
+                CompName = "Histogram",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Histogram,
+                FirstBar = firstBar,
+                Value = oscillator
+            };
 
             Component[1] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = firstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             Component[2] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = firstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             // Sets the Component's type
             if (SlotType == SlotTypes.OpenFilter)
@@ -161,44 +161,44 @@ namespace ForexStrategyBuilder.Indicators.Store
             }
 
             // Calculation of the logic
-            var indLogic = IndicatorLogic.It_does_not_act_as_a_filter;
+            var logicRule = IndicatorLogic.It_does_not_act_as_a_filter;
 
             switch (IndParam.ListParam[0].Text)
             {
                 case "ATR MA Oscillator rises":
-                    indLogic = IndicatorLogic.The_indicator_rises;
+                    logicRule = IndicatorLogic.The_indicator_rises;
                     break;
 
                 case "ATR MA Oscillator falls":
-                    indLogic = IndicatorLogic.The_indicator_falls;
+                    logicRule = IndicatorLogic.The_indicator_falls;
                     break;
 
                 case "ATR MA Oscillator is higher than the zero line":
-                    indLogic = IndicatorLogic.The_indicator_is_higher_than_the_level_line;
+                    logicRule = IndicatorLogic.The_indicator_is_higher_than_the_level_line;
                     break;
 
                 case "ATR MA Oscillator is lower than the zero line":
-                    indLogic = IndicatorLogic.The_indicator_is_lower_than_the_level_line;
+                    logicRule = IndicatorLogic.The_indicator_is_lower_than_the_level_line;
                     break;
 
                 case "ATR MA Oscillator crosses the zero line upward":
-                    indLogic = IndicatorLogic.The_indicator_crosses_the_level_line_upward;
+                    logicRule = IndicatorLogic.The_indicator_crosses_the_level_line_upward;
                     break;
 
                 case "ATR MA Oscillator crosses the zero line downward":
-                    indLogic = IndicatorLogic.The_indicator_crosses_the_level_line_downward;
+                    logicRule = IndicatorLogic.The_indicator_crosses_the_level_line_downward;
                     break;
 
                 case "ATR MA Oscillator changes its direction upward":
-                    indLogic = IndicatorLogic.The_indicator_changes_its_direction_upward;
+                    logicRule = IndicatorLogic.The_indicator_changes_its_direction_upward;
                     break;
 
                 case "ATR MA Oscillator changes its direction downward":
-                    indLogic = IndicatorLogic.The_indicator_changes_its_direction_downward;
+                    logicRule = IndicatorLogic.The_indicator_changes_its_direction_downward;
                     break;
             }
 
-            NoDirectionOscillatorLogic(firstBar, previous, oscillator, 0, ref Component[1], indLogic);
+            NoDirectionOscillatorLogic(firstBar, previous, oscillator, 0, ref Component[1], logicRule);
             Component[2].Value = Component[1].Value;
         }
 

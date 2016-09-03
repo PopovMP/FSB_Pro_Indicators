@@ -41,11 +41,11 @@ namespace ForexStrategyBuilder.Indicators.Store
             switch (slotType)
             {
                 case SlotTypes.Open:
-                    IndParam.ListParam[0].ItemList = new[] {"Enter the market at the end of the bar"};
+                    IndParam.ListParam[0].ItemList = new[] { "Enter the market at the end of the bar" };
                     IndParam.ListParam[1].ToolTip = "The execution price of all entry orders.";
                     break;
                 case SlotTypes.Close:
-                    IndParam.ListParam[0].ItemList = new[] {"Exit the market at the end of the bar"};
+                    IndParam.ListParam[0].ItemList = new[] { "Exit the market at the end of the bar" };
                     IndParam.ListParam[1].ToolTip = "The execution price of all exit orders.";
                     break;
             }
@@ -55,7 +55,7 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.ListParam[0].ToolTip = "Logic of application of the indicator.";
 
             IndParam.ListParam[1].Caption = "Base price";
-            IndParam.ListParam[1].ItemList = new[] {"Close"};
+            IndParam.ListParam[1].ItemList = new[] { "Close" };
             IndParam.ListParam[1].Index = 0;
             IndParam.ListParam[1].Text = IndParam.ListParam[1].ItemList[IndParam.ListParam[1].Index];
             IndParam.ListParam[1].Enabled = true;
@@ -70,13 +70,13 @@ namespace ForexStrategyBuilder.Indicators.Store
             Component = new IndicatorComp[1];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "Close Price",
-                    DataType = (IndParam.SlotType == SlotTypes.Open) ? IndComponentType.OpenPrice : IndComponentType.ClosePrice,
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = 2,
-                    Value = Close
-                };
+            {
+                CompName = "Close Price",
+                DataType = (IndParam.SlotType == SlotTypes.Open) ? IndComponentType.OpenPrice : IndComponentType.ClosePrice,
+                ChartType = IndChartType.NoChart,
+                FirstBar = 2,
+                Value = Close
+            };
         }
 
         public override void SetDescription()

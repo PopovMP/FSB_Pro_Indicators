@@ -78,12 +78,12 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            int prvs = IndParam.CheckParam[0].Checked ? 1 : 0;
+            int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
-            var adOscillator = new double[Bars];
+            var oscillator = new double[Bars];
 
-// ---------------------------------------------------------
+            // ---------------------------------------------------------
             var obos1 = new OverboughtOversoldIndex();
             obos1.Initialize(SlotType);
             obos1.IndParam.NumParam[0].Value = IndParam.NumParam[0].Value;
@@ -96,9 +96,9 @@ namespace ForexStrategyBuilder.Indicators.Store
             obos2.IndParam.CheckParam[0].Checked = IndParam.CheckParam[0].Checked;
             obos2.Calculate(DataSet);
 
-            double[] adIndicator1 = obos1.Component[0].Value;
-            double[] adIndicator2 = obos2.Component[0].Value;
-// ----------------------------------------------------------
+            double[] indicator1 = obos1.Component[0].Value;
+            double[] indicator2 = obos2.Component[0].Value;
+            // ----------------------------------------------------------
 
             int firstBar = 0;
             for (int c = 0; c < obos1.Component.Length; c++)
@@ -112,34 +112,34 @@ namespace ForexStrategyBuilder.Indicators.Store
 
             for (int bar = firstBar; bar < Bars; bar++)
             {
-                adOscillator[bar] = adIndicator1[bar] - adIndicator2[bar];
+                oscillator[bar] = indicator1[bar] - indicator2[bar];
             }
 
             // Saving the components
             Component = new IndicatorComp[3];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "Histogram",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Histogram,
-                    FirstBar = firstBar,
-                    Value = adOscillator
-                };
+            {
+                CompName = "Histogram",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Histogram,
+                FirstBar = firstBar,
+                Value = oscillator
+            };
 
             Component[1] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = firstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             Component[2] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = firstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             // Sets the Component's type
             if (SlotType == SlotTypes.OpenFilter)
@@ -158,44 +158,44 @@ namespace ForexStrategyBuilder.Indicators.Store
             }
 
             // Calculation of the logic
-            var indLogic = IndicatorLogic.It_does_not_act_as_a_filter;
+            var logicRule = IndicatorLogic.It_does_not_act_as_a_filter;
 
             switch (IndParam.ListParam[0].Text)
             {
                 case "Oscillator rises":
-                    indLogic = IndicatorLogic.The_indicator_rises;
+                    logicRule = IndicatorLogic.The_indicator_rises;
                     break;
 
                 case "Oscillator falls":
-                    indLogic = IndicatorLogic.The_indicator_falls;
+                    logicRule = IndicatorLogic.The_indicator_falls;
                     break;
 
                 case "Oscillator is higher than the zero line":
-                    indLogic = IndicatorLogic.The_indicator_is_higher_than_the_level_line;
+                    logicRule = IndicatorLogic.The_indicator_is_higher_than_the_level_line;
                     break;
 
                 case "Oscillator is lower than the zero line":
-                    indLogic = IndicatorLogic.The_indicator_is_lower_than_the_level_line;
+                    logicRule = IndicatorLogic.The_indicator_is_lower_than_the_level_line;
                     break;
 
                 case "Oscillator crosses the zero line upward":
-                    indLogic = IndicatorLogic.The_indicator_crosses_the_level_line_upward;
+                    logicRule = IndicatorLogic.The_indicator_crosses_the_level_line_upward;
                     break;
 
                 case "Oscillator crosses the zero line downward":
-                    indLogic = IndicatorLogic.The_indicator_crosses_the_level_line_downward;
+                    logicRule = IndicatorLogic.The_indicator_crosses_the_level_line_downward;
                     break;
 
                 case "Oscillator changes its direction upward":
-                    indLogic = IndicatorLogic.The_indicator_changes_its_direction_upward;
+                    logicRule = IndicatorLogic.The_indicator_changes_its_direction_upward;
                     break;
 
                 case "Oscillator changes its direction downward":
-                    indLogic = IndicatorLogic.The_indicator_changes_its_direction_downward;
+                    logicRule = IndicatorLogic.The_indicator_changes_its_direction_downward;
                     break;
             }
 
-            OscillatorLogic(firstBar, prvs, adOscillator, 0, 0, ref Component[1], ref Component[2], indLogic);
+            OscillatorLogic(firstBar, previous, oscillator, 0, 0, ref Component[1], ref Component[2], logicRule);
         }
 
         public override void SetDescription()

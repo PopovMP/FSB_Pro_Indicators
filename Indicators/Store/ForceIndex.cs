@@ -52,15 +52,15 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.ListParam[0].ToolTip = "Logic of application of the indicator.";
 
             IndParam.ListParam[1].Caption = "Smoothing method";
-            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof (MAMethod));
-            IndParam.ListParam[1].Index = (int) MAMethod.Simple;
+            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof(MAMethod));
+            IndParam.ListParam[1].Index = (int)MAMethod.Simple;
             IndParam.ListParam[1].Text = IndParam.ListParam[1].ItemList[IndParam.ListParam[1].Index];
             IndParam.ListParam[1].Enabled = true;
             IndParam.ListParam[1].ToolTip = "The method of smoothing.";
 
             IndParam.ListParam[2].Caption = "Base price";
-            IndParam.ListParam[2].ItemList = Enum.GetNames(typeof (BasePrice));
-            IndParam.ListParam[2].Index = (int) BasePrice.Close;
+            IndParam.ListParam[2].ItemList = Enum.GetNames(typeof(BasePrice));
+            IndParam.ListParam[2].Index = (int)BasePrice.Close;
             IndParam.ListParam[2].Text = IndParam.ListParam[2].ItemList[IndParam.ListParam[2].Index];
             IndParam.ListParam[2].Enabled = true;
             IndParam.ListParam[2].ToolTip = "The price Force Index is based on.";
@@ -84,48 +84,48 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            var maMethod = (MAMethod) IndParam.ListParam[1].Index;
-            var basePrice = (BasePrice) IndParam.ListParam[2].Index;
-            var iPeriod = (int) IndParam.NumParam[0].Value;
-            int iPrvs = IndParam.CheckParam[0].Checked ? 1 : 0;
+            var maMethod = (MAMethod)IndParam.ListParam[1].Index;
+            var basePrice = (BasePrice)IndParam.ListParam[2].Index;
+            var period = (int)IndParam.NumParam[0].Value;
+            int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
-            int iFirstBar = iPeriod + 2;
+            int firstBar = period + previous + 2;
 
-            var adFi = new double[Bars];
-            double[] adMA = MovingAverage(iPeriod, 0, maMethod, Price(basePrice));
+            var forceIndex = new double[Bars];
+            double[] ma = MovingAverage(period, 0, maMethod, Price(basePrice));
 
-            for (int iBar = iFirstBar; iBar < Bars; iBar++)
+            for (int bar = firstBar; bar < Bars; bar++)
             {
-                adFi[iBar] = Volume[iBar]*(adMA[iBar] - adMA[iBar - 1]);
+                forceIndex[bar] = Volume[bar] * (ma[bar] - ma[bar - 1]);
             }
 
             // Saving the components
             Component = new IndicatorComp[3];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "Force Index",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Line,
-                    ChartColor = Color.LightSeaGreen,
-                    FirstBar = iFirstBar,
-                    Value = adFi
-                };
+            {
+                CompName = "Force Index",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Line,
+                ChartColor = Color.LightSeaGreen,
+                FirstBar = firstBar,
+                Value = forceIndex
+            };
 
             Component[1] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = iFirstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             Component[2] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = iFirstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             // Sets the Component's type
             if (SlotType == SlotTypes.OpenFilter)
@@ -144,44 +144,44 @@ namespace ForexStrategyBuilder.Indicators.Store
             }
 
             // Calculation of the logic
-            var indLogic = IndicatorLogic.It_does_not_act_as_a_filter;
+            var logicRule = IndicatorLogic.It_does_not_act_as_a_filter;
 
             switch (IndParam.ListParam[0].Text)
             {
                 case "Force Index rises":
-                    indLogic = IndicatorLogic.The_indicator_rises;
+                    logicRule = IndicatorLogic.The_indicator_rises;
                     break;
 
                 case "Force Index falls":
-                    indLogic = IndicatorLogic.The_indicator_falls;
+                    logicRule = IndicatorLogic.The_indicator_falls;
                     break;
 
                 case "Force Index is higher than the zero line":
-                    indLogic = IndicatorLogic.The_indicator_is_higher_than_the_level_line;
+                    logicRule = IndicatorLogic.The_indicator_is_higher_than_the_level_line;
                     break;
 
                 case "Force Index is lower than the zero line":
-                    indLogic = IndicatorLogic.The_indicator_is_lower_than_the_level_line;
+                    logicRule = IndicatorLogic.The_indicator_is_lower_than_the_level_line;
                     break;
 
                 case "Force Index crosses the zero line upward":
-                    indLogic = IndicatorLogic.The_indicator_crosses_the_level_line_upward;
+                    logicRule = IndicatorLogic.The_indicator_crosses_the_level_line_upward;
                     break;
 
                 case "Force Index crosses the zero line downward":
-                    indLogic = IndicatorLogic.The_indicator_crosses_the_level_line_downward;
+                    logicRule = IndicatorLogic.The_indicator_crosses_the_level_line_downward;
                     break;
 
                 case "Force Index changes its direction upward":
-                    indLogic = IndicatorLogic.The_indicator_changes_its_direction_upward;
+                    logicRule = IndicatorLogic.The_indicator_changes_its_direction_upward;
                     break;
 
                 case "Force Index changes its direction downward":
-                    indLogic = IndicatorLogic.The_indicator_changes_its_direction_downward;
+                    logicRule = IndicatorLogic.The_indicator_changes_its_direction_downward;
                     break;
             }
 
-            OscillatorLogic(iFirstBar, iPrvs, adFi, 0, 0, ref Component[1], ref Component[2], indLogic);
+            OscillatorLogic(firstBar, previous, forceIndex, 0, 0, ref Component[1], ref Component[2], logicRule);
         }
 
         public override void SetDescription()

@@ -86,80 +86,80 @@ namespace ForexStrategyBuilder.Indicators.Store
         {
             DataSet = dataSet;
 
-            var dAfMin = IndParam.NumParam[0].Value;
-            var dAfInc = IndParam.NumParam[1].Value;
-            var dAfMax = IndParam.NumParam[2].Value;
+            var afMin = IndParam.NumParam[0].Value;
+            var afInc = IndParam.NumParam[1].Value;
+            var afMax = IndParam.NumParam[2].Value;
 
             // Reading the parameters
-            double dPExtr;
-            double dPsarNew = 0;
-            var aiDir = new int[Bars];
-            var adPsar = new double[Bars];
+            double extremum;
+            double pSarNew = 0;
+            var direction = new int[Bars];
+            var pSar = new double[Bars];
 
             //----	Calculating the initial values
-            adPsar[0] = 0;
-            var dAf = dAfMin;
-            var intDirNew = 0;
+            pSar[0] = 0;
+            var af = afMin;
+            var newDir = 0;
             if (Close[1] > Open[0])
             {
-                aiDir[0] = 1;
-                aiDir[1] = 1;
-                dPExtr = Math.Max(High[0], High[1]);
-                adPsar[1] = Math.Min(Low[0], Low[1]);
+                direction[0] = 1;
+                direction[1] = 1;
+                extremum = Math.Max(High[0], High[1]);
+                pSar[1] = Math.Min(Low[0], Low[1]);
             }
             else
             {
-                aiDir[0] = -1;
-                aiDir[1] = -1;
-                dPExtr = Math.Min(Low[0], Low[1]);
-                adPsar[1] = Math.Max(High[0], High[1]);
+                direction[0] = -1;
+                direction[1] = -1;
+                extremum = Math.Min(Low[0], Low[1]);
+                pSar[1] = Math.Max(High[0], High[1]);
             }
 
             for (var bar = 2; bar < Bars; bar++)
             {
                 //----	PSAR for the current period
-                if (intDirNew != 0)
+                if (newDir != 0)
                 {
                     // The direction was changed during the last period
-                    aiDir[bar] = intDirNew;
-                    intDirNew = 0;
-                    adPsar[bar] = dPsarNew + dAf*(dPExtr - dPsarNew);
+                    direction[bar] = newDir;
+                    newDir = 0;
+                    pSar[bar] = pSarNew + af * (extremum - pSarNew);
                 }
                 else
                 {
-                    aiDir[bar] = aiDir[bar - 1];
-                    adPsar[bar] = adPsar[bar - 1] + dAf*(dPExtr - adPsar[bar - 1]);
+                    direction[bar] = direction[bar - 1];
+                    pSar[bar] = pSar[bar - 1] + af * (extremum - pSar[bar - 1]);
                 }
 
                 // PSAR has to be out of the previous two bars limits
-                if (aiDir[bar] > 0 && adPsar[bar] > Math.Min(Low[bar - 1], Low[bar - 2]))
-                    adPsar[bar] = Math.Min(Low[bar - 1], Low[bar - 2]);
-                else if (aiDir[bar] < 0 && adPsar[bar] < Math.Max(High[bar - 1], High[bar - 2]))
-                    adPsar[bar] = Math.Max(High[bar - 1], High[bar - 2]);
+                if (direction[bar] > 0 && pSar[bar] > Math.Min(Low[bar - 1], Low[bar - 2]))
+                    pSar[bar] = Math.Min(Low[bar - 1], Low[bar - 2]);
+                else if (direction[bar] < 0 && pSar[bar] < Math.Max(High[bar - 1], High[bar - 2]))
+                    pSar[bar] = Math.Max(High[bar - 1], High[bar - 2]);
 
                 //----	PSAR for the next period
 
                 // Calculation of the new values of flPExtr and flAF
                 // if there is a new extreme price in the PSAR direction
-                if (aiDir[bar] > 0 && High[bar] > dPExtr)
+                if (direction[bar] > 0 && High[bar] > extremum)
                 {
-                    dPExtr = High[bar];
-                    dAf = Math.Min(dAf + dAfInc, dAfMax);
+                    extremum = High[bar];
+                    af = Math.Min(af + afInc, afMax);
                 }
 
-                if (aiDir[bar] < 0 && Low[bar] < dPExtr)
+                if (direction[bar] < 0 && Low[bar] < extremum)
                 {
-                    dPExtr = Low[bar];
-                    dAf = Math.Min(dAf + dAfInc, dAfMax);
+                    extremum = Low[bar];
+                    af = Math.Min(af + afInc, afMax);
                 }
 
                 // Whether the price reaches PSAR
-                if (Low[bar] <= adPsar[bar] && adPsar[bar] <= High[bar])
+                if (Low[bar] <= pSar[bar] && pSar[bar] <= High[bar])
                 {
-                    intDirNew = -aiDir[bar];
-                    dPsarNew = dPExtr;
-                    dAf = dAfMin;
-                    dPExtr = intDirNew > 0 ? High[bar] : Low[bar];
+                    newDir = -direction[bar];
+                    pSarNew = extremum;
+                    af = afMin;
+                    extremum = newDir > 0 ? High[bar] : Low[bar];
                 }
             }
             const int firstBar = 8;
@@ -175,7 +175,7 @@ namespace ForexStrategyBuilder.Indicators.Store
                 ChartColor = Color.Violet,
                 FirstBar = firstBar,
                 PosPriceDependence = PositionPriceDependence.BuyHigherSellLower,
-                Value = adPsar
+                Value = pSar
             };
         }
 

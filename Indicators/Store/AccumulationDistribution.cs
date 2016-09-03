@@ -60,14 +60,14 @@ namespace ForexStrategyBuilder.Indicators.Store
             int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
-            const int firstBar = 3;
+            int firstBar = previous + 2;
 
             var accumulationDistribution = new double[Bars];
 
             accumulationDistribution[0] = (Close[0] - Low[0]) - (High[0] - Close[0]);
             if ((High[0] - Low[0]) > 0)
             {
-                accumulationDistribution[0] = accumulationDistribution[0]/(High[0] - Low[0])*Volume[0];
+                accumulationDistribution[0] = accumulationDistribution[0] / (High[0] - Low[0]) * Volume[0];
             }
             else
             {
@@ -81,7 +81,7 @@ namespace ForexStrategyBuilder.Indicators.Store
 
                 if (range > 0)
                 {
-                    delta = Volume[bar]*(2*Close[bar] - High[bar] - Low[bar])/range;
+                    delta = Volume[bar] * (2 * Close[bar] - High[bar] - Low[bar]) / range;
                 }
 
                 accumulationDistribution[bar] = accumulationDistribution[bar - 1] + delta;
@@ -91,28 +91,28 @@ namespace ForexStrategyBuilder.Indicators.Store
             Component = new IndicatorComp[3];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "Accumulation Distribution",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Line,
-                    ChartColor = Color.Blue,
-                    FirstBar = firstBar,
-                    Value = accumulationDistribution
-                };
+            {
+                CompName = "Accumulation Distribution",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Line,
+                ChartColor = Color.Blue,
+                FirstBar = firstBar,
+                Value = accumulationDistribution
+            };
 
             Component[1] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = firstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             Component[2] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = firstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             // Sets the Component's type
             if (SlotType == SlotTypes.OpenFilter)
@@ -131,28 +131,28 @@ namespace ForexStrategyBuilder.Indicators.Store
             }
 
             // Calculation of the logic
-            var indLogic = IndicatorLogic.It_does_not_act_as_a_filter;
+            var logicRule = IndicatorLogic.It_does_not_act_as_a_filter;
 
             switch (IndParam.ListParam[0].Text)
             {
                 case "AD rises":
-                    indLogic = IndicatorLogic.The_indicator_rises;
+                    logicRule = IndicatorLogic.The_indicator_rises;
                     break;
 
                 case "AD falls":
-                    indLogic = IndicatorLogic.The_indicator_falls;
+                    logicRule = IndicatorLogic.The_indicator_falls;
                     break;
 
                 case "AD changes its direction upward":
-                    indLogic = IndicatorLogic.The_indicator_changes_its_direction_upward;
+                    logicRule = IndicatorLogic.The_indicator_changes_its_direction_upward;
                     break;
 
                 case "AD changes its direction downward":
-                    indLogic = IndicatorLogic.The_indicator_changes_its_direction_downward;
+                    logicRule = IndicatorLogic.The_indicator_changes_its_direction_downward;
                     break;
             }
 
-            OscillatorLogic(firstBar, previous, accumulationDistribution, 0, 0, ref Component[1], ref Component[2], indLogic);
+            OscillatorLogic(firstBar, previous, accumulationDistribution, 0, 0, ref Component[1], ref Component[2], logicRule);
         }
 
         public override void SetDescription()

@@ -50,8 +50,8 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.ListParam[0].ToolTip = "Logic of application of the indicator.";
 
             IndParam.ListParam[1].Caption = "Smoothing method";
-            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof (MAMethod));
-            IndParam.ListParam[1].Index = (int) MAMethod.Simple;
+            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof(MAMethod));
+            IndParam.ListParam[1].Index = (int)MAMethod.Simple;
             IndParam.ListParam[1].Text = IndParam.ListParam[1].ItemList[IndParam.ListParam[1].Index];
             IndParam.ListParam[1].Enabled = true;
             IndParam.ListParam[1].ToolTip = "The method of smoothing.";
@@ -75,24 +75,24 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            var maMethod = (MAMethod) IndParam.ListParam[1].Index;
-            var period = (int) IndParam.NumParam[0].Value;
+            var maMethod = (MAMethod)IndParam.ListParam[1].Index;
+            var period = (int)IndParam.NumParam[0].Value;
             int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
-            int firstBar = period + 2;
+            int firstBar = period + previous + 2;
 
-            var bop = new double[Bars];
+            var balanceOfPower = new double[Bars];
 
             for (int bar = 1; bar < Bars; bar++)
             {
                 if (High[bar] - Low[bar] > Point)
-                    bop[bar] = (Close[bar] - Open[bar])/(High[bar] - Low[bar]);
+                    balanceOfPower[bar] = (Close[bar] - Open[bar]) / (High[bar] - Low[bar]);
                 else
-                    bop[bar] = 0;
+                    balanceOfPower[bar] = 0;
             }
 
-            bop = MovingAverage(period, 0, maMethod, bop);
+            balanceOfPower = MovingAverage(period, 0, maMethod, balanceOfPower);
 
             // Saving the components
             Component = new IndicatorComp[3];
@@ -103,7 +103,7 @@ namespace ForexStrategyBuilder.Indicators.Store
                 DataType = IndComponentType.IndicatorValue,
                 ChartType = IndChartType.Histogram,
                 FirstBar = firstBar,
-                Value = bop
+                Value = balanceOfPower
             };
 
             Component[1] = new IndicatorComp
@@ -137,44 +137,44 @@ namespace ForexStrategyBuilder.Indicators.Store
             }
 
             // Calculation of the logic
-            var indLogic = IndicatorLogic.It_does_not_act_as_a_filter;
+            var logicRule = IndicatorLogic.It_does_not_act_as_a_filter;
 
             switch (IndParam.ListParam[0].Text)
             {
                 case "Balance of Power rises":
-                    indLogic = IndicatorLogic.The_indicator_rises;
+                    logicRule = IndicatorLogic.The_indicator_rises;
                     break;
 
                 case "Balance of Power falls":
-                    indLogic = IndicatorLogic.The_indicator_falls;
+                    logicRule = IndicatorLogic.The_indicator_falls;
                     break;
 
                 case "Balance of Power is higher than the zero line":
-                    indLogic = IndicatorLogic.The_indicator_is_higher_than_the_level_line;
+                    logicRule = IndicatorLogic.The_indicator_is_higher_than_the_level_line;
                     break;
 
                 case "Balance of Power is lower than the zero line":
-                    indLogic = IndicatorLogic.The_indicator_is_lower_than_the_level_line;
+                    logicRule = IndicatorLogic.The_indicator_is_lower_than_the_level_line;
                     break;
 
                 case "Balance of Power crosses the zero line upward":
-                    indLogic = IndicatorLogic.The_indicator_crosses_the_level_line_upward;
+                    logicRule = IndicatorLogic.The_indicator_crosses_the_level_line_upward;
                     break;
 
                 case "Balance of Power crosses the zero line downward":
-                    indLogic = IndicatorLogic.The_indicator_crosses_the_level_line_downward;
+                    logicRule = IndicatorLogic.The_indicator_crosses_the_level_line_downward;
                     break;
 
                 case "Balance of Power changes its direction upward":
-                    indLogic = IndicatorLogic.The_indicator_changes_its_direction_upward;
+                    logicRule = IndicatorLogic.The_indicator_changes_its_direction_upward;
                     break;
 
                 case "Balance of Power changes its direction downward":
-                    indLogic = IndicatorLogic.The_indicator_changes_its_direction_downward;
+                    logicRule = IndicatorLogic.The_indicator_changes_its_direction_downward;
                     break;
             }
 
-            OscillatorLogic(firstBar, previous, bop, 0, 0, ref Component[1], ref Component[2], indLogic);
+            OscillatorLogic(firstBar, previous, balanceOfPower, 0, 0, ref Component[1], ref Component[2], logicRule);
         }
 
         public override void SetDescription()

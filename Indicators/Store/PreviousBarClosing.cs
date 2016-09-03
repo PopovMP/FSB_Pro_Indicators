@@ -85,7 +85,7 @@ namespace ForexStrategyBuilder.Indicators.Store
             // Calculation
             var adPrevBarClosing = new double[Bars];
 
-            const int firstBar = 1;
+            const int firstBar = 2;
 
             for (int bar = firstBar; bar < Bars; bar++)
             {

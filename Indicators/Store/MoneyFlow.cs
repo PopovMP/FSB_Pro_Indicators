@@ -57,49 +57,49 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            int iPrvs = IndParam.CheckParam[0].Checked ? 1 : 0;
+            int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
-            const int firstBar = 3;
-            var adMf = new double[Bars];
+            int firstBar = previous + 2;
+            var moneyFlow = new double[Bars];
 
-            for (int iBar = 1; iBar < Bars; iBar++)
+            for (int bar = 1; bar < Bars; bar++)
             {
-                double dAvg = (High[iBar] + Low[iBar] + Close[iBar])/3;
-                double dAvg1 = (High[iBar - 1] + Low[iBar - 1] + Close[iBar - 1])/3;
-                if (dAvg > dAvg1)
-                    adMf[iBar] = adMf[iBar - 1] + dAvg*Volume[iBar]/1000;
-                else if (dAvg < dAvg1)
-                    adMf[iBar] = adMf[iBar - 1] - dAvg*Volume[iBar]/1000;
+                double average = (High[bar] + Low[bar] + Close[bar]) / 3;
+                double average1 = (High[bar - 1] + Low[bar - 1] + Close[bar - 1]) / 3;
+                if (average > average1)
+                    moneyFlow[bar] = moneyFlow[bar - 1] + average * Volume[bar] / 1000;
+                else if (average < average1)
+                    moneyFlow[bar] = moneyFlow[bar - 1] - average * Volume[bar] / 1000;
                 else
-                    adMf[iBar] = adMf[iBar - 1];
+                    moneyFlow[bar] = moneyFlow[bar - 1];
             }
 
             // Saving the components
             Component = new IndicatorComp[3];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "Money Flow",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Line,
-                    ChartColor = Color.Blue,
-                    FirstBar = firstBar,
-                    Value = adMf
-                };
+            {
+                CompName = "Money Flow",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Line,
+                ChartColor = Color.Blue,
+                FirstBar = firstBar,
+                Value = moneyFlow
+            };
 
             Component[1] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = firstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             Component[2] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = firstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             // Sets the Component's type
             if (SlotType == SlotTypes.OpenFilter)
@@ -118,28 +118,28 @@ namespace ForexStrategyBuilder.Indicators.Store
             }
 
             // Calculation of the logic
-            var indLogic = IndicatorLogic.It_does_not_act_as_a_filter;
+            var logicRule = IndicatorLogic.It_does_not_act_as_a_filter;
 
             switch (IndParam.ListParam[0].Text)
             {
                 case "Money Flow rises":
-                    indLogic = IndicatorLogic.The_indicator_rises;
+                    logicRule = IndicatorLogic.The_indicator_rises;
                     break;
 
                 case "Money Flow falls":
-                    indLogic = IndicatorLogic.The_indicator_falls;
+                    logicRule = IndicatorLogic.The_indicator_falls;
                     break;
 
                 case "Money Flow changes its direction upward":
-                    indLogic = IndicatorLogic.The_indicator_changes_its_direction_upward;
+                    logicRule = IndicatorLogic.The_indicator_changes_its_direction_upward;
                     break;
 
                 case "Money Flow changes its direction downward":
-                    indLogic = IndicatorLogic.The_indicator_changes_its_direction_downward;
+                    logicRule = IndicatorLogic.The_indicator_changes_its_direction_downward;
                     break;
             }
 
-            OscillatorLogic(firstBar, iPrvs, adMf, 0, 0, ref Component[1], ref Component[2], indLogic);
+            OscillatorLogic(firstBar, previous, moneyFlow, 0, 0, ref Component[1], ref Component[2], logicRule);
         }
 
         public override void SetDescription()

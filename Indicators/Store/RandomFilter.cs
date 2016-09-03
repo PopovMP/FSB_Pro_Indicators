@@ -91,8 +91,8 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            var iProbability = (int) IndParam.NumParam[0].Value;
-            var iLongShort = (int) IndParam.NumParam[1].Value;
+            var probability = (int)IndParam.NumParam[0].Value;
+            var longShort = (int)IndParam.NumParam[1].Value;
 
             var random = new Random();
 
@@ -102,36 +102,36 @@ namespace ForexStrategyBuilder.Indicators.Store
                 Component = new IndicatorComp[2];
 
                 Component[0] = new IndicatorComp
-                    {
-                        ChartType = IndChartType.NoChart,
-                        FirstBar = 0,
-                        Value = new double[Bars],
-                        DataType = IndComponentType.AllowOpenLong,
-                        CompName = "Is long entry allowed"
-                    };
+                {
+                    ChartType = IndChartType.NoChart,
+                    FirstBar = 2,
+                    Value = new double[Bars],
+                    DataType = IndComponentType.AllowOpenLong,
+                    CompName = "Is long entry allowed"
+                };
 
                 Component[1] = new IndicatorComp
-                    {
-                        ChartType = IndChartType.NoChart,
-                        FirstBar = 0,
-                        Value = new double[Bars],
-                        DataType = IndComponentType.AllowOpenShort,
-                        CompName = "Is short entry allowed"
-                    };
+                {
+                    ChartType = IndChartType.NoChart,
+                    FirstBar = 2,
+                    Value = new double[Bars],
+                    DataType = IndComponentType.AllowOpenShort,
+                    CompName = "Is short entry allowed"
+                };
 
                 // Calculation of the logic
-                for (int i = 0; i < Bars; i++)
+                for (int bar = 0; bar < Bars; bar++)
                 {
-                    if (random.Next(100) < iProbability)
+                    if (random.Next(100) < probability)
                     {
-                        int iRandNumb = random.Next(100);
-                        Component[0].Value[i] = (iRandNumb <= iLongShort) ? 1 : 0;
-                        Component[1].Value[i] = (iRandNumb > iLongShort) ? 1 : 0;
+                        int rand = random.Next(100);
+                        Component[0].Value[bar] = (rand <= longShort) ? 1 : 0;
+                        Component[1].Value[bar] = (rand > longShort) ? 1 : 0;
                     }
                     else
                     {
-                        Component[0].Value[i] = 0;
-                        Component[1].Value[i] = 0;
+                        Component[0].Value[bar] = 0;
+                        Component[1].Value[bar] = 0;
                     }
                 }
             }
@@ -140,17 +140,17 @@ namespace ForexStrategyBuilder.Indicators.Store
                 Component = new IndicatorComp[1];
 
                 Component[0] = new IndicatorComp
-                    {
-                        ChartType = IndChartType.NoChart,
-                        FirstBar = 0,
-                        Value = new double[Bars],
-                        DataType = IndComponentType.ForceClose,
-                        CompName = "Force Close"
-                    };
-
-                for (int i = 0; i < Bars; i++)
                 {
-                    Component[0].Value[i] = (random.Next(100) < iProbability) ? 1 : 0;
+                    ChartType = IndChartType.NoChart,
+                    FirstBar = 2,
+                    Value = new double[Bars],
+                    DataType = IndComponentType.ForceClose,
+                    CompName = "Force Close"
+                };
+
+                for (int bar = 0; bar < Bars; bar++)
+                {
+                    Component[0].Value[bar] = (random.Next(100) < probability) ? 1 : 0;
                 }
             }
         }

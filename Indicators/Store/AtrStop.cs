@@ -46,14 +46,14 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.ListParam[0].ToolTip = "Logic of application of the indicator.";
 
             IndParam.ListParam[1].Caption = "Smoothing method";
-            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof (MAMethod));
-            IndParam.ListParam[1].Index = (int) MAMethod.Simple;
+            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof(MAMethod));
+            IndParam.ListParam[1].Index = (int)MAMethod.Simple;
             IndParam.ListParam[1].Text = IndParam.ListParam[1].ItemList[IndParam.ListParam[1].Index];
             IndParam.ListParam[1].Enabled = true;
             IndParam.ListParam[1].ToolTip = "The Moving Average method used for smoothing the ATR.";
 
             IndParam.ListParam[2].Caption = "Base price";
-            IndParam.ListParam[2].ItemList = new[] {"Bar range"};
+            IndParam.ListParam[2].ItemList = new[] { "Bar range" };
             IndParam.ListParam[2].Index = 0;
             IndParam.ListParam[2].Text = IndParam.ListParam[2].ItemList[IndParam.ListParam[2].Index];
             IndParam.ListParam[2].Enabled = true;
@@ -86,48 +86,52 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            var maMethod = (MAMethod) IndParam.ListParam[1].Index;
-            var period = (int) IndParam.NumParam[0].Value;
-            var multipl = (int) IndParam.NumParam[1].Value;
-            int prev = IndParam.CheckParam[0].Checked ? 1 : 0;
+            var maMethod = (MAMethod)IndParam.ListParam[1].Index;
+            var period = (int)IndParam.NumParam[0].Value;
+            var multipl = (int)IndParam.NumParam[1].Value;
+            int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
-            int firstBar = period + 2;
+            int firstBar = period + previous + 2;
 
             var atr = new double[Bars];
 
             for (int bar = 1; bar < Bars; bar++)
+            {
                 atr[bar] = Math.Max(High[bar], Close[bar - 1]) - Math.Min(Low[bar], Close[bar - 1]);
+            }
 
             atr = MovingAverage(period, 0, maMethod, atr);
 
             var atrStop = new double[Bars];
-            double pip = (Digits == 5 || Digits == 3) ? 10*Point : Point;
-            double minStop = 5*pip;
+            double pip = (Digits == 5 || Digits == 3) ? 10 * Point : Point;
+            double minStop = 5 * pip;
 
-            for (int bar = firstBar; bar < Bars - prev; bar++)
-                atrStop[bar + prev] = Math.Max(atr[bar]*multipl, minStop);
+            for (int bar = firstBar; bar < Bars - previous; bar++)
+            {
+                atrStop[bar + previous] = Math.Max(atr[bar] * multipl, minStop);
+            }
 
             // Saving the components
             Component = new IndicatorComp[2];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "ATR Stop margin",
-                    DataType = IndComponentType.IndicatorValue,
-                    FirstBar = firstBar,
-                    ShowInDynInfo = false,
-                    Value = atrStop
-                };
+            {
+                CompName = "ATR Stop margin",
+                DataType = IndComponentType.IndicatorValue,
+                FirstBar = firstBar,
+                ShowInDynInfo = false,
+                Value = atrStop
+            };
 
             Component[1] = new IndicatorComp
-                {
-                    CompName = "ATR Stop for the transferred position",
-                    DataType = IndComponentType.Other,
-                    ShowInDynInfo = false,
-                    FirstBar = firstBar,
-                    Value = new double[Bars]
-                };
+            {
+                CompName = "ATR Stop for the transferred position",
+                DataType = IndComponentType.Other,
+                ShowInDynInfo = false,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
         }
 
         public override void SetDescription()

@@ -56,22 +56,22 @@ namespace ForexStrategyBuilder.Indicators.Store
             Component = new IndicatorComp[2];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "Is long entry allowed",
-                    DataType = IndComponentType.AllowOpenLong,
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = 0,
-                    Value = new double[Bars]
-                };
+            {
+                CompName = "Is long entry allowed",
+                DataType = IndComponentType.AllowOpenLong,
+                ChartType = IndChartType.NoChart,
+                FirstBar = 0,
+                Value = new double[Bars]
+            };
 
             Component[1] = new IndicatorComp
-                {
-                    CompName = "Is short entry allowed",
-                    DataType = IndComponentType.AllowOpenShort,
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = 0,
-                    Value = new double[Bars]
-                };
+            {
+                CompName = "Is short entry allowed",
+                DataType = IndComponentType.AllowOpenShort,
+                ChartType = IndChartType.NoChart,
+                FirstBar = 0,
+                Value = new double[Bars]
+            };
 
             // Calculation of the logic
             switch (IndParam.ListParam[0].Text)

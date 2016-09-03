@@ -55,8 +55,8 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.ListParam[0].ToolTip = "Logic of application of the indicator.";
 
             IndParam.ListParam[1].Caption = "Base price";
-            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof (BasePrice));
-            IndParam.ListParam[1].Index = (int) BasePrice.Close;
+            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof(BasePrice));
+            IndParam.ListParam[1].Index = (int)BasePrice.Close;
             IndParam.ListParam[1].Text = IndParam.ListParam[1].ItemList[IndParam.ListParam[1].Index];
             IndParam.ListParam[1].Enabled = true;
             IndParam.ListParam[1].ToolTip = "The price the Aroon is based on.";
@@ -74,7 +74,7 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.NumParam[1].Min = -100;
             IndParam.NumParam[1].Max = 100;
             IndParam.NumParam[1].Enabled = true;
-            IndParam.NumParam[1].ToolTip = "A critical level (for the appropriate logic).";
+            IndParam.NumParam[1].ToolTip = "A signal level.";
 
             // The CheckBox parameters
             IndParam.CheckParam[0].Caption = "Use previous bar value";
@@ -87,14 +87,14 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            var basePrice = (BasePrice) IndParam.ListParam[1].Index;
-            var period = (int) IndParam.NumParam[0].Value;
+            var basePrice = (BasePrice)IndParam.ListParam[1].Index;
+            var period = (int)IndParam.NumParam[0].Value;
             double level = IndParam.NumParam[1].Value;
             int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
-            int firstBar = period + 2;
-            double[] adBasePrice = Price(basePrice);
+            int firstBar = period + previous + 2;
+            double[] price = Price(basePrice);
             var aroonUp = new double[Bars];
             var aroonDown = new double[Bars];
             var aroon = new double[Bars];
@@ -106,15 +106,15 @@ namespace ForexStrategyBuilder.Indicators.Store
                 for (int i = 0; i < period; i++)
                 {
                     int baseBar = bar - period + 1 + i;
-                    if (adBasePrice[baseBar] > highestHigh)
+                    if (price[baseBar] > highestHigh)
                     {
-                        highestHigh = adBasePrice[baseBar];
-                        aroonUp[bar] = 100.0*i/(period - 1);
+                        highestHigh = price[baseBar];
+                        aroonUp[bar] = 100.0 * i / (period - 1);
                     }
-                    if (adBasePrice[baseBar] < lowestLow)
+                    if (price[baseBar] < lowestLow)
                     {
-                        lowestLow = adBasePrice[baseBar];
-                        aroonDown[bar] = 100.0*i/(period - 1);
+                        lowestLow = price[baseBar];
+                        aroonDown[bar] = 100.0 * i / (period - 1);
                     }
                 }
             }
@@ -128,47 +128,47 @@ namespace ForexStrategyBuilder.Indicators.Store
             Component = new IndicatorComp[5];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "Aroon Histogram",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Histogram,
-                    FirstBar = firstBar,
-                    Value = aroon
-                };
+            {
+                CompName = "Aroon Histogram",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Histogram,
+                FirstBar = firstBar,
+                Value = aroon
+            };
 
             Component[1] = new IndicatorComp
-                {
-                    CompName = "Aroon Up",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Line,
-                    ChartColor = Color.Green,
-                    FirstBar = firstBar,
-                    Value = aroonUp
-                };
+            {
+                CompName = "Aroon Up",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Line,
+                ChartColor = Color.Green,
+                FirstBar = firstBar,
+                Value = aroonUp
+            };
 
             Component[2] = new IndicatorComp
-                {
-                    CompName = "Aroon Down",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Line,
-                    ChartColor = Color.Red,
-                    FirstBar = firstBar,
-                    Value = aroonDown
-                };
+            {
+                CompName = "Aroon Down",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Line,
+                ChartColor = Color.Red,
+                FirstBar = firstBar,
+                Value = aroonDown
+            };
 
             Component[3] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = firstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             Component[4] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = firstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             // Sets the Component's type
             if (SlotType == SlotTypes.OpenFilter)
@@ -187,52 +187,52 @@ namespace ForexStrategyBuilder.Indicators.Store
             }
 
             // Calculation of the logic
-            var indLogic = IndicatorLogic.It_does_not_act_as_a_filter;
+            var logicRule = IndicatorLogic.It_does_not_act_as_a_filter;
 
             switch (IndParam.ListParam[0].Text)
             {
                 case "Aroon Histogram rises":
-                    indLogic = IndicatorLogic.The_indicator_rises;
-                    SpecialValues = new double[] {0};
+                    logicRule = IndicatorLogic.The_indicator_rises;
+                    SpecialValues = new double[] { 0 };
                     break;
 
                 case "Aroon Histogram falls":
-                    indLogic = IndicatorLogic.The_indicator_falls;
-                    SpecialValues = new double[] {0};
+                    logicRule = IndicatorLogic.The_indicator_falls;
+                    SpecialValues = new double[] { 0 };
                     break;
 
                 case "Aroon Histogram is higher than the Level line":
-                    indLogic = IndicatorLogic.The_indicator_is_higher_than_the_level_line;
-                    SpecialValues = new[] {level, -level};
+                    logicRule = IndicatorLogic.The_indicator_is_higher_than_the_level_line;
+                    SpecialValues = new[] { level, -level };
                     break;
 
                 case "Aroon Histogram is lower than the Level line":
-                    indLogic = IndicatorLogic.The_indicator_is_lower_than_the_level_line;
-                    SpecialValues = new[] {level, -level};
+                    logicRule = IndicatorLogic.The_indicator_is_lower_than_the_level_line;
+                    SpecialValues = new[] { level, -level };
                     break;
 
                 case "Aroon Histogram crosses the Level line upward":
-                    indLogic = IndicatorLogic.The_indicator_crosses_the_level_line_upward;
-                    SpecialValues = new[] {level, -level};
+                    logicRule = IndicatorLogic.The_indicator_crosses_the_level_line_upward;
+                    SpecialValues = new[] { level, -level };
                     break;
 
                 case "Aroon Histogram crosses the Level line downward":
-                    indLogic = IndicatorLogic.The_indicator_crosses_the_level_line_downward;
-                    SpecialValues = new[] {level, -level};
+                    logicRule = IndicatorLogic.The_indicator_crosses_the_level_line_downward;
+                    SpecialValues = new[] { level, -level };
                     break;
 
                 case "Aroon Histogram changes its direction upward":
-                    indLogic = IndicatorLogic.The_indicator_changes_its_direction_upward;
-                    SpecialValues = new double[] {0};
+                    logicRule = IndicatorLogic.The_indicator_changes_its_direction_upward;
+                    SpecialValues = new double[] { 0 };
                     break;
 
                 case "Aroon Histogram changes its direction downward":
-                    indLogic = IndicatorLogic.The_indicator_changes_its_direction_downward;
-                    SpecialValues = new double[] {0};
+                    logicRule = IndicatorLogic.The_indicator_changes_its_direction_downward;
+                    SpecialValues = new double[] { 0 };
                     break;
             }
 
-            OscillatorLogic(firstBar, previous, aroon, level, -level, ref Component[3], ref Component[4], indLogic);
+            OscillatorLogic(firstBar, previous, aroon, level, -level, ref Component[3], ref Component[4], logicRule);
         }
 
         public override void SetDescription()

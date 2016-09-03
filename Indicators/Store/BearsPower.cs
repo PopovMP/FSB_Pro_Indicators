@@ -51,8 +51,8 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.ListParam[0].ToolTip = "Logic of application of the indicator.";
 
             IndParam.ListParam[1].Caption = "Smoothing method";
-            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof (MAMethod));
-            IndParam.ListParam[1].Index = (int) MAMethod.Exponential;
+            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof(MAMethod));
+            IndParam.ListParam[1].Index = (int)MAMethod.Exponential;
             IndParam.ListParam[1].Text = IndParam.ListParam[1].ItemList[IndParam.ListParam[1].Index];
             IndParam.ListParam[1].Enabled = true;
             IndParam.ListParam[1].ToolTip = "The Moving Average method used for smoothing the Bears Power value.";
@@ -71,7 +71,7 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.NumParam[1].Max = 100;
             IndParam.NumParam[1].Point = 4;
             IndParam.NumParam[1].Enabled = true;
-            IndParam.NumParam[1].ToolTip = "A critical level (for the appropriate logic).";
+            IndParam.NumParam[1].ToolTip = "A signal level.";
 
             // The CheckBox parameters
             IndParam.CheckParam[0].Caption = "Use previous bar value";
@@ -84,46 +84,46 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            var maMethod = (MAMethod) IndParam.ListParam[1].Index;
-            var iPeriod = (int) IndParam.NumParam[0].Value;
-            double dLevel = IndParam.NumParam[1].Value;
-            int iPrvs = IndParam.CheckParam[0].Checked ? 1 : 0;
+            var maMethod = (MAMethod)IndParam.ListParam[1].Index;
+            var period = (int)IndParam.NumParam[0].Value;
+            double level = IndParam.NumParam[1].Value;
+            int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
-            int iFirstBar = iPeriod + 2;
-            double[] adMA = MovingAverage(iPeriod, 0, maMethod, Price(BasePrice.Close));
-            var adBears = new double[Bars];
+            int firstBar = period + previous + 2;
+            double[] ma = MovingAverage(period, 0, maMethod, Price(BasePrice.Close));
+            var bearsPower = new double[Bars];
 
-            for (int iBar = iPeriod; iBar < Bars; iBar++)
+            for (int bar = period; bar < Bars; bar++)
             {
-                adBears[iBar] = Low[iBar] - adMA[iBar];
+                bearsPower[bar] = Low[bar] - ma[bar];
             }
 
             // Saving the components
             Component = new IndicatorComp[3];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "Bears Power",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Histogram,
-                    FirstBar = iFirstBar,
-                    Value = adBears
-                };
+            {
+                CompName = "Bears Power",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Histogram,
+                FirstBar = firstBar,
+                Value = bearsPower
+            };
 
             Component[1] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = iFirstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             Component[2] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = iFirstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             // Sets the Component's type.
             if (SlotType == SlotTypes.OpenFilter)
@@ -142,60 +142,60 @@ namespace ForexStrategyBuilder.Indicators.Store
             }
 
             // Calculation of the logic.
-            var indLogic = IndicatorLogic.It_does_not_act_as_a_filter;
+            var logicRule = IndicatorLogic.It_does_not_act_as_a_filter;
 
             switch (IndParam.ListParam[0].Text)
             {
                 case "Bears Power rises":
-                    indLogic = IndicatorLogic.The_indicator_rises;
-                    SpecialValues = new double[] {0};
+                    logicRule = IndicatorLogic.The_indicator_rises;
+                    SpecialValues = new double[] { 0 };
                     break;
 
                 case "Bears Power falls":
-                    indLogic = IndicatorLogic.The_indicator_falls;
-                    SpecialValues = new double[] {0};
+                    logicRule = IndicatorLogic.The_indicator_falls;
+                    SpecialValues = new double[] { 0 };
                     break;
 
                 case "Bears Power is higher than the Level line":
-                    indLogic = IndicatorLogic.The_indicator_is_higher_than_the_level_line;
-                    SpecialValues = new[] {dLevel, -dLevel};
+                    logicRule = IndicatorLogic.The_indicator_is_higher_than_the_level_line;
+                    SpecialValues = new[] { level, -level };
                     break;
 
                 case "Bears Power is lower than the Level line":
-                    indLogic = IndicatorLogic.The_indicator_is_lower_than_the_level_line;
-                    SpecialValues = new[] {dLevel, -dLevel};
+                    logicRule = IndicatorLogic.The_indicator_is_lower_than_the_level_line;
+                    SpecialValues = new[] { level, -level };
                     break;
 
                 case "Bears Power crosses the Level line upward":
-                    indLogic = IndicatorLogic.The_indicator_crosses_the_level_line_upward;
-                    SpecialValues = new[] {dLevel, -dLevel};
+                    logicRule = IndicatorLogic.The_indicator_crosses_the_level_line_upward;
+                    SpecialValues = new[] { level, -level };
                     break;
 
                 case "Bears Power crosses the Level line downward":
-                    indLogic = IndicatorLogic.The_indicator_crosses_the_level_line_downward;
-                    SpecialValues = new[] {dLevel, -dLevel};
+                    logicRule = IndicatorLogic.The_indicator_crosses_the_level_line_downward;
+                    SpecialValues = new[] { level, -level };
                     break;
 
                 case "Bears Power changes its direction upward":
-                    indLogic = IndicatorLogic.The_indicator_changes_its_direction_upward;
-                    SpecialValues = new double[] {0};
+                    logicRule = IndicatorLogic.The_indicator_changes_its_direction_upward;
+                    SpecialValues = new double[] { 0 };
                     break;
 
                 case "Bears Power changes its direction downward":
-                    indLogic = IndicatorLogic.The_indicator_changes_its_direction_downward;
-                    SpecialValues = new double[] {0};
+                    logicRule = IndicatorLogic.The_indicator_changes_its_direction_downward;
+                    SpecialValues = new double[] { 0 };
                     break;
             }
 
-            OscillatorLogic(iFirstBar, iPrvs, adBears, dLevel, -dLevel, ref Component[1], ref Component[2], indLogic);
+            OscillatorLogic(firstBar, previous, bearsPower, level, -level, ref Component[1], ref Component[2], logicRule);
         }
 
         public override void SetDescription()
         {
-            string sLevelLong = (Math.Abs(IndParam.NumParam[1].Value - 0) < Epsilon
+            string levelLong = (Math.Abs(IndParam.NumParam[1].Value - 0) < Epsilon
                                      ? "0"
                                      : IndParam.NumParam[1].ValueToString);
-            string sLevelShort = (Math.Abs(IndParam.NumParam[1].Value - 0) < Epsilon
+            string levelShort = (Math.Abs(IndParam.NumParam[1].Value - 0) < Epsilon
                                       ? "0"
                                       : "-" + IndParam.NumParam[1].ValueToString);
 
@@ -221,31 +221,31 @@ namespace ForexStrategyBuilder.Indicators.Store
                     break;
 
                 case "Bears Power is higher than the Level line":
-                    EntryFilterLongDescription += "is higher than the Level " + sLevelLong;
-                    EntryFilterShortDescription += "is lower than the Level " + sLevelShort;
-                    ExitFilterLongDescription += "is higher than the Level " + sLevelLong;
-                    ExitFilterShortDescription += "is lower than the Level " + sLevelShort;
+                    EntryFilterLongDescription += "is higher than the Level " + levelLong;
+                    EntryFilterShortDescription += "is lower than the Level " + levelShort;
+                    ExitFilterLongDescription += "is higher than the Level " + levelLong;
+                    ExitFilterShortDescription += "is lower than the Level " + levelShort;
                     break;
 
                 case "Bears Power is lower than the Level line":
-                    EntryFilterLongDescription += "is lower than the Level " + sLevelLong;
-                    EntryFilterShortDescription += "is higher than the Level " + sLevelShort;
-                    ExitFilterLongDescription += "is lower than the Level " + sLevelLong;
-                    ExitFilterShortDescription += "is higher than the Level " + sLevelShort;
+                    EntryFilterLongDescription += "is lower than the Level " + levelLong;
+                    EntryFilterShortDescription += "is higher than the Level " + levelShort;
+                    ExitFilterLongDescription += "is lower than the Level " + levelLong;
+                    ExitFilterShortDescription += "is higher than the Level " + levelShort;
                     break;
 
                 case "Bears Power crosses the Level line upward":
-                    EntryFilterLongDescription += "crosses the Level " + sLevelLong + " upward";
-                    EntryFilterShortDescription += "crosses the Level " + sLevelShort + " downward";
-                    ExitFilterLongDescription += "crosses the Level " + sLevelLong + " upward";
-                    ExitFilterShortDescription += "crosses the Level " + sLevelShort + " downward";
+                    EntryFilterLongDescription += "crosses the Level " + levelLong + " upward";
+                    EntryFilterShortDescription += "crosses the Level " + levelShort + " downward";
+                    ExitFilterLongDescription += "crosses the Level " + levelLong + " upward";
+                    ExitFilterShortDescription += "crosses the Level " + levelShort + " downward";
                     break;
 
                 case "Bears Power crosses the Level line downward":
-                    EntryFilterLongDescription += "crosses the Level " + sLevelLong + " downward";
-                    EntryFilterShortDescription += "crosses the Level " + sLevelShort + " upward";
-                    ExitFilterLongDescription += "crosses the Level " + sLevelLong + " downward";
-                    ExitFilterShortDescription += "crosses the Level " + sLevelShort + " upward";
+                    EntryFilterLongDescription += "crosses the Level " + levelLong + " downward";
+                    EntryFilterShortDescription += "crosses the Level " + levelShort + " upward";
+                    ExitFilterLongDescription += "crosses the Level " + levelLong + " downward";
+                    ExitFilterShortDescription += "crosses the Level " + levelShort + " upward";
                     break;
 
                 case "Bears Power changes its direction upward":

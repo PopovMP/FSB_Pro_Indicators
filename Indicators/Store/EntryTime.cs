@@ -80,87 +80,85 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            var fromHour = (int) IndParam.NumParam[0].Value;
-            var fromMin = (int) IndParam.NumParam[1].Value;
-            var untilHour = (int) IndParam.NumParam[2].Value;
-            var untilMin = (int) IndParam.NumParam[3].Value;
+            var fromHour = (int)IndParam.NumParam[0].Value;
+            var fromMin = (int)IndParam.NumParam[1].Value;
+            var untilHour = (int)IndParam.NumParam[2].Value;
+            var untilMin = (int)IndParam.NumParam[3].Value;
             var fromTime = new TimeSpan(fromHour, fromMin, 0);
             var untilTime = new TimeSpan(untilHour, untilMin, 0);
 
             // Calculation
-            const int firstBar = 1;
-            var adBars = new double[Bars];
+            int firstBar = 2;
+            var signal = new double[Bars];
 
             // Calculation of the logic
             for (int bar = firstBar; bar < Bars; bar++)
             {
                 if (fromTime < untilTime)
-                    adBars[bar] = Time[bar].TimeOfDay >= fromTime &&
-                                  Time[bar].TimeOfDay < untilTime
-                                      ? 1
-                                      : 0;
+                {
+                    signal[bar] = Time[bar].TimeOfDay >= fromTime && Time[bar].TimeOfDay < untilTime ? 1 : 0;
+                }
                 else if (fromTime > untilTime)
-                    adBars[bar] = Time[bar].TimeOfDay >= fromTime ||
-                                  Time[bar].TimeOfDay < untilTime
-                                      ? 1
-                                      : 0;
+                {
+                    signal[bar] = Time[bar].TimeOfDay >= fromTime || Time[bar].TimeOfDay < untilTime ? 1 : 0;
+                }
                 else
-                    adBars[bar] = 1;
+                {
+                    signal[bar] = 1;
+                }
             }
 
             // Saving the components
             Component = new IndicatorComp[2];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "Is long entry allowed",
-                    DataType = IndComponentType.AllowOpenLong,
-                    ChartType = IndChartType.NoChart,
-                    ShowInDynInfo = false,
-                    FirstBar = firstBar,
-                    Value = adBars
-                };
+            {
+                CompName = "Is long entry allowed",
+                DataType = IndComponentType.AllowOpenLong,
+                ChartType = IndChartType.NoChart,
+                ShowInDynInfo = false,
+                FirstBar = firstBar,
+                Value = signal
+            };
 
             Component[1] = new IndicatorComp
-                {
-                    CompName = "Is short entry allowed",
-                    DataType = IndComponentType.AllowOpenShort,
-                    ChartType = IndChartType.NoChart,
-                    ShowInDynInfo = false,
-                    FirstBar = firstBar,
-                    Value = adBars
-                };
+            {
+                CompName = "Is short entry allowed",
+                DataType = IndComponentType.AllowOpenShort,
+                ChartType = IndChartType.NoChart,
+                ShowInDynInfo = false,
+                FirstBar = firstBar,
+                Value = signal
+            };
         }
 
         public override void SetDescription()
         {
-            var iFromHour = (int) IndParam.NumParam[0].Value;
-            var iFromMin = (int) IndParam.NumParam[1].Value;
-            var iUntilHour = (int) IndParam.NumParam[2].Value;
-            var iUntilMin = (int) IndParam.NumParam[3].Value;
+            var fromHour = (int)IndParam.NumParam[0].Value;
+            var fromMin = (int)IndParam.NumParam[1].Value;
+            var toHour = (int)IndParam.NumParam[2].Value;
+            var toMin = (int)IndParam.NumParam[3].Value;
 
-            string sFromTime = iFromHour.ToString("00") + ":" + iFromMin.ToString("00");
-            string sUntilTime = iUntilHour.ToString("00") + ":" + iUntilMin.ToString("00");
+            string fromTime = fromHour.ToString("00") + ":" + fromMin.ToString("00");
+            string toTime = toHour.ToString("00") + ":" + toMin.ToString("00");
 
-            EntryFilterLongDescription = "the entry time is between " + sFromTime + " (incl.) and " + sUntilTime +
-                                         " (excl.)";
-            EntryFilterShortDescription = "the entry time is between " + sFromTime + " (incl.) and " + sUntilTime +
-                                          " (excl.)";
+            EntryFilterLongDescription = "the entry time is between " + fromTime + " (incl.) and " + toTime + " (excl.)";
+            EntryFilterShortDescription = "the entry time is between " + fromTime + " (incl.) and " + toTime + " (excl.)";
         }
 
         public override string ToString()
         {
-            var iFromHour = (int) IndParam.NumParam[0].Value;
-            var iFromMin = (int) IndParam.NumParam[1].Value;
-            var iUntilHour = (int) IndParam.NumParam[2].Value;
-            var iUntilMin = (int) IndParam.NumParam[3].Value;
+            var fromHour = (int)IndParam.NumParam[0].Value;
+            var fromMin = (int)IndParam.NumParam[1].Value;
+            var toHour = (int)IndParam.NumParam[2].Value;
+            var toMin = (int)IndParam.NumParam[3].Value;
 
-            string sFromTime = iFromHour.ToString("00") + ":" + iFromMin.ToString("00");
-            string sUntilTime = iUntilHour.ToString("00") + ":" + iUntilMin.ToString("00");
+            string fromTime = fromHour.ToString("00") + ":" + fromMin.ToString("00");
+            string untilTime = toHour.ToString("00") + ":" + toMin.ToString("00");
 
             return IndicatorName + " (" +
-                    sFromTime + " - " + // From
-                    sUntilTime + ")"; // Until
+                    fromTime + " - " + // From
+                    untilTime + ")"; // Until
         }
     }
 }

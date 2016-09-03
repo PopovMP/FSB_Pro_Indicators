@@ -112,14 +112,15 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            var tenkan = (int) IndParam.NumParam[0].Value;
-            var kijun = (int) IndParam.NumParam[2].Value;
-            var senkou = (int) IndParam.NumParam[4].Value;
-            int previousBar = IndParam.CheckParam[0].Checked ? 1 : 0;
+            var tenkan = (int)IndParam.NumParam[0].Value;
+            var kijun = (int)IndParam.NumParam[2].Value;
+            var senkou = (int)IndParam.NumParam[4].Value;
+            int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
-            int firstBar = 1 + kijun + senkou;
+            int firstBar = Math.Max(Math.Max(tenkan, kijun), senkou) + previous + 2;
+            double sigma = Sigma();
 
-            var adTenkanSen = new double[Bars];
+            var tenkanSen = new double[Bars];
             for (int bar = firstBar; bar < Bars; bar++)
             {
                 double highestHigh = double.MinValue;
@@ -131,110 +132,110 @@ namespace ForexStrategyBuilder.Indicators.Store
                     if (Low[bar - i] < lowestLow)
                         lowestLow = Low[bar - i];
                 }
-                adTenkanSen[bar] = (highestHigh + lowestLow)/2;
+                tenkanSen[bar] = (highestHigh + lowestLow) / 2;
             }
 
-            var adKijunSen = new double[Bars];
+            var kijunSen = new double[Bars];
             for (int bar = firstBar; bar < Bars; bar++)
             {
-                double dHighestHigh = double.MinValue;
-                double dLowestLow = double.MaxValue;
+                double highestHigh = double.MinValue;
+                double lowestLow = double.MaxValue;
                 for (int i = 0; i < kijun; i++)
                 {
-                    if (High[bar - i] > dHighestHigh)
-                        dHighestHigh = High[bar - i];
-                    if (Low[bar - i] < dLowestLow)
-                        dLowestLow = Low[bar - i];
+                    if (High[bar - i] > highestHigh)
+                        highestHigh = High[bar - i];
+                    if (Low[bar - i] < lowestLow)
+                        lowestLow = Low[bar - i];
                 }
-                adKijunSen[bar] = (dHighestHigh + dLowestLow)/2;
+                kijunSen[bar] = (highestHigh + lowestLow) / 2;
             }
 
-            var adChikouSpan = new double[Bars];
+            var chikouSpan = new double[Bars];
             for (int bar = 0; bar < Bars - kijun; bar++)
             {
-                adChikouSpan[bar] = Close[bar + kijun];
+                chikouSpan[bar] = Close[bar + kijun];
             }
 
-            var adSenkouSpanA = new double[Bars];
+            var senkouSpanA = new double[Bars];
             for (int bar = firstBar; bar < Bars - kijun; bar++)
             {
-                adSenkouSpanA[bar + kijun] = (adTenkanSen[bar] + adKijunSen[bar])/2;
+                senkouSpanA[bar + kijun] = (tenkanSen[bar] + kijunSen[bar]) / 2;
             }
 
-            var adSenkouSpanB = new double[Bars];
+            var senkouSpanB = new double[Bars];
             for (int bar = firstBar; bar < Bars - kijun; bar++)
             {
-                double dHighestHigh = double.MinValue;
-                double dLowestLow = double.MaxValue;
+                double highestHigh = double.MinValue;
+                double lowestLow = double.MaxValue;
                 for (int i = 0; i < senkou; i++)
                 {
-                    if (High[bar - i] > dHighestHigh)
-                        dHighestHigh = High[bar - i];
-                    if (Low[bar - i] < dLowestLow)
-                        dLowestLow = Low[bar - i];
+                    if (High[bar - i] > highestHigh)
+                        highestHigh = High[bar - i];
+                    if (Low[bar - i] < lowestLow)
+                        lowestLow = Low[bar - i];
                 }
-                adSenkouSpanB[bar + kijun] = (dHighestHigh + dLowestLow)/2;
+                senkouSpanB[bar + kijun] = (highestHigh + lowestLow) / 2;
             }
 
             // Saving components
             Component = SlotType == SlotTypes.OpenFilter ? new IndicatorComp[7] : new IndicatorComp[6];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "Tenkan Sen",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Line,
-                    ChartColor = Color.Red,
-                    FirstBar = firstBar,
-                    Value = adTenkanSen
-                };
+            {
+                CompName = "Tenkan Sen",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Line,
+                ChartColor = Color.Red,
+                FirstBar = firstBar,
+                Value = tenkanSen
+            };
 
             Component[1] = new IndicatorComp
-                {
-                    CompName = "Kijun Sen",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Line,
-                    ChartColor = Color.Blue,
-                    FirstBar = firstBar,
-                    Value = adKijunSen
-                };
+            {
+                CompName = "Kijun Sen",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Line,
+                ChartColor = Color.Blue,
+                FirstBar = firstBar,
+                Value = kijunSen
+            };
 
             Component[2] = new IndicatorComp
-                {
-                    CompName = "Chikou Span",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Line,
-                    ChartColor = Color.Green,
-                    FirstBar = firstBar,
-                    Value = adChikouSpan
-                };
+            {
+                CompName = "Chikou Span",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Line,
+                ChartColor = Color.Green,
+                FirstBar = firstBar,
+                Value = chikouSpan
+            };
 
             Component[3] = new IndicatorComp
-                {
-                    CompName = "Senkou Span A",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.CloudUp,
-                    ChartColor = Color.SandyBrown,
-                    FirstBar = firstBar,
-                    Value = adSenkouSpanA
-                };
+            {
+                CompName = "Senkou Span A",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.CloudUp,
+                ChartColor = Color.SandyBrown,
+                FirstBar = firstBar,
+                Value = senkouSpanA
+            };
 
             Component[4] = new IndicatorComp
-                {
-                    CompName = "Senkou Span B",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.CloudDown,
-                    ChartColor = Color.Thistle,
-                    FirstBar = firstBar,
-                    Value = adSenkouSpanB
-                };
+            {
+                CompName = "Senkou Span B",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.CloudDown,
+                ChartColor = Color.Thistle,
+                FirstBar = firstBar,
+                Value = senkouSpanB
+            };
 
             Component[5] = new IndicatorComp
-                {
-                    FirstBar = firstBar,
-                    Value = new double[Bars],
-                    DataType = IndComponentType.Other
-                };
+            {
+                FirstBar = firstBar,
+                Value = new double[Bars],
+                DataType = IndComponentType.Other
+            };
 
             if (SlotType == SlotTypes.OpenFilter)
             {
@@ -242,12 +243,12 @@ namespace ForexStrategyBuilder.Indicators.Store
                 Component[5].DataType = IndComponentType.AllowOpenLong;
 
                 Component[6] = new IndicatorComp
-                    {
-                        FirstBar = firstBar,
-                        Value = new double[Bars],
-                        CompName = "Is short entry allowed",
-                        DataType = IndComponentType.AllowOpenShort
-                    };
+                {
+                    FirstBar = firstBar,
+                    Value = new double[Bars],
+                    CompName = "Is short entry allowed",
+                    DataType = IndComponentType.AllowOpenShort
+                };
             }
 
             switch (IndParam.ListParam[0].Text)
@@ -256,97 +257,77 @@ namespace ForexStrategyBuilder.Indicators.Store
                     Component[5].CompName = "Tenkan Sen entry price";
                     Component[5].DataType = IndComponentType.OpenPrice;
                     Component[5].ChartType = IndChartType.NoChart;
-                    for (int bar = firstBar + previousBar; bar < Bars; bar++)
+                    for (int bar = firstBar + previous; bar < Bars; bar++)
                     {
-                        Component[5].Value[bar] = adTenkanSen[bar - previousBar];
+                        Component[5].Value[bar] = tenkanSen[bar - previous];
                     }
                     break;
                 case "Enter the market at Kijun Sen":
                     Component[5].CompName = "Kijun Sen entry price";
                     Component[5].DataType = IndComponentType.OpenPrice;
                     Component[5].ChartType = IndChartType.NoChart;
-                    for (int bar = firstBar + previousBar; bar < Bars; bar++)
+                    for (int bar = firstBar + previous; bar < Bars; bar++)
                     {
-                        Component[5].Value[bar] = adKijunSen[bar - previousBar];
+                        Component[5].Value[bar] = kijunSen[bar - previous];
                     }
                     break;
                 case "Exit the market at Tenkan Sen":
                     Component[5].CompName = "Tenkan Sen exit price";
                     Component[5].DataType = IndComponentType.ClosePrice;
                     Component[5].ChartType = IndChartType.NoChart;
-                    for (int bar = firstBar + previousBar; bar < Bars; bar++)
+                    for (int bar = firstBar + previous; bar < Bars; bar++)
                     {
-                        Component[5].Value[bar] = adTenkanSen[bar - previousBar];
+                        Component[5].Value[bar] = tenkanSen[bar - previous];
                     }
                     break;
                 case "Exit the market at Kijun Sen":
                     Component[5].CompName = "Kijun Sen exit price";
                     Component[5].DataType = IndComponentType.ClosePrice;
                     Component[5].ChartType = IndChartType.NoChart;
-                    for (int bar = firstBar + previousBar; bar < Bars; bar++)
+                    for (int bar = firstBar + previous; bar < Bars; bar++)
                     {
-                        Component[5].Value[bar] = adKijunSen[bar - previousBar];
+                        Component[5].Value[bar] = kijunSen[bar - previous];
                     }
                     break;
                 case "Tenkan Sen rises":
-                    for (int bar = firstBar + previousBar; bar < Bars; bar++)
+                    for (int bar = firstBar + previous; bar < Bars; bar++)
                     {
-                        Component[5].Value[bar] = adTenkanSen[bar - previousBar] >
-                                                  adTenkanSen[bar - previousBar - 1] + Sigma()
-                                                      ? 1
-                                                      : 0;
-                        Component[6].Value[bar] = adTenkanSen[bar - previousBar] <
-                                                  adTenkanSen[bar - previousBar - 1] - Sigma()
-                                                      ? 1
-                                                      : 0;
+                        Component[5].Value[bar] = tenkanSen[bar - previous] > tenkanSen[bar - previous - 1] + sigma ? 1 : 0;
+                        Component[6].Value[bar] = tenkanSen[bar - previous] < tenkanSen[bar - previous - 1] - sigma ? 1 : 0;
                     }
                     break;
                 case "Kijun Sen rises":
-                    for (int bar = firstBar + previousBar; bar < Bars; bar++)
+                    for (int bar = firstBar + previous; bar < Bars; bar++)
                     {
-                        Component[5].Value[bar] = adKijunSen[bar - previousBar] >
-                                                  adKijunSen[bar - previousBar - 1] + Sigma()
-                                                      ? 1
-                                                      : 0;
-                        Component[6].Value[bar] = adKijunSen[bar - previousBar] <
-                                                  adKijunSen[bar - previousBar - 1] - Sigma()
-                                                      ? 1
-                                                      : 0;
+                        Component[5].Value[bar] = kijunSen[bar - previous] > kijunSen[bar - previous - 1] + sigma ? 1 : 0;
+                        Component[6].Value[bar] = kijunSen[bar - previous] < kijunSen[bar - previous - 1] - sigma ? 1 : 0;
                     }
                     break;
                 case "Tenkan Sen is higher than Kijun Sen":
-                    IndicatorIsHigherThanAnotherIndicatorLogic(firstBar, previousBar, adTenkanSen, adKijunSen,
-                                                               ref Component[5], ref Component[6]);
+                    IndicatorIsHigherThanAnotherIndicatorLogic(firstBar, previous, tenkanSen, kijunSen, ref Component[5], ref Component[6]);
                     break;
                 case "Tenkan Sen crosses Kijun Sen upward":
-                    IndicatorCrossesAnotherIndicatorUpwardLogic(firstBar, previousBar, adTenkanSen, adKijunSen,
-                                                                ref Component[5], ref Component[6]);
+                    IndicatorCrossesAnotherIndicatorUpwardLogic(firstBar, previous, tenkanSen, kijunSen, ref Component[5], ref Component[6]);
                     break;
                 case "The bar opens above Tenkan Sen":
-                    BarOpensAboveIndicatorLogic(firstBar, previousBar, adTenkanSen, ref Component[5], ref Component[6]);
+                    BarOpensAboveIndicatorLogic(firstBar, previous, tenkanSen, ref Component[5], ref Component[6]);
                     break;
                 case "The bar opens above Kijun Sen":
-                    BarOpensAboveIndicatorLogic(firstBar, previousBar, adKijunSen, ref Component[5], ref Component[6]);
+                    BarOpensAboveIndicatorLogic(firstBar, previous, kijunSen, ref Component[5], ref Component[6]);
                     break;
                 case "Chikou Span is above closing price":
-                    for (int bar = firstBar + previousBar; bar < Bars; bar++)
+                    for (int bar = firstBar + previous; bar < Bars; bar++)
                     {
-                        Component[5].Value[bar] = adChikouSpan[bar - kijun - previousBar] >
-                                                  Close[bar - kijun - previousBar] + Sigma()
-                                                      ? 1
-                                                      : 0;
-                        Component[6].Value[bar] = adChikouSpan[bar - kijun - previousBar] <
-                                                  Close[bar - kijun - previousBar] - Sigma()
-                                                      ? 1
-                                                      : 0;
+                        Component[5].Value[bar] = chikouSpan[bar - kijun - previous] > Close[bar - kijun - previous] + sigma ? 1 : 0;
+                        Component[6].Value[bar] = chikouSpan[bar - kijun - previous] < Close[bar - kijun - previous] - sigma ? 1 : 0;
                     }
                     break;
 
                 case "The position opens above Kumo":
                     for (int bar = firstBar; bar < Bars; bar++)
                     {
-                        Component[5].Value[bar] = Math.Max(adSenkouSpanA[bar], adSenkouSpanB[bar]);
-                        Component[6].Value[bar] = Math.Min(adSenkouSpanA[bar], adSenkouSpanB[bar]);
+                        Component[5].Value[bar] = Math.Max(senkouSpanA[bar], senkouSpanB[bar]);
+                        Component[6].Value[bar] = Math.Min(senkouSpanA[bar], senkouSpanB[bar]);
                     }
                     Component[5].PosPriceDependence = PositionPriceDependence.PriceBuyHigher;
                     Component[5].DataType = IndComponentType.Other;
@@ -360,8 +341,8 @@ namespace ForexStrategyBuilder.Indicators.Store
                 case "The position opens inside or above Kumo":
                     for (int bar = firstBar; bar < Bars; bar++)
                     {
-                        Component[5].Value[bar] = Math.Min(adSenkouSpanA[bar], adSenkouSpanB[bar]);
-                        Component[6].Value[bar] = Math.Max(adSenkouSpanA[bar], adSenkouSpanB[bar]);
+                        Component[5].Value[bar] = Math.Min(senkouSpanA[bar], senkouSpanB[bar]);
+                        Component[6].Value[bar] = Math.Max(senkouSpanA[bar], senkouSpanB[bar]);
                     }
                     Component[5].PosPriceDependence = PositionPriceDependence.PriceBuyHigher;
                     Component[5].DataType = IndComponentType.Other;
@@ -373,77 +354,43 @@ namespace ForexStrategyBuilder.Indicators.Store
                     break;
 
                 case "Tenkan Sen is above Kumo":
-                    for (int bar = firstBar + previousBar; bar < Bars; bar++)
+                    for (int bar = firstBar + previous; bar < Bars; bar++)
                     {
-                        Component[5].Value[bar] = adTenkanSen[bar - previousBar] >
-                                                  Math.Max(adSenkouSpanA[bar - previousBar],
-                                                           adSenkouSpanB[bar - previousBar]) + Sigma()
-                                                      ? 1
-                                                      : 0;
-                        Component[6].Value[bar] = adTenkanSen[bar - previousBar] <
-                                                  Math.Min(adSenkouSpanA[bar - previousBar],
-                                                           adSenkouSpanB[bar - previousBar]) - Sigma()
-                                                      ? 1
-                                                      : 0;
+                        Component[5].Value[bar] = tenkanSen[bar - previous] > Math.Max(senkouSpanA[bar - previous], senkouSpanB[bar - previous]) + sigma ? 1 : 0;
+                        Component[6].Value[bar] = tenkanSen[bar - previous] < Math.Min(senkouSpanA[bar - previous], senkouSpanB[bar - previous]) - sigma ? 1 : 0;
                     }
                     break;
 
                 case "Tenkan Sen is inside or above Kumo":
-                    for (int bar = firstBar + previousBar; bar < Bars; bar++)
+                    for (int bar = firstBar + previous; bar < Bars; bar++)
                     {
-                        Component[5].Value[bar] = adTenkanSen[bar - previousBar] >
-                                                  Math.Min(adSenkouSpanA[bar - previousBar],
-                                                           adSenkouSpanB[bar - previousBar]) + Sigma()
-                                                      ? 1
-                                                      : 0;
-                        Component[6].Value[bar] = adTenkanSen[bar - previousBar] <
-                                                  Math.Max(adSenkouSpanA[bar - previousBar],
-                                                           adSenkouSpanB[bar - previousBar]) - Sigma()
-                                                      ? 1
-                                                      : 0;
+                        Component[5].Value[bar] = tenkanSen[bar - previous] > Math.Min(senkouSpanA[bar - previous], senkouSpanB[bar - previous]) + sigma ? 1 : 0;
+                        Component[6].Value[bar] = tenkanSen[bar - previous] < Math.Max(senkouSpanA[bar - previous], senkouSpanB[bar - previous]) - sigma ? 1 : 0;
                     }
                     break;
 
                 case "Kijun Sen is above Kumo":
-                    for (int bar = firstBar + previousBar; bar < Bars; bar++)
+                    for (int bar = firstBar + previous; bar < Bars; bar++)
                     {
-                        Component[5].Value[bar] = adKijunSen[bar - previousBar] >
-                                                  Math.Max(adSenkouSpanA[bar - previousBar],
-                                                           adSenkouSpanB[bar - previousBar]) + Sigma()
-                                                      ? 1
-                                                      : 0;
-                        Component[6].Value[bar] = adKijunSen[bar - previousBar] <
-                                                  Math.Min(adSenkouSpanA[bar - previousBar],
-                                                           adSenkouSpanB[bar - previousBar]) - Sigma()
-                                                      ? 1
-                                                      : 0;
+                        Component[5].Value[bar] = kijunSen[bar - previous] > Math.Max(senkouSpanA[bar - previous], senkouSpanB[bar - previous]) + sigma ? 1 : 0;
+                        Component[6].Value[bar] = kijunSen[bar - previous] < Math.Min(senkouSpanA[bar - previous], senkouSpanB[bar - previous]) - sigma ? 1 : 0;
                     }
                     break;
 
                 case "Kijun Sen is inside or above Kumo":
-                    for (int bar = firstBar + previousBar; bar < Bars; bar++)
+                    for (int bar = firstBar + previous; bar < Bars; bar++)
                     {
-                        Component[5].Value[bar] = adKijunSen[bar - previousBar] >
-                                                  Math.Min(adSenkouSpanA[bar - previousBar],
-                                                           adSenkouSpanB[bar - previousBar]) + Sigma()
-                                                      ? 1
-                                                      : 0;
-                        Component[6].Value[bar] = adKijunSen[bar - previousBar] <
-                                                  Math.Max(adSenkouSpanA[bar - previousBar],
-                                                           adSenkouSpanB[bar - previousBar]) - Sigma()
-                                                      ? 1
-                                                      : 0;
+                        Component[5].Value[bar] = kijunSen[bar - previous] > Math.Min(senkouSpanA[bar - previous], senkouSpanB[bar - previous]) + sigma ? 1 : 0;
+                        Component[6].Value[bar] = kijunSen[bar - previous] < Math.Max(senkouSpanA[bar - previous], senkouSpanB[bar - previous]) - sigma ? 1 : 0;
                     }
                     break;
 
                 case "Senkou Span A is higher than Senkou Span B":
-                    IndicatorIsHigherThanAnotherIndicatorLogic(firstBar, previousBar, adSenkouSpanA, adSenkouSpanB,
-                                                               ref Component[5], ref Component[6]);
+                    IndicatorIsHigherThanAnotherIndicatorLogic(firstBar, previous, senkouSpanA, senkouSpanB, ref Component[5], ref Component[6]);
                     break;
 
                 case "Senkou Span A crosses Senkou Span B upward":
-                    IndicatorCrossesAnotherIndicatorUpwardLogic(firstBar, previousBar, adSenkouSpanA, adSenkouSpanB,
-                                                                ref Component[5], ref Component[6]);
+                    IndicatorCrossesAnotherIndicatorUpwardLogic(firstBar, previous, senkouSpanA, senkouSpanB, ref Component[5], ref Component[6]);
                     break;
             }
         }

@@ -37,7 +37,7 @@ namespace ForexStrategyBuilder.Indicators.Store
 
             // The ComboBox parameters
             IndParam.ListParam[0].Caption = "Logic";
-            IndParam.ListParam[0].ItemList = new[] {"Close all positions and open a new one in the opposite direction"};
+            IndParam.ListParam[0].ItemList = new[] { "Close all positions and open a new one in the opposite direction" };
             IndParam.ListParam[0].Index = 0;
             IndParam.ListParam[0].Text = IndParam.ListParam[0].ItemList[IndParam.ListParam[0].Index];
             IndParam.ListParam[0].Enabled = true;

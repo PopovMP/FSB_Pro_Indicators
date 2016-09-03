@@ -66,7 +66,7 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.NumParam[1].Min = 0;
             IndParam.NumParam[1].Max = 100;
             IndParam.NumParam[1].Enabled = true;
-            IndParam.NumParam[1].ToolTip = "A critical level (for the appropriate logic).";
+            IndParam.NumParam[1].ToolTip = "A signal level.";
 
             // The CheckBox parameters
             IndParam.CheckParam[0].Caption = "Use previous bar value";
@@ -79,12 +79,12 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            var period = (int) IndParam.NumParam[0].Value;
-            var level = (int) IndParam.NumParam[1].Value;
-            int prvs = IndParam.CheckParam[0].Checked ? 1 : 0;
+            var period = (int)IndParam.NumParam[0].Value;
+            var level = (int)IndParam.NumParam[1].Value;
+            int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
-            int firstBar = period + 2;
+            int firstBar = period + previous + 2;
 
             var obos = new double[Bars];
             for (int bar = period; bar < Bars; bar++)
@@ -99,35 +99,35 @@ namespace ForexStrategyBuilder.Indicators.Store
                 if (Math.Abs(min - max) < 0.00001)
                     obos[bar] = 0;
                 else
-                    obos[bar] = 100*(Close[bar] - min)/(max - min);
+                    obos[bar] = 100 * (Close[bar] - min) / (max - min);
             }
 
             // Saving the components
             Component = new IndicatorComp[3];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "OBOS",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Line,
-                    ChartColor = Color.Brown,
-                    FirstBar = firstBar,
-                    Value = obos
-                };
+            {
+                CompName = "OBOS",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Line,
+                ChartColor = Color.Brown,
+                FirstBar = firstBar,
+                Value = obos
+            };
 
             Component[1] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = firstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             Component[2] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = firstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             // Sets the Component's type
             if (SlotType == SlotTypes.OpenFilter)
@@ -146,58 +146,58 @@ namespace ForexStrategyBuilder.Indicators.Store
             }
 
             // Calculation of the logic
-            var indLogic = IndicatorLogic.It_does_not_act_as_a_filter;
+            var logicRule = IndicatorLogic.It_does_not_act_as_a_filter;
 
             switch (IndParam.ListParam[0].Text)
             {
                 case "Overbought Oversold Index rises":
-                    indLogic = IndicatorLogic.The_indicator_rises;
-                    SpecialValues = new double[] {50};
+                    logicRule = IndicatorLogic.The_indicator_rises;
+                    SpecialValues = new double[] { 50 };
                     break;
 
                 case "Overbought Oversold Index falls":
-                    indLogic = IndicatorLogic.The_indicator_falls;
-                    SpecialValues = new double[] {50};
+                    logicRule = IndicatorLogic.The_indicator_falls;
+                    SpecialValues = new double[] { 50 };
                     break;
 
                 case "Overbought Oversold Index is higher than the Level line":
-                    indLogic = IndicatorLogic.The_indicator_is_higher_than_the_level_line;
-                    SpecialValues = new double[] {level, 100 - level};
+                    logicRule = IndicatorLogic.The_indicator_is_higher_than_the_level_line;
+                    SpecialValues = new double[] { level, 100 - level };
                     break;
 
                 case "Overbought Oversold Index is lower than the Level line":
-                    indLogic = IndicatorLogic.The_indicator_is_lower_than_the_level_line;
-                    SpecialValues = new double[] {level, 100 - level};
+                    logicRule = IndicatorLogic.The_indicator_is_lower_than_the_level_line;
+                    SpecialValues = new double[] { level, 100 - level };
                     break;
 
                 case "Overbought Oversold Index crosses the Level line upward":
-                    indLogic = IndicatorLogic.The_indicator_crosses_the_level_line_upward;
-                    SpecialValues = new double[] {level, 100 - level};
+                    logicRule = IndicatorLogic.The_indicator_crosses_the_level_line_upward;
+                    SpecialValues = new double[] { level, 100 - level };
                     break;
 
                 case "Overbought Oversold Index crosses the Level line downward":
-                    indLogic = IndicatorLogic.The_indicator_crosses_the_level_line_downward;
-                    SpecialValues = new double[] {level, 100 - level};
+                    logicRule = IndicatorLogic.The_indicator_crosses_the_level_line_downward;
+                    SpecialValues = new double[] { level, 100 - level };
                     break;
 
                 case "Overbought Oversold Index changes its direction upward":
-                    indLogic = IndicatorLogic.The_indicator_changes_its_direction_upward;
-                    SpecialValues = new double[] {50};
+                    logicRule = IndicatorLogic.The_indicator_changes_its_direction_upward;
+                    SpecialValues = new double[] { 50 };
                     break;
 
                 case "Overbought Oversold Index changes its direction downward":
-                    indLogic = IndicatorLogic.The_indicator_changes_its_direction_downward;
-                    SpecialValues = new double[] {50};
+                    logicRule = IndicatorLogic.The_indicator_changes_its_direction_downward;
+                    SpecialValues = new double[] { 50 };
                     break;
             }
 
-            OscillatorLogic(firstBar, prvs, obos, level, 100 - level, ref Component[1], ref Component[2], indLogic);
+            OscillatorLogic(firstBar, previous, obos, level, 100 - level, ref Component[1], ref Component[2], logicRule);
         }
 
         public override void SetDescription()
         {
-            string sLevelLong = IndParam.NumParam[1].ValueToString;
-            string sLevelShort = IndParam.NumParam[1].AnotherValueToString(100 - IndParam.NumParam[1].Value);
+            string levelLong = IndParam.NumParam[1].ValueToString;
+            string levelShort = IndParam.NumParam[1].AnotherValueToString(100 - IndParam.NumParam[1].Value);
 
             EntryFilterLongDescription = ToString() + " ";
             EntryFilterShortDescription = ToString() + " ";
@@ -221,31 +221,31 @@ namespace ForexStrategyBuilder.Indicators.Store
                     break;
 
                 case "Overbought Oversold Index is higher than the Level line":
-                    EntryFilterLongDescription += "is higher than the Level " + sLevelLong;
-                    EntryFilterShortDescription += "is lower than the Level " + sLevelShort;
-                    ExitFilterLongDescription += "is higher than the Level " + sLevelLong;
-                    ExitFilterShortDescription += "is lower than the Level " + sLevelShort;
+                    EntryFilterLongDescription += "is higher than the Level " + levelLong;
+                    EntryFilterShortDescription += "is lower than the Level " + levelShort;
+                    ExitFilterLongDescription += "is higher than the Level " + levelLong;
+                    ExitFilterShortDescription += "is lower than the Level " + levelShort;
                     break;
 
                 case "Overbought Oversold Index is lower than the Level line":
-                    EntryFilterLongDescription += "is lower than the Level " + sLevelLong;
-                    EntryFilterShortDescription += "is higher than the Level " + sLevelShort;
-                    ExitFilterLongDescription += "is lower than the Level " + sLevelLong;
-                    ExitFilterShortDescription += "is higher than the Level " + sLevelShort;
+                    EntryFilterLongDescription += "is lower than the Level " + levelLong;
+                    EntryFilterShortDescription += "is higher than the Level " + levelShort;
+                    ExitFilterLongDescription += "is lower than the Level " + levelLong;
+                    ExitFilterShortDescription += "is higher than the Level " + levelShort;
                     break;
 
                 case "Overbought Oversold Index crosses the Level line upward":
-                    EntryFilterLongDescription += "crosses the Level " + sLevelLong + " upward";
-                    EntryFilterShortDescription += "crosses the Level " + sLevelShort + " downward";
-                    ExitFilterLongDescription += "crosses the Level " + sLevelLong + " upward";
-                    ExitFilterShortDescription += "crosses the Level " + sLevelShort + " downward";
+                    EntryFilterLongDescription += "crosses the Level " + levelLong + " upward";
+                    EntryFilterShortDescription += "crosses the Level " + levelShort + " downward";
+                    ExitFilterLongDescription += "crosses the Level " + levelLong + " upward";
+                    ExitFilterShortDescription += "crosses the Level " + levelShort + " downward";
                     break;
 
                 case "Overbought Oversold Index crosses the Level line downward":
-                    EntryFilterLongDescription += "crosses the Level " + sLevelLong + " downward";
-                    EntryFilterShortDescription += "crosses the Level " + sLevelShort + " upward";
-                    ExitFilterLongDescription += "crosses the Level " + sLevelLong + " downward";
-                    ExitFilterShortDescription += "crosses the Level " + sLevelShort + " upward";
+                    EntryFilterLongDescription += "crosses the Level " + levelLong + " downward";
+                    EntryFilterShortDescription += "crosses the Level " + levelShort + " upward";
+                    ExitFilterLongDescription += "crosses the Level " + levelLong + " downward";
+                    ExitFilterShortDescription += "crosses the Level " + levelShort + " upward";
                     break;
 
                 case "Overbought Oversold Index changes its direction upward":

@@ -56,15 +56,15 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.ListParam[0].ToolTip = "Logic of application of the indicator.";
 
             IndParam.ListParam[1].Caption = "Smoothing method";
-            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof (MAMethod));
-            IndParam.ListParam[1].Index = (int) MAMethod.Smoothed;
+            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof(MAMethod));
+            IndParam.ListParam[1].Index = (int)MAMethod.Smoothed;
             IndParam.ListParam[1].Text = IndParam.ListParam[1].ItemList[IndParam.ListParam[1].Index];
             IndParam.ListParam[1].Enabled = true;
             IndParam.ListParam[1].ToolTip = "The method of Moving Average used for the calculations.";
 
             IndParam.ListParam[2].Caption = "Base price";
-            IndParam.ListParam[2].ItemList = Enum.GetNames(typeof (BasePrice));
-            IndParam.ListParam[2].Index = (int) BasePrice.Median;
+            IndParam.ListParam[2].ItemList = Enum.GetNames(typeof(BasePrice));
+            IndParam.ListParam[2].Index = (int)BasePrice.Median;
             IndParam.ListParam[2].Text = IndParam.ListParam[2].ItemList[IndParam.ListParam[2].Index];
             IndParam.ListParam[2].Enabled = true;
             IndParam.ListParam[2].ToolTip = "The price the indicator is based on.";
@@ -122,18 +122,19 @@ namespace ForexStrategyBuilder.Indicators.Store
         {
             DataSet = dataSet;
 
-            var maMethod = (MAMethod) IndParam.ListParam[1].Index;
-            var basePrice = (BasePrice) IndParam.ListParam[2].Index;
-            var periodJaws = (int) IndParam.NumParam[0].Value;
-            var shiftJaws = (int) IndParam.NumParam[1].Value;
-            var periodTeeth = (int) IndParam.NumParam[2].Value;
-            var shiftTeeth = (int) IndParam.NumParam[3].Value;
-            var periodLips = (int) IndParam.NumParam[4].Value;
-            var shiftLips = (int) IndParam.NumParam[5].Value;
+            var maMethod = (MAMethod)IndParam.ListParam[1].Index;
+            var basePrice = (BasePrice)IndParam.ListParam[2].Index;
+            var periodJaws = (int)IndParam.NumParam[0].Value;
+            var shiftJaws = (int)IndParam.NumParam[1].Value;
+            var periodTeeth = (int)IndParam.NumParam[2].Value;
+            var shiftTeeth = (int)IndParam.NumParam[3].Value;
+            var periodLips = (int)IndParam.NumParam[4].Value;
+            var shiftLips = (int)IndParam.NumParam[5].Value;
             int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
-            int firstBar = Math.Max(periodJaws + shiftJaws + 2, periodTeeth + shiftTeeth + 2);
-            firstBar = Math.Max(firstBar, periodLips + shiftLips + 2);
+            int firstBar = Math.Max(periodJaws + shiftJaws, periodTeeth + shiftTeeth);
+            firstBar = Math.Max(firstBar, periodLips + shiftLips);
+            firstBar += 2;
 
             // Calculation
             double[] jaws = MovingAverage(periodJaws, shiftJaws, maMethod, Price(basePrice));
@@ -144,48 +145,48 @@ namespace ForexStrategyBuilder.Indicators.Store
             Component = new IndicatorComp[5];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "Jaws",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Line,
-                    ChartColor = Color.Blue,
-                    FirstBar = firstBar,
-                    Value = jaws
-                };
+            {
+                CompName = "Jaws",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Line,
+                ChartColor = Color.Blue,
+                FirstBar = firstBar,
+                Value = jaws
+            };
 
             Component[1] = new IndicatorComp
-                {
-                    CompName = "Teeth",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Line,
-                    ChartColor = Color.Red,
-                    FirstBar = firstBar,
-                    Value = teeth
-                };
+            {
+                CompName = "Teeth",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Line,
+                ChartColor = Color.Red,
+                FirstBar = firstBar,
+                Value = teeth
+            };
 
             Component[2] = new IndicatorComp
-                {
-                    CompName = "Lips",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Line,
-                    ChartColor = Color.Lime,
-                    FirstBar = firstBar,
-                    Value = lips
-                };
+            {
+                CompName = "Lips",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Line,
+                ChartColor = Color.Lime,
+                FirstBar = firstBar,
+                Value = lips
+            };
 
             Component[3] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = firstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             Component[4] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = firstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             // Sets the Component's type.
             if (SlotType == SlotTypes.OpenFilter)

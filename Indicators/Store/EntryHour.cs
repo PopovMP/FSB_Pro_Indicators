@@ -49,7 +49,7 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.ListParam[0].ToolTip = "Indicator's logic.";
 
             IndParam.ListParam[1].Caption = "Base price";
-            IndParam.ListParam[1].ItemList = new[] {"Open"};
+            IndParam.ListParam[1].ItemList = new[] { "Open" };
             IndParam.ListParam[1].Index = 0;
             IndParam.ListParam[1].Text = IndParam.ListParam[1].ItemList[IndParam.ListParam[1].Index];
             IndParam.ListParam[1].Enabled = true;
@@ -77,53 +77,49 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            var entryHour = (int) IndParam.NumParam[0].Value;
-            var entryMinute = (int) IndParam.NumParam[1].Value;
+            var entryHour = (int)IndParam.NumParam[0].Value;
+            var entryMinute = (int)IndParam.NumParam[1].Value;
             var entryTime = new TimeSpan(entryHour, entryMinute, 0);
 
             // Calculation
             const int firstBar = 1;
-            var adBars = new double[Bars];
+            var signal = new double[Bars];
 
             // Calculation of the logic
             for (int bar = firstBar; bar < Bars; bar++)
             {
-                adBars[bar] = Time[bar].TimeOfDay == entryTime ? Open[bar] : 0;
+                signal[bar] = Time[bar].TimeOfDay == entryTime ? Open[bar] : 0;
             }
 
             // Saving the components
             Component = new IndicatorComp[1];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "Entry hour",
-                    DataType = IndComponentType.OpenPrice,
-                    ChartType = IndChartType.NoChart,
-                    ShowInDynInfo = false,
-                    FirstBar = firstBar,
-                    Value = adBars
-                };
+            {
+                CompName = "Entry hour",
+                DataType = IndComponentType.OpenPrice,
+                ChartType = IndChartType.NoChart,
+                ShowInDynInfo = false,
+                FirstBar = firstBar,
+                Value = signal
+            };
         }
 
         public override void SetDescription()
         {
-            var entryHour = (int) IndParam.NumParam[0].Value;
-            var entryMinute = (int) IndParam.NumParam[1].Value;
+            var entryHour = (int)IndParam.NumParam[0].Value;
+            var entryMinute = (int)IndParam.NumParam[1].Value;
             string entryTime = entryHour.ToString("00") + ":" + entryMinute.ToString("00");
-
             EntryPointLongDescription = "at the beginning of the first bar after " + entryTime + " hours";
             EntryPointShortDescription = "at the beginning of the first bar after " + entryTime + " hours";
         }
 
         public override string ToString()
         {
-            var entryHour = (int) IndParam.NumParam[0].Value;
-            var entryMinute = (int) IndParam.NumParam[1].Value;
-
+            var entryHour = (int)IndParam.NumParam[0].Value;
+            var entryMinute = (int)IndParam.NumParam[1].Value;
             string entryTime = entryHour.ToString("00") + ":" + entryMinute.ToString("00");
-
-            return IndicatorName + " (" +
-                             entryTime + ")"; // Entry Hour
+            return IndicatorName + " (" + entryTime + ")"; // Entry Hour
         }
     }
 }

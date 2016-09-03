@@ -86,15 +86,15 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.ListParam[0].ToolTip = "Logic of application of Moving Average.";
 
             IndParam.ListParam[1].Caption = "Smoothing method";
-            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof (MAMethod));
-            IndParam.ListParam[1].Index = (int) MAMethod.Simple;
+            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof(MAMethod));
+            IndParam.ListParam[1].Index = (int)MAMethod.Simple;
             IndParam.ListParam[1].Text = IndParam.ListParam[1].ItemList[IndParam.ListParam[1].Index];
             IndParam.ListParam[1].Enabled = true;
             IndParam.ListParam[1].ToolTip = "The smoothing method of Moving Average.";
 
             IndParam.ListParam[2].Caption = "Base price";
-            IndParam.ListParam[2].ItemList = Enum.GetNames(typeof (BasePrice));
-            IndParam.ListParam[2].Index = (int) BasePrice.Close;
+            IndParam.ListParam[2].ItemList = Enum.GetNames(typeof(BasePrice));
+            IndParam.ListParam[2].Index = (int)BasePrice.Close;
             IndParam.ListParam[2].Text = IndParam.ListParam[2].ItemList[IndParam.ListParam[2].Index];
             IndParam.ListParam[2].Enabled = true;
             IndParam.ListParam[2].ToolTip = "The price Moving Average is based on.";
@@ -125,10 +125,10 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            var maMethod = (MAMethod) IndParam.ListParam[1].Index;
-            var basePrice = (BasePrice) IndParam.ListParam[2].Index;
-            var period = (int) IndParam.NumParam[0].Value;
-            var shift = (int) IndParam.NumParam[1].Value;
+            var maMethod = (MAMethod)IndParam.ListParam[1].Index;
+            var basePrice = (BasePrice)IndParam.ListParam[2].Index;
+            var period = (int)IndParam.NumParam[0].Value;
+            var shift = (int)IndParam.NumParam[1].Value;
             var previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // TimeExecution
@@ -146,14 +146,14 @@ namespace ForexStrategyBuilder.Indicators.Store
 
             // Calculation
             var movingAverage = MovingAverage(period, shift, maMethod, Price(basePrice));
-            var firstBar = period + shift + 1 + previous;
+            var firstBar = period + shift + previous + 2;
 
             // Saving the components
             if (SlotType == SlotTypes.Open || SlotType == SlotTypes.Close)
             {
                 Component = new IndicatorComp[2];
 
-                Component[1] = new IndicatorComp {Value = new double[Bars]};
+                Component[1] = new IndicatorComp { Value = new double[Bars] };
 
                 for (var bar = firstBar; bar < Bars; bar++)
                 {

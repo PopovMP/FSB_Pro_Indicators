@@ -24,8 +24,7 @@ namespace ForexStrategyBuilder.Indicators.Store
             IsDeafultGroupAll = true;
             IsGeneratable = false;
 
-            WarningMessage =
-                "This indicator is designed to be used in the backtester only. It doesn't work in the trader.";
+            WarningMessage = "This indicator is designed to be used in the backtester only. It doesn't work in the trader.";
 
             IndicatorAuthor = "Miroslav Popov";
             IndicatorVersion = "2.0";
@@ -71,13 +70,13 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            var year = (int) IndParam.NumParam[0].Value;
-            var month = (int) IndParam.NumParam[1].Value;
+            var year = (int)IndParam.NumParam[0].Value;
+            var month = (int)IndParam.NumParam[1].Value;
             var keyDate = new DateTime(year, month, 1);
 
             // Calculation
             int firstBar = 0;
-            var values = new double[Bars];
+            var signal = new double[Bars];
 
             // Calculation of the logic.
             if (IsBacktester)
@@ -86,54 +85,61 @@ namespace ForexStrategyBuilder.Indicators.Store
                 {
                     case "Do not open positions after":
                         for (int bar = firstBar; bar < Bars; bar++)
+                        {
                             if (Time[bar] < keyDate)
-                                values[bar] = 1;
+                                signal[bar] = 1;
+                        }
                         break;
 
                     case "Do not open positions before":
                         for (int bar = firstBar; bar < Bars; bar++)
+                        {
                             if (Time[bar] >= keyDate)
                             {
                                 firstBar = bar;
                                 break;
                             }
+                        }
 
                         firstBar = Math.Min(firstBar, Bars - 300);
 
                         for (int bar = firstBar; bar < Bars; bar++)
-                            values[bar] = 1;
-
+                        {
+                            signal[bar] = 1;
+                        }
                         break;
                 }
             }
             else
             {
                 for (int bar = firstBar; bar < Bars; bar++)
-                    values[bar] = 1;
+                {
+                    signal[bar] = 1;
+                }
             }
 
             // Saving the components
             Component = new IndicatorComp[2];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "Allow Open Long",
-                    DataType = IndComponentType.AllowOpenLong,
-                    ChartType = IndChartType.NoChart,
-                    ShowInDynInfo = false,
-                    FirstBar = firstBar,
-                    Value = values
-                };
+            {
+                CompName = "Allow Open Long",
+                DataType = IndComponentType.AllowOpenLong,
+                ChartType = IndChartType.NoChart,
+                ShowInDynInfo = false,
+                FirstBar = firstBar,
+                Value = signal
+            };
 
             Component[1] = new IndicatorComp
-                {
-                    CompName = "Allow Open Short",
-                    DataType = IndComponentType.AllowOpenShort,
-                    ChartType = IndChartType.NoChart,
-                    ShowInDynInfo = false,
-                    FirstBar = firstBar,
-                    Value = values
-                };
+            {
+                CompName = "Allow Open Short",
+                DataType = IndComponentType.AllowOpenShort,
+                ChartType = IndChartType.NoChart,
+                ShowInDynInfo = false,
+                FirstBar = firstBar,
+                Value = signal
+            };
         }
 
         public override void SetDescription()
@@ -145,8 +151,8 @@ namespace ForexStrategyBuilder.Indicators.Store
                 return;
             }
 
-            var year = (int) IndParam.NumParam[0].Value;
-            var month = (int) IndParam.NumParam[1].Value;
+            var year = (int)IndParam.NumParam[0].Value;
+            var month = (int)IndParam.NumParam[1].Value;
             var keyDate = new DateTime(year, month, 1);
 
             EntryFilterLongDescription = "(a back tester limitation) Do not open positions ";

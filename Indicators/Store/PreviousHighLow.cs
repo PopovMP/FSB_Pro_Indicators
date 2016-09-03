@@ -103,7 +103,7 @@ namespace ForexStrategyBuilder.Indicators.Store
 
             double verticalShift = IndParam.NumParam[0].Value * Point;
             int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
-            int firstBar = previous;
+            int firstBar = previous + 2;
 
             // Calculation
             var high = new double[Bars];

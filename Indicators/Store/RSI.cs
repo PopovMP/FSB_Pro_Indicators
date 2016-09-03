@@ -54,15 +54,15 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.ListParam[0].ToolTip = "Logic of application of the indicator.";
 
             IndParam.ListParam[1].Caption = "Smoothing method";
-            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof (MAMethod));
-            IndParam.ListParam[1].Index = (int) MAMethod.Smoothed;
+            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof(MAMethod));
+            IndParam.ListParam[1].Index = (int)MAMethod.Smoothed;
             IndParam.ListParam[1].Text = IndParam.ListParam[1].ItemList[IndParam.ListParam[1].Index];
             IndParam.ListParam[1].Enabled = true;
             IndParam.ListParam[1].ToolTip = "The Moving Average method used for smoothing RSI value.";
 
             IndParam.ListParam[2].Caption = "Base price";
-            IndParam.ListParam[2].ItemList = Enum.GetNames(typeof (BasePrice));
-            IndParam.ListParam[2].Index = (int) BasePrice.Close;
+            IndParam.ListParam[2].ItemList = Enum.GetNames(typeof(BasePrice));
+            IndParam.ListParam[2].Index = (int)BasePrice.Close;
             IndParam.ListParam[2].Text = IndParam.ListParam[2].ItemList[IndParam.ListParam[2].Index];
             IndParam.ListParam[2].Enabled = true;
             IndParam.ListParam[2].ToolTip = "The price RSI is based on.";
@@ -80,7 +80,7 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.NumParam[1].Min = 0;
             IndParam.NumParam[1].Max = 100;
             IndParam.NumParam[1].Enabled = true;
-            IndParam.NumParam[1].ToolTip = "A critical level (for the appropriate logic).";
+            IndParam.NumParam[1].ToolTip = "A signal level.";
 
             // The CheckBox parameters
             IndParam.CheckParam[0].Caption = "Use previous bar value";
@@ -93,14 +93,14 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            var maMethod = (MAMethod) IndParam.ListParam[1].Index;
-            var basePrice = (BasePrice) IndParam.ListParam[2].Index;
-            var period = (int) IndParam.NumParam[0].Value;
+            var maMethod = (MAMethod)IndParam.ListParam[1].Index;
+            var basePrice = (BasePrice)IndParam.ListParam[2].Index;
+            var period = (int)IndParam.NumParam[0].Value;
             double level = IndParam.NumParam[1].Value;
             int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
-            int firstBar = period + 2;
+            int firstBar = period + previous + 2;
             double[] price = Price(basePrice);
             var pos = new double[Bars];
             var neg = new double[Bars];
@@ -120,7 +120,7 @@ namespace ForexStrategyBuilder.Indicators.Store
             for (int bar = firstBar; bar < Bars; bar++)
             {
                 if (Math.Abs(negMa[bar]) > Epsilon)
-                    rsi[bar] = 100 - (100/(1 + posMa[bar]/negMa[bar]));
+                    rsi[bar] = 100 - (100 / (1 + posMa[bar] / negMa[bar]));
                 else
                 {
                     if (Math.Abs(posMa[bar]) > Epsilon)
@@ -174,52 +174,52 @@ namespace ForexStrategyBuilder.Indicators.Store
             }
 
             // Calculation of the logic
-            var indLogic = IndicatorLogic.It_does_not_act_as_a_filter;
+            var logicRule = IndicatorLogic.It_does_not_act_as_a_filter;
 
             switch (IndParam.ListParam[0].Text)
             {
                 case "RSI rises":
-                    indLogic = IndicatorLogic.The_indicator_rises;
-                    SpecialValues = new double[] {50};
+                    logicRule = IndicatorLogic.The_indicator_rises;
+                    SpecialValues = new double[] { 50 };
                     break;
 
                 case "RSI falls":
-                    indLogic = IndicatorLogic.The_indicator_falls;
-                    SpecialValues = new double[] {50};
+                    logicRule = IndicatorLogic.The_indicator_falls;
+                    SpecialValues = new double[] { 50 };
                     break;
 
                 case "RSI is higher than the Level line":
-                    indLogic = IndicatorLogic.The_indicator_is_higher_than_the_level_line;
-                    SpecialValues = new[] {level, 100 - level};
+                    logicRule = IndicatorLogic.The_indicator_is_higher_than_the_level_line;
+                    SpecialValues = new[] { level, 100 - level };
                     break;
 
                 case "RSI is lower than the Level line":
-                    indLogic = IndicatorLogic.The_indicator_is_lower_than_the_level_line;
-                    SpecialValues = new[] {level, 100 - level};
+                    logicRule = IndicatorLogic.The_indicator_is_lower_than_the_level_line;
+                    SpecialValues = new[] { level, 100 - level };
                     break;
 
                 case "RSI crosses the Level line upward":
-                    indLogic = IndicatorLogic.The_indicator_crosses_the_level_line_upward;
-                    SpecialValues = new[] {level, 100 - level};
+                    logicRule = IndicatorLogic.The_indicator_crosses_the_level_line_upward;
+                    SpecialValues = new[] { level, 100 - level };
                     break;
 
                 case "RSI crosses the Level line downward":
-                    indLogic = IndicatorLogic.The_indicator_crosses_the_level_line_downward;
-                    SpecialValues = new[] {level, 100 - level};
+                    logicRule = IndicatorLogic.The_indicator_crosses_the_level_line_downward;
+                    SpecialValues = new[] { level, 100 - level };
                     break;
 
                 case "RSI changes its direction upward":
-                    indLogic = IndicatorLogic.The_indicator_changes_its_direction_upward;
-                    SpecialValues = new double[] {50};
+                    logicRule = IndicatorLogic.The_indicator_changes_its_direction_upward;
+                    SpecialValues = new double[] { 50 };
                     break;
 
                 case "RSI changes its direction downward":
-                    indLogic = IndicatorLogic.The_indicator_changes_its_direction_downward;
-                    SpecialValues = new double[] {50};
+                    logicRule = IndicatorLogic.The_indicator_changes_its_direction_downward;
+                    SpecialValues = new double[] { 50 };
                     break;
             }
 
-            OscillatorLogic(firstBar, previous, rsi, level, 100 - level, ref Component[1], ref Component[2], indLogic);
+            OscillatorLogic(firstBar, previous, rsi, level, 100 - level, ref Component[1], ref Component[2], logicRule);
         }
 
         public override void SetDescription()

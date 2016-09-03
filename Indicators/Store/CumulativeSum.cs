@@ -50,15 +50,15 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.ListParam[0].ToolTip = "Logic of application of Cumulative Sum.";
 
             IndParam.ListParam[1].Caption = "Smoothing method";
-            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof (MAMethod));
-            IndParam.ListParam[1].Index = (int) MAMethod.Simple;
+            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof(MAMethod));
+            IndParam.ListParam[1].Index = (int)MAMethod.Simple;
             IndParam.ListParam[1].Text = IndParam.ListParam[1].ItemList[IndParam.ListParam[1].Index];
             IndParam.ListParam[1].Enabled = true;
             IndParam.ListParam[1].ToolTip = "The Moving Average method used for smoothing Cumulative Sum.";
 
             IndParam.ListParam[2].Caption = "Base price";
-            IndParam.ListParam[2].ItemList = Enum.GetNames(typeof (BasePrice));
-            IndParam.ListParam[2].Index = (int) BasePrice.Close;
+            IndParam.ListParam[2].ItemList = Enum.GetNames(typeof(BasePrice));
+            IndParam.ListParam[2].Index = (int)BasePrice.Close;
             IndParam.ListParam[2].Text = IndParam.ListParam[2].ItemList[IndParam.ListParam[2].Index];
             IndParam.ListParam[2].Enabled = true;
             IndParam.ListParam[2].ToolTip = "The price Cumulative Sum is based on.";
@@ -89,58 +89,58 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            var maMethod = (MAMethod) IndParam.ListParam[1].Index;
-            var basePrice = (BasePrice) IndParam.ListParam[2].Index;
-            var iPeriod = (int) IndParam.NumParam[0].Value;
-            var iSmooth = (int) IndParam.NumParam[1].Value;
-            int iPrvs = IndParam.CheckParam[0].Checked ? 1 : 0;
+            var maMethod = (MAMethod)IndParam.ListParam[1].Index;
+            var basePrice = (BasePrice)IndParam.ListParam[2].Index;
+            var period = (int)IndParam.NumParam[0].Value;
+            var smoothing = (int)IndParam.NumParam[1].Value;
+            int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
-            int iFirstBar = iPeriod + 2;
+            int firstBar = period + previous + 2;
 
-            double[] adBasePrice = Price(basePrice);
-            var adCumulativeSum = new double[Bars];
+            double[] price = Price(basePrice);
+            var cumulativeSum = new double[Bars];
 
-            adCumulativeSum[iPeriod - 1] = 0;
+            cumulativeSum[period - 1] = 0;
 
-            for (int iBar = 0; iBar < iPeriod; iBar++)
+            for (int bar = 0; bar < period; bar++)
             {
-                adCumulativeSum[iPeriod - 1] += adBasePrice[iBar];
+                cumulativeSum[period - 1] += price[bar];
             }
 
-            for (int iBar = iPeriod; iBar < Bars; iBar++)
+            for (int bar = period; bar < Bars; bar++)
             {
-                adCumulativeSum[iBar] = adCumulativeSum[iBar - 1] - adBasePrice[iBar - iPeriod] + adBasePrice[iBar];
+                cumulativeSum[bar] = cumulativeSum[bar - 1] - price[bar - period] + price[bar];
             }
 
-            adCumulativeSum = MovingAverage(iSmooth, 0, maMethod, adCumulativeSum);
+            cumulativeSum = MovingAverage(smoothing, 0, maMethod, cumulativeSum);
 
             // Saving the components
             Component = new IndicatorComp[3];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "Cumulative Sum",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Line,
-                    ChartColor = Color.Blue,
-                    FirstBar = iFirstBar,
-                    Value = adCumulativeSum
-                };
+            {
+                CompName = "Cumulative Sum",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Line,
+                ChartColor = Color.Blue,
+                FirstBar = firstBar,
+                Value = cumulativeSum
+            };
 
             Component[1] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = iFirstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             Component[2] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = iFirstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             // Sets the Component's type
             if (SlotType == SlotTypes.OpenFilter)
@@ -159,28 +159,28 @@ namespace ForexStrategyBuilder.Indicators.Store
             }
 
             // Calculation of the logic
-            var indLogic = IndicatorLogic.It_does_not_act_as_a_filter;
+            var logicRule = IndicatorLogic.It_does_not_act_as_a_filter;
 
             switch (IndParam.ListParam[0].Text)
             {
                 case "Cumulative Sum rises":
-                    indLogic = IndicatorLogic.The_indicator_rises;
+                    logicRule = IndicatorLogic.The_indicator_rises;
                     break;
 
                 case "Cumulative Sum falls":
-                    indLogic = IndicatorLogic.The_indicator_falls;
+                    logicRule = IndicatorLogic.The_indicator_falls;
                     break;
 
                 case "Cumulative Sum changes its direction upward":
-                    indLogic = IndicatorLogic.The_indicator_changes_its_direction_upward;
+                    logicRule = IndicatorLogic.The_indicator_changes_its_direction_upward;
                     break;
 
                 case "Cumulative Sum changes its direction downward":
-                    indLogic = IndicatorLogic.The_indicator_changes_its_direction_downward;
+                    logicRule = IndicatorLogic.The_indicator_changes_its_direction_downward;
                     break;
             }
 
-            OscillatorLogic(iFirstBar, iPrvs, adCumulativeSum, 0, 0, ref Component[1], ref Component[2], indLogic);
+            OscillatorLogic(firstBar, previous, cumulativeSum, 0, 0, ref Component[1], ref Component[2], logicRule);
         }
 
         public override void SetDescription()

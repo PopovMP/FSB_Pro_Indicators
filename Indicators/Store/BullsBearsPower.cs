@@ -52,8 +52,8 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.ListParam[0].ToolTip = "Logic of application of the indicator.";
 
             IndParam.ListParam[1].Caption = "Smoothing method";
-            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof (MAMethod));
-            IndParam.ListParam[1].Index = (int) MAMethod.Exponential;
+            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof(MAMethod));
+            IndParam.ListParam[1].Index = (int)MAMethod.Exponential;
             IndParam.ListParam[1].Text = IndParam.ListParam[1].ItemList[IndParam.ListParam[1].Index];
             IndParam.ListParam[1].Enabled = true;
             IndParam.ListParam[1].ToolTip = "The Moving Average method used for smoothing the Bulls Bears Power value.";
@@ -72,7 +72,7 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.NumParam[1].Max = 100;
             IndParam.NumParam[1].Point = 4;
             IndParam.NumParam[1].Enabled = true;
-            IndParam.NumParam[1].ToolTip = "A critical level (for the appropriate logic).";
+            IndParam.NumParam[1].ToolTip = "A signal level.";
 
             // The CheckBox parameters
             IndParam.CheckParam[0].Caption = "Use previous bar value";
@@ -85,51 +85,51 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            var maMethod = (MAMethod) IndParam.ListParam[1].Index;
-            var iPeriod = (int) IndParam.NumParam[0].Value;
-            double dLevel = IndParam.NumParam[1].Value;
-            int iPrvs = IndParam.CheckParam[0].Checked ? 1 : 0;
+            var maMethod = (MAMethod)IndParam.ListParam[1].Index;
+            var period = (int)IndParam.NumParam[0].Value;
+            double level = IndParam.NumParam[1].Value;
+            int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
-            int iFirstBar = iPeriod + 2;
-            double[] adMA = MovingAverage(iPeriod, 0, maMethod, Price(BasePrice.Close));
-            var adBulls = new double[Bars];
-            var adBears = new double[Bars];
-            var adBbp = new double[Bars];
+            int firstBar = period + previous + 2;
+            double[] ma = MovingAverage(period, 0, maMethod, Price(BasePrice.Close));
+            var bulls = new double[Bars];
+            var bears = new double[Bars];
+            var bullsBearsPower = new double[Bars];
 
-            for (int iBar = iPeriod; iBar < Bars; iBar++)
+            for (int bar = period; bar < Bars; bar++)
             {
-                adBulls[iBar] = High[iBar] - adMA[iBar];
-                adBears[iBar] = Low[iBar] - adMA[iBar];
-                adBbp[iBar] = adBulls[iBar] + adBears[iBar];
+                bulls[bar] = High[bar] - ma[bar];
+                bears[bar] = Low[bar] - ma[bar];
+                bullsBearsPower[bar] = bulls[bar] + bears[bar];
             }
 
             // Saving the components
             Component = new IndicatorComp[3];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "Bulls Bears Power",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Line,
-                    ChartColor = Color.RoyalBlue,
-                    FirstBar = iFirstBar,
-                    Value = adBbp
-                };
+            {
+                CompName = "Bulls Bears Power",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Line,
+                ChartColor = Color.RoyalBlue,
+                FirstBar = firstBar,
+                Value = bullsBearsPower
+            };
 
             Component[1] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = iFirstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             Component[2] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = iFirstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             // Sets the Component's type
             if (SlotType == SlotTypes.OpenFilter)
@@ -148,52 +148,52 @@ namespace ForexStrategyBuilder.Indicators.Store
             }
 
             // Calculation of the logic
-            var indLogic = IndicatorLogic.It_does_not_act_as_a_filter;
+            var logicRule = IndicatorLogic.It_does_not_act_as_a_filter;
 
             switch (IndParam.ListParam[0].Text)
             {
                 case "BBP rises":
-                    indLogic = IndicatorLogic.The_indicator_rises;
-                    SpecialValues = new double[] {0};
+                    logicRule = IndicatorLogic.The_indicator_rises;
+                    SpecialValues = new double[] { 0 };
                     break;
 
                 case "BBP falls":
-                    indLogic = IndicatorLogic.The_indicator_falls;
-                    SpecialValues = new double[] {0};
+                    logicRule = IndicatorLogic.The_indicator_falls;
+                    SpecialValues = new double[] { 0 };
                     break;
 
                 case "BBP is higher than the Level line":
-                    indLogic = IndicatorLogic.The_indicator_is_higher_than_the_level_line;
-                    SpecialValues = new[] {dLevel, -dLevel};
+                    logicRule = IndicatorLogic.The_indicator_is_higher_than_the_level_line;
+                    SpecialValues = new[] { level, -level };
                     break;
 
                 case "BBP is lower than the Level line":
-                    indLogic = IndicatorLogic.The_indicator_is_lower_than_the_level_line;
-                    SpecialValues = new[] {dLevel, -dLevel};
+                    logicRule = IndicatorLogic.The_indicator_is_lower_than_the_level_line;
+                    SpecialValues = new[] { level, -level };
                     break;
 
                 case "BBP crosses the Level line upward":
-                    indLogic = IndicatorLogic.The_indicator_crosses_the_level_line_upward;
-                    SpecialValues = new[] {dLevel, -dLevel};
+                    logicRule = IndicatorLogic.The_indicator_crosses_the_level_line_upward;
+                    SpecialValues = new[] { level, -level };
                     break;
 
                 case "BBP crosses the Level line downward":
-                    indLogic = IndicatorLogic.The_indicator_crosses_the_level_line_downward;
-                    SpecialValues = new[] {dLevel, -dLevel};
+                    logicRule = IndicatorLogic.The_indicator_crosses_the_level_line_downward;
+                    SpecialValues = new[] { level, -level };
                     break;
 
                 case "BBP changes its direction upward":
-                    indLogic = IndicatorLogic.The_indicator_changes_its_direction_upward;
-                    SpecialValues = new double[] {0};
+                    logicRule = IndicatorLogic.The_indicator_changes_its_direction_upward;
+                    SpecialValues = new double[] { 0 };
                     break;
 
                 case "BBP changes its direction downward":
-                    indLogic = IndicatorLogic.The_indicator_changes_its_direction_downward;
-                    SpecialValues = new double[] {0};
+                    logicRule = IndicatorLogic.The_indicator_changes_its_direction_downward;
+                    SpecialValues = new double[] { 0 };
                     break;
             }
 
-            OscillatorLogic(iFirstBar, iPrvs, adBbp, dLevel, -dLevel, ref Component[1], ref Component[2], indLogic);
+            OscillatorLogic(firstBar, previous, bullsBearsPower, level, -level, ref Component[1], ref Component[2], logicRule);
         }
 
         public override void SetDescription()

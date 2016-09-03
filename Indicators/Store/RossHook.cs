@@ -61,31 +61,31 @@ namespace ForexStrategyBuilder.Indicators.Store
         {
             DataSet = dataSet;
 
-            var adRhUp = new double[Bars];
-            var adRhDn = new double[Bars];
+            var upHook = new double[Bars];
+            var downHook = new double[Bars];
 
             for (int bar = 5; bar < Bars - 1; bar++)
             {
                 if (High[bar] < High[bar - 1])
                 {
                     if (High[bar - 3] < High[bar - 1] && High[bar - 2] < High[bar - 1])
-                        adRhUp[bar + 1] = High[bar - 1];
+                        upHook[bar + 1] = High[bar - 1];
                 }
 
                 if (Low[bar] > Low[bar - 1])
                 {
                     if (Low[bar - 3] > Low[bar - 1] && Low[bar - 2] > Low[bar - 1])
-                        adRhDn[bar + 1] = Low[bar - 1];
+                        downHook[bar + 1] = Low[bar - 1];
                 }
             }
 
             // Is visible
             for (int bar = 5; bar < Bars; bar++)
             {
-                if (adRhUp[bar - 1] > 0 && Math.Abs(adRhUp[bar] - 0) < Epsilon && High[bar - 1] < adRhUp[bar - 1])
-                    adRhUp[bar] = adRhUp[bar - 1];
-                if (adRhDn[bar - 1] > 0 && Math.Abs(adRhDn[bar] - 0) < Epsilon && Low[bar - 1] > adRhDn[bar - 1])
-                    adRhDn[bar] = adRhDn[bar - 1];
+                if (upHook[bar - 1] > 0 && Math.Abs(upHook[bar] - 0) < Epsilon && High[bar - 1] < upHook[bar - 1])
+                    upHook[bar] = upHook[bar - 1];
+                if (downHook[bar - 1] > 0 && Math.Abs(downHook[bar] - 0) < Epsilon && Low[bar - 1] > downHook[bar - 1])
+                    downHook[bar] = downHook[bar - 1];
             }
 
             // Saving the components
@@ -96,7 +96,7 @@ namespace ForexStrategyBuilder.Indicators.Store
                 ChartType = IndChartType.Level,
                 ChartColor = Color.SpringGreen,
                 FirstBar = 5,
-                Value = adRhUp
+                Value = upHook
             };
 
             Component[1] = new IndicatorComp
@@ -104,7 +104,7 @@ namespace ForexStrategyBuilder.Indicators.Store
                 ChartType = IndChartType.Level,
                 ChartColor = Color.DarkRed,
                 FirstBar = 5,
-                Value = adRhDn
+                Value = downHook
             };
 
             // Sets the Component's type

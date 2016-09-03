@@ -87,14 +87,14 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.ListParam[0].ToolTip = "Logic of application of the indicator.";
 
             IndParam.ListParam[1].Caption = "Smoothing method";
-            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof (MAMethod));
+            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof(MAMethod));
             IndParam.ListParam[1].Index = 0;
             IndParam.ListParam[1].Text = IndParam.ListParam[1].ItemList[IndParam.ListParam[1].Index];
             IndParam.ListParam[1].Enabled = true;
             IndParam.ListParam[1].ToolTip = "The method of smoothing of central Moving Average.";
 
             IndParam.ListParam[2].Caption = "Base price";
-            IndParam.ListParam[2].ItemList = Enum.GetNames(typeof (BasePrice));
+            IndParam.ListParam[2].ItemList = Enum.GetNames(typeof(BasePrice));
             IndParam.ListParam[2].Index = 3;
             IndParam.ListParam[2].Text = IndParam.ListParam[2].ItemList[IndParam.ListParam[2].Index];
             IndParam.ListParam[2].Enabled = true;
@@ -127,71 +127,71 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            var maMethod = (MAMethod) IndParam.ListParam[1].Index;
-            var basePrice = (BasePrice) IndParam.ListParam[2].Index;
-            var maPeriod = (int) IndParam.NumParam[0].Value;
-            double margin = IndParam.NumParam[1].Value*Point;
+            var maMethod = (MAMethod)IndParam.ListParam[1].Index;
+            var basePrice = (BasePrice)IndParam.ListParam[2].Index;
+            var period = (int)IndParam.NumParam[0].Value;
+            double margin = IndParam.NumParam[1].Value * Point;
             int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
-            double[] movingAverage = MovingAverage(maPeriod, 0, maMethod, Price(basePrice));
+            double[] ma = MovingAverage(period, 0, maMethod, Price(basePrice));
             var upperBand = new double[Bars];
             var lowerBand = new double[Bars];
 
-            int firstBar = maPeriod + previous + 2;
+            int firstBar = period + previous + 2;
 
-            for (int bar = maPeriod; bar < Bars; bar++)
+            for (int bar = period; bar < Bars; bar++)
             {
-                upperBand[bar] = movingAverage[bar] + margin;
-                lowerBand[bar] = movingAverage[bar] - margin;
+                upperBand[bar] = ma[bar] + margin;
+                lowerBand[bar] = ma[bar] - margin;
             }
 
             // Saving the components
             Component = new IndicatorComp[5];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "Upper Band",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Line,
-                    ChartColor = Color.Blue,
-                    FirstBar = firstBar,
-                    Value = upperBand
-                };
+            {
+                CompName = "Upper Band",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Line,
+                ChartColor = Color.Blue,
+                FirstBar = firstBar,
+                Value = upperBand
+            };
 
             Component[1] = new IndicatorComp
-                {
-                    CompName = "Moving Average",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Line,
-                    ChartColor = Color.Gold,
-                    FirstBar = firstBar,
-                    Value = movingAverage
-                };
+            {
+                CompName = "Moving Average",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Line,
+                ChartColor = Color.Gold,
+                FirstBar = firstBar,
+                Value = ma
+            };
 
             Component[2] = new IndicatorComp
-                {
-                    CompName = "Lower Band",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Line,
-                    ChartColor = Color.Blue,
-                    FirstBar = firstBar,
-                    Value = lowerBand
-                };
+            {
+                CompName = "Lower Band",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Line,
+                ChartColor = Color.Blue,
+                FirstBar = firstBar,
+                Value = lowerBand
+            };
 
             Component[3] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = firstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             Component[4] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = firstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             // Sets the Component's type
             if (SlotType == SlotTypes.Open)
@@ -225,7 +225,7 @@ namespace ForexStrategyBuilder.Indicators.Store
 
             if (SlotType == SlotTypes.Open || SlotType == SlotTypes.Close)
             {
-                if (maPeriod > 1)
+                if (period > 1)
                 {
                     for (int bar = firstBar; bar < Bars; bar++)
                     {
@@ -237,10 +237,8 @@ namespace ForexStrategyBuilder.Indicators.Store
                         double valueUp1 = upperBand[bar - previous - 1]; // Previous value
                         double tempValUp = valueUp;
 
-                        if ((valueUp1 > High[bar - 1] && valueUp < open) ||
-                            // The Open price jumps above the indicator
-                            (valueUp1 < Low[bar - 1] && valueUp > open) ||
-                            // The Open price jumps below the indicator
+                        if ((valueUp1 > High[bar - 1] && valueUp < open) || // The Open price jumps above the indicator
+                            (valueUp1 < Low[bar - 1] && valueUp > open) ||// The Open price jumps below the indicator
                             (Close[bar - 1] < valueUp && valueUp < open) || // The Open price is in a positive gap
                             (Close[bar - 1] > valueUp && valueUp > open)) // The Open price is in a negative gap
                             tempValUp = open; // The entry/exit level is moved to Open price
@@ -250,12 +248,9 @@ namespace ForexStrategyBuilder.Indicators.Store
                         double valueDown1 = lowerBand[bar - previous - 1]; // Previous value
                         double tempValDown = valueDown;
 
-                        if ((valueDown1 > High[bar - 1] && valueDown < open) ||
-                            // The Open price jumps above the indicator
-                            (valueDown1 < Low[bar - 1] && valueDown > open) ||
-                            // The Open price jumps below the indicator
-                            (Close[bar - 1] < valueDown && valueDown < open) ||
-                            // The Open price is in a positive gap
+                        if ((valueDown1 > High[bar - 1] && valueDown < open) ||// The Open price jumps above the indicator
+                            (valueDown1 < Low[bar - 1] && valueDown > open) ||// The Open price jumps below the indicator
+                            (Close[bar - 1] < valueDown && valueDown < open) ||// The Open price is in a positive gap
                             (Close[bar - 1] > valueDown && valueDown > open)) // The Open price is in a negative gap
                             tempValDown = open; // The entry/exit level is moved to Open price
 

@@ -87,19 +87,19 @@ namespace ForexStrategyBuilder.Indicators.Store
             Component = new IndicatorComp[1];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "Trailing Stop for a transferred position",
-                    DataType = IndComponentType.Other,
-                    ShowInDynInfo = false,
-                    FirstBar = 1,
-                    Value = new double[Bars]
-                };
+            {
+                CompName = "Trailing Stop for a transferred position",
+                DataType = IndComponentType.Other,
+                ShowInDynInfo = false,
+                FirstBar = 2,
+                Value = new double[Bars]
+            };
         }
 
         public override void SetDescription()
         {
-            var stopLoss = (int) IndParam.NumParam[0].Value;
-            var takeProfit = (int) IndParam.NumParam[1].Value;
+            var stopLoss = (int)IndParam.NumParam[0].Value;
+            var takeProfit = (int)IndParam.NumParam[1].Value;
 
             ExitPointLongDescription =
                 "at the Trailing Stop level or at the constant Take Profit level. Initial Stop Loss: " + stopLoss +

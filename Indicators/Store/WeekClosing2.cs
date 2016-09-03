@@ -92,23 +92,23 @@ namespace ForexStrategyBuilder.Indicators.Store
         private void CalculateForBacktester()
         {
             // Calculation
-            var adClosePrice = new double[Bars];
+            var closePrice = new double[Bars];
 
             // Calculation of the logic
             for (int bar = 0; bar < Bars - 1; bar++)
             {
                 if (Time[bar].DayOfWeek > DayOfWeek.Wednesday &&
                     Time[bar + 1].DayOfWeek < DayOfWeek.Wednesday)
-                    adClosePrice[bar] = Close[bar];
+                    closePrice[bar] = Close[bar];
                 else
-                    adClosePrice[bar] = 0;
+                    closePrice[bar] = 0;
             }
 
             // Check the last bar
             TimeSpan tsBarClosing = Time[Bars - 1].TimeOfDay.Add(new TimeSpan(0, (int) Period, 0));
             var tsDayClosing = new TimeSpan(24, 0, 0);
             if (Time[Bars - 1].DayOfWeek == DayOfWeek.Friday && tsBarClosing == tsDayClosing)
-                adClosePrice[Bars - 1] = Close[Bars - 1];
+                closePrice[Bars - 1] = Close[Bars - 1];
 
             // Saving the components
             Component = new IndicatorComp[1];
@@ -120,7 +120,7 @@ namespace ForexStrategyBuilder.Indicators.Store
                 ChartType = IndChartType.NoChart,
                 ShowInDynInfo = false,
                 FirstBar = 2,
-                Value = adClosePrice
+                Value = closePrice
             };
         }
 

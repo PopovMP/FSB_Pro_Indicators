@@ -56,14 +56,14 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.ListParam[0].ToolTip = "Logic of application of the indicator.";
 
             IndParam.ListParam[1].Caption = "Smoothing method";
-            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof (MAMethod));
-            IndParam.ListParam[1].Index = (int) MAMethod.Exponential;
+            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof(MAMethod));
+            IndParam.ListParam[1].Index = (int)MAMethod.Exponential;
             IndParam.ListParam[1].Text = IndParam.ListParam[1].ItemList[IndParam.ListParam[1].Index];
             IndParam.ListParam[1].Enabled = true;
             IndParam.ListParam[1].ToolTip = "The Moving Average method used for smoothing the ADX value.";
 
             IndParam.ListParam[2].Caption = "Base price";
-            IndParam.ListParam[2].ItemList = new[] {"Bar range"};
+            IndParam.ListParam[2].ItemList = new[] { "Bar range" };
             IndParam.ListParam[2].Index = 0;
             IndParam.ListParam[2].Text = IndParam.ListParam[2].ItemList[IndParam.ListParam[2].Index];
             IndParam.ListParam[2].Enabled = true;
@@ -83,7 +83,7 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.NumParam[1].Max = 100;
             IndParam.NumParam[1].Point = 0;
             IndParam.NumParam[1].Enabled = true;
-            IndParam.NumParam[1].ToolTip = "A critical level (for the appropriate logic).";
+            IndParam.NumParam[1].ToolTip = "A signal level.";
 
             // The CheckBox parameters
             IndParam.CheckParam[0].Caption = "Use previous bar value";
@@ -96,13 +96,13 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            var maMethod = (MAMethod) IndParam.ListParam[1].Index;
-            var period = (int) IndParam.NumParam[0].Value;
+            var maMethod = (MAMethod)IndParam.ListParam[1].Index;
+            var period = (int)IndParam.NumParam[0].Value;
             double level = IndParam.NumParam[1].Value;
             int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
-            int firstBar = 2*period + 2;
+            int firstBar = period + previous + 2;
 
             var positive = new double[Bars];
             var negative = new double[Bars];
@@ -118,12 +118,12 @@ namespace ForexStrategyBuilder.Indicators.Store
                 double deltaLow = Low[bar - 1] - Low[bar];
 
                 if (deltaHigh > 0 && deltaHigh > deltaLow)
-                    positive[bar] = 100*deltaHigh/trueRange;
+                    positive[bar] = 100 * deltaHigh / trueRange;
                 else
                     positive[bar] = 0;
 
                 if (deltaLow > 0 && deltaLow > deltaHigh)
-                    negative[bar] = 100*deltaLow/trueRange;
+                    negative[bar] = 100 * deltaLow / trueRange;
                 else
                     negative[bar] = 0;
             }
@@ -138,7 +138,7 @@ namespace ForexStrategyBuilder.Indicators.Store
                 if (Math.Abs(averagePositive[bar] - averageNegative[bar]) < Epsilon)
                     directionalIndex[bar] = 0;
                 else
-                    directionalIndex[bar] = 100*Math.Abs((averagePositive[bar] - averageNegative[bar])/
+                    directionalIndex[bar] = 100 * Math.Abs((averagePositive[bar] - averageNegative[bar]) /
                                                          (averagePositive[bar] + averageNegative[bar]));
             }
 
@@ -148,40 +148,48 @@ namespace ForexStrategyBuilder.Indicators.Store
             Component = new IndicatorComp[5];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "ADX",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Line,
-                    ChartColor = Color.Blue,
-                    FirstBar = firstBar,
-                    Value = averageDirectionalIndex
-                };
+            {
+                CompName = "ADX",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Line,
+                ChartColor = Color.Blue,
+                FirstBar = firstBar,
+                Value = averageDirectionalIndex
+            };
 
             Component[1] = new IndicatorComp
-                {
-                    CompName = "ADI+",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Line,
-                    ChartColor = Color.Green,
-                    FirstBar = firstBar,
-                    Value = averagePositive
-                };
+            {
+                CompName = "ADI+",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Line,
+                ChartColor = Color.Green,
+                FirstBar = firstBar,
+                Value = averagePositive
+            };
 
             Component[2] = new IndicatorComp
-                {
-                    CompName = "ADI-",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Line,
-                    ChartColor = Color.Red,
-                    FirstBar = firstBar,
-                    Value = averageNegative
-                };
+            {
+                CompName = "ADI-",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Line,
+                ChartColor = Color.Red,
+                FirstBar = firstBar,
+                Value = averageNegative
+            };
 
             Component[3] = new IndicatorComp
-                {ChartType = IndChartType.NoChart, FirstBar = firstBar, Value = new double[Bars]};
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             Component[4] = new IndicatorComp
-                {ChartType = IndChartType.NoChart, FirstBar = firstBar, Value = new double[Bars]};
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             // Sets the Component's type
             switch (SlotType)
@@ -215,22 +223,22 @@ namespace ForexStrategyBuilder.Indicators.Store
 
                 case "ADX is higher than the Level line":
                     logicRule = IndicatorLogic.The_indicator_is_higher_than_the_level_line;
-                    SpecialValues = new[] {level};
+                    SpecialValues = new[] { level };
                     break;
 
                 case "ADX is lower than the Level line":
                     logicRule = IndicatorLogic.The_indicator_is_lower_than_the_level_line;
-                    SpecialValues = new[] {level};
+                    SpecialValues = new[] { level };
                     break;
 
                 case "ADX crosses the Level line upward":
                     logicRule = IndicatorLogic.The_indicator_crosses_the_level_line_upward;
-                    SpecialValues = new[] {level};
+                    SpecialValues = new[] { level };
                     break;
 
                 case "ADX crosses the Level line downward":
                     logicRule = IndicatorLogic.The_indicator_crosses_the_level_line_downward;
-                    SpecialValues = new[] {level};
+                    SpecialValues = new[] { level };
                     break;
 
                 case "ADX changes its direction upward":

@@ -48,8 +48,8 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.ListParam[0].ToolTip = "Logic of application of the indicator.";
 
             IndParam.ListParam[1].Caption = "Base price";
-            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof (BasePrice));
-            IndParam.ListParam[1].Index = (int) BasePrice.Open;
+            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof(BasePrice));
+            IndParam.ListParam[1].Index = (int)BasePrice.Open;
             IndParam.ListParam[1].Text = IndParam.ListParam[1].ItemList[IndParam.ListParam[1].Index];
             IndParam.ListParam[1].Enabled = true;
             IndParam.ListParam[1].ToolTip = "The price where the move starts from.";
@@ -74,49 +74,49 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            var price = (BasePrice) IndParam.ListParam[1].Index;
-            double margin = IndParam.NumParam[0].Value*Point;
-            int prvs = IndParam.CheckParam[0].Checked ? 1 : 0;
+            var basePrice = (BasePrice)IndParam.ListParam[1].Index;
+            double margin = IndParam.NumParam[0].Value * Point;
+            int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // TimeExecution
-            if (price == BasePrice.Open && Math.Abs(margin - 0) < Epsilon)
+            if (basePrice == BasePrice.Open && Math.Abs(margin - 0) < Epsilon)
                 IndParam.ExecutionTime = ExecutionTime.AtBarOpening;
-            else if (price == BasePrice.Close && Math.Abs(margin - 0) < Epsilon)
+            else if (basePrice == BasePrice.Close && Math.Abs(margin - 0) < Epsilon)
                 IndParam.ExecutionTime = ExecutionTime.AtBarClosing;
-            else 
+            else
                 IndParam.ExecutionTime = ExecutionTime.DuringTheBar;
 
             // Calculation
-            double[] adBasePr = Price(price);
-            var adUpBand = new double[Bars];
-            var adDnBand = new double[Bars];
+            double[] price = Price(basePrice);
+            var upperBand = new double[Bars];
+            var lowerBand = new double[Bars];
 
-            int firstBar = 1 + prvs;
+            int firstBar = previous + 2;
 
-            for (int iBar = firstBar; iBar < Bars; iBar++)
+            for (int bar = firstBar; bar < Bars; bar++)
             {
-                adUpBand[iBar] = adBasePr[iBar - prvs] + margin;
-                adDnBand[iBar] = adBasePr[iBar - prvs] - margin;
+                upperBand[bar] = price[bar - previous] + margin;
+                lowerBand[bar] = price[bar - previous] - margin;
             }
 
             // Saving the components
             Component = new IndicatorComp[2];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "Up Price",
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = firstBar,
-                    Value = adUpBand
-                };
+            {
+                CompName = "Up Price",
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = upperBand
+            };
 
             Component[1] = new IndicatorComp
-                {
-                    CompName = "Down Price",
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = firstBar,
-                    Value = adDnBand
-                };
+            {
+                CompName = "Down Price",
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = lowerBand
+            };
 
             switch (IndParam.ListParam[0].Text)
             {
@@ -134,7 +134,7 @@ namespace ForexStrategyBuilder.Indicators.Store
 
         public override void SetDescription()
         {
-            var margin = (int) IndParam.NumParam[0].Value;
+            var margin = (int)IndParam.NumParam[0].Value;
             string basePrice = IndParam.ListParam[1].ItemList[IndParam.ListParam[1].Index].ToLower();
             string previous = (IndParam.CheckParam[0].Checked ? " previous" : "");
 

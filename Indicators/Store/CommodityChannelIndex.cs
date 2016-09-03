@@ -80,7 +80,7 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.NumParam[1].Min = -1000;
             IndParam.NumParam[1].Max = 1000;
             IndParam.NumParam[1].Enabled = true;
-            IndParam.NumParam[1].ToolTip = "A critical level (for the appropriate logic).";
+            IndParam.NumParam[1].ToolTip = "A signal level.";
 
             IndParam.NumParam[2].Caption = "Multiplier";
             IndParam.NumParam[2].Value = 0.015;
@@ -109,16 +109,21 @@ namespace ForexStrategyBuilder.Indicators.Store
             int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
-            int firstBar = period + 3;
+            int firstBar = period + previous + 2;
             double[] price = Price(basePrice);
-            double[] movingAverage = MovingAverage(period, 0, maMethod, price);
+            double[] ma = MovingAverage(period, 0, maMethod, price);
 
             var meanDev = new double[Bars];
+
             for (int bar = period; bar < Bars; bar++)
             {
                 double sum = 0;
+
                 for (int i = 0; i < period; i++)
-                    sum += Math.Abs(price[bar - i] - movingAverage[bar]);
+                {
+                    sum += Math.Abs(price[bar - i] - ma[bar]);
+                }
+
                 meanDev[bar] = multiplier * sum / period;
             }
 
@@ -127,9 +132,13 @@ namespace ForexStrategyBuilder.Indicators.Store
             for (int bar = firstBar; bar < Bars; bar++)
             {
                 if (Math.Abs(meanDev[bar] - 0) > Epsilon)
-                    cci[bar] = (price[bar] - movingAverage[bar]) / meanDev[bar];
+                {
+                    cci[bar] = (price[bar] - ma[bar]) / meanDev[bar];
+                }
                 else
+                {
                     cci[bar] = 0;
+                }
             }
 
             // Saving the components
@@ -176,52 +185,52 @@ namespace ForexStrategyBuilder.Indicators.Store
             }
 
             // Calculation of the logic
-            var indLogic = IndicatorLogic.It_does_not_act_as_a_filter;
+            var logicRule = IndicatorLogic.It_does_not_act_as_a_filter;
 
             switch (IndParam.ListParam[0].Text)
             {
                 case "CCI rises":
-                    indLogic = IndicatorLogic.The_indicator_rises;
+                    logicRule = IndicatorLogic.The_indicator_rises;
                     SpecialValues = new double[] { -100, 0, 100 };
                     break;
 
                 case "CCI falls":
-                    indLogic = IndicatorLogic.The_indicator_falls;
+                    logicRule = IndicatorLogic.The_indicator_falls;
                     SpecialValues = new double[] { -100, 0, 100 };
                     break;
 
                 case "CCI is higher than the Level line":
-                    indLogic = IndicatorLogic.The_indicator_is_higher_than_the_level_line;
+                    logicRule = IndicatorLogic.The_indicator_is_higher_than_the_level_line;
                     SpecialValues = new[] { level, 0, -level };
                     break;
 
                 case "CCI is lower than the Level line":
-                    indLogic = IndicatorLogic.The_indicator_is_lower_than_the_level_line;
+                    logicRule = IndicatorLogic.The_indicator_is_lower_than_the_level_line;
                     SpecialValues = new[] { level, 0, -level };
                     break;
 
                 case "CCI crosses the Level line upward":
-                    indLogic = IndicatorLogic.The_indicator_crosses_the_level_line_upward;
+                    logicRule = IndicatorLogic.The_indicator_crosses_the_level_line_upward;
                     SpecialValues = new[] { level, 0, -level };
                     break;
 
                 case "CCI crosses the Level line downward":
-                    indLogic = IndicatorLogic.The_indicator_crosses_the_level_line_downward;
+                    logicRule = IndicatorLogic.The_indicator_crosses_the_level_line_downward;
                     SpecialValues = new[] { level, 0, -level };
                     break;
 
                 case "CCI changes its direction upward":
-                    indLogic = IndicatorLogic.The_indicator_changes_its_direction_upward;
+                    logicRule = IndicatorLogic.The_indicator_changes_its_direction_upward;
                     SpecialValues = new double[] { -100, 0, 100 };
                     break;
 
                 case "CCI changes its direction downward":
-                    indLogic = IndicatorLogic.The_indicator_changes_its_direction_downward;
+                    logicRule = IndicatorLogic.The_indicator_changes_its_direction_downward;
                     SpecialValues = new double[] { -100, 0, 100 };
                     break;
             }
 
-            OscillatorLogic(firstBar, previous, cci, level, -level, ref Component[1], ref Component[2], indLogic);
+            OscillatorLogic(firstBar, previous, cci, level, -level, ref Component[1], ref Component[2], logicRule);
         }
 
         public override void SetDescription()

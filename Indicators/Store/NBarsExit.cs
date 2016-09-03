@@ -61,38 +61,38 @@ namespace ForexStrategyBuilder.Indicators.Store
 
             if (!IsBacktester)
             {
-                // FST sends the N bars for exit to the expert. Expert watches the position and closes it.
+                // FST sends the N bars exit to the expert. Expert watches the position and closes it.
                 return;
             }
 
-            var nExit = (int) IndParam.NumParam[0].Value;
+            var nBars = (int)IndParam.NumParam[0].Value;
 
             // Saving the components
             Component = new IndicatorComp[1];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "N Bars Exit (" + nExit.ToString(CultureInfo.InvariantCulture) + ")",
-                    DataType = IndComponentType.ForceClose,
-                    ChartType = IndChartType.NoChart,
-                    ShowInDynInfo = true,
-                    FirstBar = 1,
-                    Value = new double[Bars]
-                };
+            {
+                CompName = "N Bars Exit (" + nBars.ToString(CultureInfo.InvariantCulture) + ")",
+                DataType = IndComponentType.ForceClose,
+                ChartType = IndChartType.NoChart,
+                ShowInDynInfo = true,
+                FirstBar = 1,
+                Value = new double[Bars]
+            };
         }
 
         public override void SetDescription()
         {
-            var nExit = (int) IndParam.NumParam[0].Value;
+            var nBars = (int)IndParam.NumParam[0].Value;
 
-            ExitFilterLongDescription = nExit + " bars passed after the entry";
-            ExitFilterShortDescription = nExit + " bars passed after the entry";
+            ExitFilterLongDescription = nBars + " bars passed after the entry";
+            ExitFilterShortDescription = nBars + " bars passed after the entry";
         }
 
         public override string ToString()
         {
             return IndicatorName + " (" +
-                   IndParam.NumParam[0].ValueToString + ")"; // Number of Bars
+                   IndParam.NumParam[0].ValueToString + ")"; // Count of Bars
         }
     }
 }

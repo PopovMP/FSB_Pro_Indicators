@@ -82,14 +82,14 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.ListParam[0].ToolTip = "Logic of application of the indicator.";
 
             IndParam.ListParam[1].Caption = "Smoothing method";
-            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof (MAMethod));
-            IndParam.ListParam[1].Index = (int) MAMethod.Simple;
+            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof(MAMethod));
+            IndParam.ListParam[1].Index = (int)MAMethod.Simple;
             IndParam.ListParam[1].Text = IndParam.ListParam[1].ItemList[IndParam.ListParam[1].Index];
             IndParam.ListParam[1].Enabled = true;
             IndParam.ListParam[1].ToolTip = "The method of smoothing of central Moving Average.";
 
             IndParam.ListParam[2].Caption = "Base price";
-            IndParam.ListParam[2].ItemList = new[] {"Close"};
+            IndParam.ListParam[2].ItemList = new[] { "Close" };
             IndParam.ListParam[2].Index = 0;
             IndParam.ListParam[2].Text = "Close";
             IndParam.ListParam[2].Enabled = true;
@@ -122,19 +122,19 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            var maMethod = (MAMethod) IndParam.ListParam[1].Index;
-            const BasePrice price = BasePrice.Close;
-            var maPeriod = (int) IndParam.NumParam[0].Value;
+            var maMethod = (MAMethod)IndParam.ListParam[1].Index;
+            const BasePrice basePrice = BasePrice.Close;
+            var period = (int)IndParam.NumParam[0].Value;
             double multiplier = IndParam.NumParam[1].Value;
             int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
-            double[] maPrice = Price(price);
-            double[] movingAverage = MovingAverage(maPeriod, 0, maMethod, maPrice);
+            double[] price = Price(basePrice);
+            double[] ma = MovingAverage(period, 0, maMethod, price);
             var upperBand = new double[Bars];
             var lowerBand = new double[Bars];
 
-            int firstBar = maPeriod + previous + 2;
+            int firstBar = period + previous + 2;
 
             var averageTrueRange = new double[Bars];
 
@@ -144,60 +144,60 @@ namespace ForexStrategyBuilder.Indicators.Store
                 averageTrueRange[bar] = Math.Max(Math.Abs(High[bar] - Low[bar]), averageTrueRange[bar]);
             }
 
-            averageTrueRange = MovingAverage(maPeriod, 0, maMethod, averageTrueRange);
+            averageTrueRange = MovingAverage(period, 0, maMethod, averageTrueRange);
 
-            for (int bar = maPeriod; bar < Bars; bar++)
+            for (int bar = period; bar < Bars; bar++)
             {
-                upperBand[bar] = movingAverage[bar] + multiplier*averageTrueRange[bar];
-                lowerBand[bar] = movingAverage[bar] - multiplier*averageTrueRange[bar];
+                upperBand[bar] = ma[bar] + multiplier * averageTrueRange[bar];
+                lowerBand[bar] = ma[bar] - multiplier * averageTrueRange[bar];
             }
 
             // Saving the components
             Component = new IndicatorComp[5];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "Upper Band",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Line,
-                    ChartColor = Color.Blue,
-                    FirstBar = firstBar,
-                    Value = upperBand
-                };
+            {
+                CompName = "Upper Band",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Line,
+                ChartColor = Color.Blue,
+                FirstBar = firstBar,
+                Value = upperBand
+            };
 
             Component[1] = new IndicatorComp
-                {
-                    CompName = "Moving Average",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Line,
-                    ChartColor = Color.Gold,
-                    FirstBar = firstBar,
-                    Value = movingAverage
-                };
+            {
+                CompName = "Moving Average",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Line,
+                ChartColor = Color.Gold,
+                FirstBar = firstBar,
+                Value = ma
+            };
 
             Component[2] = new IndicatorComp
-                {
-                    CompName = "Lower Band",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Line,
-                    ChartColor = Color.Blue,
-                    FirstBar = firstBar,
-                    Value = lowerBand
-                };
+            {
+                CompName = "Lower Band",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Line,
+                ChartColor = Color.Blue,
+                FirstBar = firstBar,
+                Value = lowerBand
+            };
 
             Component[3] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = firstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             Component[4] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = firstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             // Sets the Component's type
             if (SlotType == SlotTypes.Open)
@@ -231,7 +231,7 @@ namespace ForexStrategyBuilder.Indicators.Store
 
             if (SlotType == SlotTypes.Open || SlotType == SlotTypes.Close)
             {
-                if (maPeriod > 1)
+                if (period > 1)
                 {
                     for (int bar = firstBar; bar < Bars; bar++)
                     {
@@ -243,10 +243,8 @@ namespace ForexStrategyBuilder.Indicators.Store
                         double valueUp1 = upperBand[bar - previous - 1]; // Previous value
                         double tempValUp = valueUp;
 
-                        if ((valueUp1 > High[bar - 1] && valueUp < open) ||
-                            // The Open price jumps above the indicator
-                            (valueUp1 < Low[bar - 1] && valueUp > open) ||
-                            // The Open price jumps below the indicator
+                        if ((valueUp1 > High[bar - 1] && valueUp < open) ||// The Open price jumps above the indicator
+                            (valueUp1 < Low[bar - 1] && valueUp > open) ||// The Open price jumps below the indicator
                             (Close[bar - 1] < valueUp && valueUp < open) || // The Open price is in a positive gap
                             (Close[bar - 1] > valueUp && valueUp > open)) // The Open price is in a negative gap
                             tempValUp = open; // The entry/exit level is moved to Open price
@@ -256,12 +254,9 @@ namespace ForexStrategyBuilder.Indicators.Store
                         double valueDown1 = lowerBand[bar - previous - 1]; // Previous value
                         double tempValDown = valueDown;
 
-                        if ((valueDown1 > High[bar - 1] && valueDown < open) ||
-                            // The Open price jumps above the indicator
-                            (valueDown1 < Low[bar - 1] && valueDown > open) ||
-                            // The Open price jumps below the indicator
-                            (Close[bar - 1] < valueDown && valueDown < open) ||
-                            // The Open price is in a positive gap
+                        if ((valueDown1 > High[bar - 1] && valueDown < open) ||// The Open price jumps above the indicator
+                            (valueDown1 < Low[bar - 1] && valueDown > open) ||// The Open price jumps below the indicator
+                            (Close[bar - 1] < valueDown && valueDown < open) ||// The Open price is in a positive gap
                             (Close[bar - 1] > valueDown && valueDown > open)) // The Open price is in a negative gap
                             tempValDown = open; // The entry/exit level is moved to Open price
 

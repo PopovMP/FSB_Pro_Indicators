@@ -20,8 +20,8 @@ namespace ForexStrategyBuilder.Indicators.Store
     {
         public Stochastics()
         {
-            IndicatorName  = "Stochastics";
-            PossibleSlots  = SlotTypes.OpenFilter | SlotTypes.CloseFilter;
+            IndicatorName = "Stochastics";
+            PossibleSlots = SlotTypes.OpenFilter | SlotTypes.CloseFilter;
             SeparatedChart = true;
             SeparatedChartMinValue = 0;
             SeparatedChartMaxValue = 100;
@@ -36,7 +36,7 @@ namespace ForexStrategyBuilder.Indicators.Store
             SlotType = slotType;
 
             // ComboBox parameters
-            IndParam.ListParam[0].Caption  = "Logic";
+            IndParam.ListParam[0].Caption = "Logic";
             IndParam.ListParam[0].ItemList = new string[]
             {
                 "Slow %D rises",
@@ -52,43 +52,43 @@ namespace ForexStrategyBuilder.Indicators.Store
                 "%K crosses Slow %D upward",
                 "%K crosses Slow %D downward",
             };
-            IndParam.ListParam[0].Index    = 0;
-            IndParam.ListParam[0].Text     = IndParam.ListParam[0].ItemList[IndParam.ListParam[0].Index];
-            IndParam.ListParam[0].Enabled  = true;
-            IndParam.ListParam[0].ToolTip  = "Logic of application of indicator.";
+            IndParam.ListParam[0].Index = 0;
+            IndParam.ListParam[0].Text = IndParam.ListParam[0].ItemList[IndParam.ListParam[0].Index];
+            IndParam.ListParam[0].Enabled = true;
+            IndParam.ListParam[0].ToolTip = "Logic of application of indicator.";
 
-            IndParam.ListParam[1].Caption  = "Smoothing method";
+            IndParam.ListParam[1].Caption = "Smoothing method";
             IndParam.ListParam[1].ItemList = Enum.GetNames(typeof(MAMethod));
-            IndParam.ListParam[1].Index    = (int)MAMethod.Simple;
-            IndParam.ListParam[1].Text     = IndParam.ListParam[1].ItemList[IndParam.ListParam[1].Index];
-            IndParam.ListParam[1].Enabled  = true;
-            IndParam.ListParam[1].ToolTip  = "The MA method used for smoothing.";
+            IndParam.ListParam[1].Index = (int)MAMethod.Simple;
+            IndParam.ListParam[1].Text = IndParam.ListParam[1].ItemList[IndParam.ListParam[1].Index];
+            IndParam.ListParam[1].Enabled = true;
+            IndParam.ListParam[1].ToolTip = "The MA method used for smoothing.";
 
             IndParam.NumParam[0].Caption = "%K period";
-            IndParam.NumParam[0].Value   = 5;
-            IndParam.NumParam[0].Min     = 1;
-            IndParam.NumParam[0].Max     = 200;
+            IndParam.NumParam[0].Value = 5;
+            IndParam.NumParam[0].Min = 1;
+            IndParam.NumParam[0].Max = 200;
             IndParam.NumParam[0].Enabled = true;
             IndParam.NumParam[0].ToolTip = "the smoothing period of %K.";
 
             IndParam.NumParam[1].Caption = "Fast %D period";
-            IndParam.NumParam[1].Value   = 3;
-            IndParam.NumParam[1].Min     = 1;
-            IndParam.NumParam[1].Max     = 200;
+            IndParam.NumParam[1].Value = 3;
+            IndParam.NumParam[1].Min = 1;
+            IndParam.NumParam[1].Max = 200;
             IndParam.NumParam[1].Enabled = true;
             IndParam.NumParam[1].ToolTip = "The smoothing period of Fast %D.";
 
             IndParam.NumParam[2].Caption = "Slow %D period";
-            IndParam.NumParam[2].Value   = 3;
-            IndParam.NumParam[2].Min     = 1;
-            IndParam.NumParam[2].Max     = 200;
+            IndParam.NumParam[2].Value = 3;
+            IndParam.NumParam[2].Min = 1;
+            IndParam.NumParam[2].Max = 200;
             IndParam.NumParam[2].Enabled = true;
             IndParam.NumParam[2].ToolTip = "The smoothing period of Slow %D.";
 
             IndParam.NumParam[3].Caption = "Level";
-            IndParam.NumParam[3].Value   = 20;
-            IndParam.NumParam[3].Min     = 0;
-            IndParam.NumParam[3].Max     = 100;
+            IndParam.NumParam[3].Value = 20;
+            IndParam.NumParam[3].Min = 0;
+            IndParam.NumParam[3].Max = 100;
             IndParam.NumParam[3].Enabled = true;
             IndParam.NumParam[3].ToolTip = "A critical level (for appropriate logic).";
 
@@ -104,108 +104,108 @@ namespace ForexStrategyBuilder.Indicators.Store
 
             // Reading parameters
             var maMethod = (MAMethod)IndParam.ListParam[1].Index;
-            int iK     = (int)IndParam.NumParam[0].Value;
-            int iDFast = (int)IndParam.NumParam[1].Value;
-            int iDSlow = (int)IndParam.NumParam[2].Value;
-            int iLevel = (int)IndParam.NumParam[3].Value;
-            int iPrvs  = IndParam.CheckParam[0].Checked ? 1 : 0;
+            int periodK = (int)IndParam.NumParam[0].Value;
+            int periodDFast = (int)IndParam.NumParam[1].Value;
+            int periodDSlow = (int)IndParam.NumParam[2].Value;
+            int level = (int)IndParam.NumParam[3].Value;
+            int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
-            int iFirstBar = iK + iDFast + iDSlow + 3;
+            int firstBar = periodK + periodDFast + periodDSlow + 3;
 
-            double[] adHighs = new double[Bars];
-            double[] adLows  = new double[Bars];
-            for (int iBar = 0; iBar < iK; iBar++)
+            double[] highs = new double[Bars];
+            double[] lows = new double[Bars];
+            for (int bar = 0; bar < periodK; bar++)
             {
-                double dMin = double.MaxValue;
-                double dMax = double.MinValue;
-                for (int i = 0; i < iBar; i++)
+                double min = double.MaxValue;
+                double max = double.MinValue;
+                for (int i = 0; i < bar; i++)
                 {
-                    if (High[iBar - i] > dMax) dMax = High[iBar - i];
-                    if (Low[iBar  - i] < dMin) dMin = Low[iBar  - i];
+                    if (High[bar - i] > max) max = High[bar - i];
+                    if (Low[bar - i] < min) min = Low[bar - i];
                 }
-                adHighs[iBar] = dMax;
-                adLows[iBar]  = dMin;
+                highs[bar] = max;
+                lows[bar] = min;
             }
-            adHighs[0] = High[0];
-            adLows[0]  = Low[0];
+            highs[0] = High[0];
+            lows[0] = Low[0];
 
-            for (int iBar = iK; iBar < Bars; iBar++)
+            for (int bar = periodK; bar < Bars; bar++)
             {
-                double dMin = double.MaxValue;
-                double dMax = double.MinValue;
-                for (int i = 0; i < iK; i++)
+                double min = double.MaxValue;
+                double max = double.MinValue;
+                for (int i = 0; i < periodK; i++)
                 {
-                    if (High[iBar - i] > dMax) dMax = High[iBar - i];
-                    if (Low[iBar  - i] < dMin) dMin = Low[iBar  - i];
+                    if (High[bar - i] > max) max = High[bar - i];
+                    if (Low[bar - i] < min) min = Low[bar - i];
                 }
-                adHighs[iBar] = dMax;
-                adLows[iBar]  = dMin;
+                highs[bar] = max;
+                lows[bar] = min;
             }
 
             double[] adK = new double[Bars];
-            for (int iBar = iK; iBar < Bars; iBar++)
+            for (int bar = periodK; bar < Bars; bar++)
             {
-                if (adHighs[iBar] == adLows[iBar])
-                    adK[iBar] = 50;
+                if (highs[bar] == lows[bar])
+                    adK[bar] = 50;
                 else
-                    adK[iBar] = 100 * (Close[iBar] - adLows[iBar]) / (adHighs[iBar] - adLows[iBar]);
+                    adK[bar] = 100 * (Close[bar] - lows[bar]) / (highs[bar] - lows[bar]);
             }
 
-            double[] adDFast = new double[Bars];
-            for (int iBar = iDFast; iBar < Bars; iBar++)
+            double[] fastD = new double[Bars];
+            for (int bar = periodDFast; bar < Bars; bar++)
             {
-                double dSumHigh = 0;
-                double dSumLow  = 0;
-                for (int i = 0; i < iDFast; i++)
+                double sumHigh = 0;
+                double sumLow = 0;
+                for (int i = 0; i < periodDFast; i++)
                 {
-                    dSumLow  += Close[iBar - i]   - adLows[iBar - i];
-                    dSumHigh += adHighs[iBar - i] - adLows[iBar - i];
+                    sumLow += Close[bar - i] - lows[bar - i];
+                    sumHigh += highs[bar - i] - lows[bar - i];
                 }
-                if (dSumHigh == 0)
-                    adDFast[iBar] = 100;
+                if (sumHigh == 0)
+                    fastD[bar] = 100;
                 else
-                    adDFast[iBar] = 100 * dSumLow / dSumHigh;
+                    fastD[bar] = 100 * sumLow / sumHigh;
             }
 
-            double[] adDSlow = MovingAverage(iDSlow, 0, maMethod, adDFast);
+            double[] slowD = MovingAverage(periodDSlow, 0, maMethod, fastD);
 
             // Saving components
             Component = new IndicatorComp[5];
 
             Component[0] = new IndicatorComp();
-            Component[0].CompName   = "%K";
-            Component[0].DataType   = IndComponentType.IndicatorValue;
-            Component[0].ChartType  = IndChartType.Line;
+            Component[0].CompName = "%K";
+            Component[0].DataType = IndComponentType.IndicatorValue;
+            Component[0].ChartType = IndChartType.Line;
             Component[0].ChartColor = Color.Brown;
-            Component[0].FirstBar   = iFirstBar;
-            Component[0].Value      = adK;
+            Component[0].FirstBar = firstBar;
+            Component[0].Value = adK;
 
             Component[1] = new IndicatorComp();
-            Component[1].CompName   = "Fast %D";
-            Component[1].DataType   = IndComponentType.IndicatorValue;
-            Component[1].ChartType  = IndChartType.Line;
+            Component[1].CompName = "Fast %D";
+            Component[1].DataType = IndComponentType.IndicatorValue;
+            Component[1].ChartType = IndChartType.Line;
             Component[1].ChartColor = Color.Gold;
-            Component[1].FirstBar   = iFirstBar;
-            Component[1].Value      = adDFast;
+            Component[1].FirstBar = firstBar;
+            Component[1].Value = fastD;
 
             Component[2] = new IndicatorComp();
-            Component[2].CompName   = "Slow %D";
-            Component[2].DataType   = IndComponentType.IndicatorValue;
-            Component[2].ChartType  = IndChartType.Line;
+            Component[2].CompName = "Slow %D";
+            Component[2].DataType = IndComponentType.IndicatorValue;
+            Component[2].ChartType = IndChartType.Line;
             Component[2].ChartColor = Color.Blue;
-            Component[2].FirstBar   = iFirstBar;
-            Component[2].Value      = adDSlow;
+            Component[2].FirstBar = firstBar;
+            Component[2].Value = slowD;
 
             Component[3] = new IndicatorComp();
             Component[3].ChartType = IndChartType.NoChart;
-            Component[3].FirstBar  = iFirstBar;
-            Component[3].Value     = new double[Bars];
+            Component[3].FirstBar = firstBar;
+            Component[3].Value = new double[Bars];
 
             Component[4] = new IndicatorComp();
             Component[4].ChartType = IndChartType.NoChart;
-            Component[4].FirstBar  = iFirstBar;
-            Component[4].Value     = new double[Bars];
+            Component[4].FirstBar = firstBar;
+            Component[4].Value = new double[Bars];
 
             // Sets Component's type
             if (SlotType == SlotTypes.OpenFilter)
@@ -224,30 +224,30 @@ namespace ForexStrategyBuilder.Indicators.Store
             }
 
             // Calculation of logic
-            IndicatorLogic indLogic = IndicatorLogic.It_does_not_act_as_a_filter;
+            IndicatorLogic logicRule = IndicatorLogic.It_does_not_act_as_a_filter;
 
             if (IndParam.ListParam[0].Text == "%K crosses Slow %D upward")
             {
                 SpecialValues = new double[1] { 50 };
-                IndicatorCrossesAnotherIndicatorUpwardLogic(iFirstBar, iPrvs,adK, adDSlow, ref Component[3], ref Component[4]);
+                IndicatorCrossesAnotherIndicatorUpwardLogic(firstBar, previous, adK, slowD, ref Component[3], ref Component[4]);
                 return;
             }
             else if (IndParam.ListParam[0].Text == "%K crosses Slow %D downward")
             {
                 SpecialValues = new double[1] { 50 };
-                IndicatorCrossesAnotherIndicatorDownwardLogic(iFirstBar, iPrvs, adK, adDSlow, ref Component[3], ref Component[4]);
+                IndicatorCrossesAnotherIndicatorDownwardLogic(firstBar, previous, adK, slowD, ref Component[3], ref Component[4]);
                 return;
             }
             else if (IndParam.ListParam[0].Text == "%K is higher than Slow %D")
             {
                 SpecialValues = new double[1] { 50 };
-                IndicatorIsHigherThanAnotherIndicatorLogic(iFirstBar, iPrvs, adK, adDSlow, ref Component[3], ref Component[4]);
+                IndicatorIsHigherThanAnotherIndicatorLogic(firstBar, previous, adK, slowD, ref Component[3], ref Component[4]);
                 return;
             }
             else if (IndParam.ListParam[0].Text == "%K is lower than Slow %D")
             {
                 SpecialValues = new double[1] { 50 };
-                IndicatorIsLowerThanAnotherIndicatorLogic(iFirstBar, iPrvs, adK, adDSlow, ref Component[3], ref Component[4]);
+                IndicatorIsLowerThanAnotherIndicatorLogic(firstBar, previous, adK, slowD, ref Component[3], ref Component[4]);
                 return;
             }
             else
@@ -255,144 +255,144 @@ namespace ForexStrategyBuilder.Indicators.Store
                 switch (IndParam.ListParam[0].Text)
                 {
                     case "Slow %D rises":
-                        indLogic = IndicatorLogic.The_indicator_rises;
+                        logicRule = IndicatorLogic.The_indicator_rises;
                         SpecialValues = new double[1] { 50 };
                         break;
 
                     case "Slow %D falls":
-                        indLogic = IndicatorLogic.The_indicator_falls;
+                        logicRule = IndicatorLogic.The_indicator_falls;
                         SpecialValues = new double[1] { 50 };
                         break;
 
                     case "Slow %D is higher than Level line":
-                        indLogic = IndicatorLogic.The_indicator_is_higher_than_the_level_line;
-                        SpecialValues = new double[2] { iLevel, 100 - iLevel };
+                        logicRule = IndicatorLogic.The_indicator_is_higher_than_the_level_line;
+                        SpecialValues = new double[2] { level, 100 - level };
                         break;
 
                     case "Slow %D is lower than Level line":
-                        indLogic = IndicatorLogic.The_indicator_is_lower_than_the_level_line;
-                        SpecialValues = new double[2] { iLevel, 100 - iLevel };
+                        logicRule = IndicatorLogic.The_indicator_is_lower_than_the_level_line;
+                        SpecialValues = new double[2] { level, 100 - level };
                         break;
 
                     case "Slow %D crosses Level line upward":
-                        indLogic = IndicatorLogic.The_indicator_crosses_the_level_line_upward;
-                        SpecialValues = new double[2] { iLevel, 100 - iLevel };
+                        logicRule = IndicatorLogic.The_indicator_crosses_the_level_line_upward;
+                        SpecialValues = new double[2] { level, 100 - level };
                         break;
 
                     case "Slow %D crosses Level line downward":
-                        indLogic = IndicatorLogic.The_indicator_crosses_the_level_line_downward;
-                        SpecialValues = new double[2] { iLevel, 100 - iLevel };
+                        logicRule = IndicatorLogic.The_indicator_crosses_the_level_line_downward;
+                        SpecialValues = new double[2] { level, 100 - level };
                         break;
 
                     case "Slow %D changes its direction upward":
-                        indLogic = IndicatorLogic.The_indicator_changes_its_direction_upward;
+                        logicRule = IndicatorLogic.The_indicator_changes_its_direction_upward;
                         SpecialValues = new double[1] { 50 };
                         break;
 
                     case "Slow %D changes its direction downward":
-                        indLogic = IndicatorLogic.The_indicator_changes_its_direction_downward;
+                        logicRule = IndicatorLogic.The_indicator_changes_its_direction_downward;
                         SpecialValues = new double[1] { 50 };
                         break;
                 }
 
-                OscillatorLogic(iFirstBar, iPrvs, adDSlow, iLevel, 100 - iLevel, ref Component[3], ref Component[4], indLogic);
+                OscillatorLogic(firstBar, previous, slowD, level, 100 - level, ref Component[3], ref Component[4], logicRule);
             }
         }
 
         public override void SetDescription()
         {
-            string sLevelLong  = IndParam.NumParam[3].ValueToString;
-            string sLevelShort = IndParam.NumParam[3].AnotherValueToString(100 - IndParam.NumParam[3].Value);
+            string levelLong = IndParam.NumParam[3].ValueToString;
+            string levelShort = IndParam.NumParam[3].AnotherValueToString(100 - IndParam.NumParam[3].Value);
 
-            EntryFilterLongDescription  = ToString() + " - ";
+            EntryFilterLongDescription = ToString() + " - ";
             EntryFilterShortDescription = ToString() + " - ";
-            ExitFilterLongDescription   = ToString() + " - ";
-            ExitFilterShortDescription  = ToString() + " - ";
+            ExitFilterLongDescription = ToString() + " - ";
+            ExitFilterShortDescription = ToString() + " - ";
 
             switch (IndParam.ListParam[0].Text)
             {
                 case "Slow %D rises":
-                    EntryFilterLongDescription  += "Slow %D rises";
+                    EntryFilterLongDescription += "Slow %D rises";
                     EntryFilterShortDescription += "Slow %D falls";
-                    ExitFilterLongDescription   += "Slow %D rises";
-                    ExitFilterShortDescription  += "Slow %D falls";
+                    ExitFilterLongDescription += "Slow %D rises";
+                    ExitFilterShortDescription += "Slow %D falls";
                     break;
 
                 case "Slow %D falls":
-                    EntryFilterLongDescription  += "Slow %D falls";
+                    EntryFilterLongDescription += "Slow %D falls";
                     EntryFilterShortDescription += "Slow %D rises";
-                    ExitFilterLongDescription   += "Slow %D falls";
-                    ExitFilterShortDescription  += "Slow %D rises";
+                    ExitFilterLongDescription += "Slow %D falls";
+                    ExitFilterShortDescription += "Slow %D rises";
                     break;
 
                 case "Slow %D is higher than Level line":
-                    EntryFilterLongDescription  += "Slow %D is higher than Level " + sLevelLong;
-                    EntryFilterShortDescription += "Slow %D is lower than Level "  + sLevelShort;
-                    ExitFilterLongDescription   += "Slow %D is higher than Level " + sLevelLong;
-                    ExitFilterShortDescription  += "Slow %D is lower than Level "  + sLevelShort;
+                    EntryFilterLongDescription += "Slow %D is higher than Level " + levelLong;
+                    EntryFilterShortDescription += "Slow %D is lower than Level " + levelShort;
+                    ExitFilterLongDescription += "Slow %D is higher than Level " + levelLong;
+                    ExitFilterShortDescription += "Slow %D is lower than Level " + levelShort;
                     break;
 
                 case "Slow %D is lower than Level line":
-                    EntryFilterLongDescription  += "Slow %D is lower than Level "  + sLevelLong;
-                    EntryFilterShortDescription += "Slow %D is higher than Level " + sLevelShort;
-                    ExitFilterLongDescription   += "Slow %D is lower than Level "  + sLevelLong;
-                    ExitFilterShortDescription  += "Slow %D is higher than Level " + sLevelShort;
+                    EntryFilterLongDescription += "Slow %D is lower than Level " + levelLong;
+                    EntryFilterShortDescription += "Slow %D is higher than Level " + levelShort;
+                    ExitFilterLongDescription += "Slow %D is lower than Level " + levelLong;
+                    ExitFilterShortDescription += "Slow %D is higher than Level " + levelShort;
                     break;
 
                 case "Slow %D crosses Level line upward":
-                    EntryFilterLongDescription  += "Slow %D crosses Level " + sLevelLong  + " upward";
-                    EntryFilterShortDescription += "Slow %D crosses Level " + sLevelShort + " downward";
-                    ExitFilterLongDescription   += "Slow %D crosses Level " + sLevelLong  + " upward";
-                    ExitFilterShortDescription  += "Slow %D crosses Level " + sLevelShort + " downward";
+                    EntryFilterLongDescription += "Slow %D crosses Level " + levelLong + " upward";
+                    EntryFilterShortDescription += "Slow %D crosses Level " + levelShort + " downward";
+                    ExitFilterLongDescription += "Slow %D crosses Level " + levelLong + " upward";
+                    ExitFilterShortDescription += "Slow %D crosses Level " + levelShort + " downward";
                     break;
 
                 case "Slow %D crosses Level line downward":
-                    EntryFilterLongDescription  += "Slow %D crosses Level " + sLevelLong  + " downward";
-                    EntryFilterShortDescription += "Slow %D crosses Level " + sLevelShort + " upward";
-                    ExitFilterLongDescription   += "Slow %D crosses Level " + sLevelLong  + " downward";
-                    ExitFilterShortDescription  += "Slow %D crosses Level " + sLevelShort + " upward";
+                    EntryFilterLongDescription += "Slow %D crosses Level " + levelLong + " downward";
+                    EntryFilterShortDescription += "Slow %D crosses Level " + levelShort + " upward";
+                    ExitFilterLongDescription += "Slow %D crosses Level " + levelLong + " downward";
+                    ExitFilterShortDescription += "Slow %D crosses Level " + levelShort + " upward";
                     break;
 
                 case "%K crosses Slow %D upward":
-                    EntryFilterLongDescription  += "%K crosses Slow %D upward";
+                    EntryFilterLongDescription += "%K crosses Slow %D upward";
                     EntryFilterShortDescription += "%K crosses Slow %D downward";
-                    ExitFilterLongDescription   += "%K crosses Slow %D upward";
-                    ExitFilterShortDescription  += "%K crosses Slow %D downward";
+                    ExitFilterLongDescription += "%K crosses Slow %D upward";
+                    ExitFilterShortDescription += "%K crosses Slow %D downward";
                     break;
 
                 case "%K crosses Slow %D downward":
-                    EntryFilterLongDescription  += "%K crosses Slow %D downward";
+                    EntryFilterLongDescription += "%K crosses Slow %D downward";
                     EntryFilterShortDescription += "%K crosses Slow %D upward";
-                    ExitFilterLongDescription   += "%K crosses Slow %D downward";
-                    ExitFilterShortDescription  += "%K crosses Slow %D upward";
+                    ExitFilterLongDescription += "%K crosses Slow %D downward";
+                    ExitFilterShortDescription += "%K crosses Slow %D upward";
                     break;
 
                 case "%K is higher than Slow %D":
-                    EntryFilterLongDescription  += "%K is higher than Slow %D";
+                    EntryFilterLongDescription += "%K is higher than Slow %D";
                     EntryFilterShortDescription += "%K is lower than Slow %D";
-                    ExitFilterLongDescription   += "%K is higher than Slow %D";
-                    ExitFilterShortDescription  += "%K is lower than Slow %D";
+                    ExitFilterLongDescription += "%K is higher than Slow %D";
+                    ExitFilterShortDescription += "%K is lower than Slow %D";
                     break;
 
                 case "%K is lower than  Slow %D":
-                    EntryFilterLongDescription  += "%K is lower than Slow %D";
+                    EntryFilterLongDescription += "%K is lower than Slow %D";
                     EntryFilterShortDescription += "%K is higher than than Slow %D";
-                    ExitFilterLongDescription   += "%K is lower than Slow %D";
-                    ExitFilterShortDescription  += "%K is higher than than Slow %D";
+                    ExitFilterLongDescription += "%K is lower than Slow %D";
+                    ExitFilterShortDescription += "%K is higher than than Slow %D";
                     break;
 
                 case "Slow %D changes its direction upward":
-                    EntryFilterLongDescription  += "Slow %D changes its direction upward";
+                    EntryFilterLongDescription += "Slow %D changes its direction upward";
                     EntryFilterShortDescription += "Slow %D changes its direction downward";
-                    ExitFilterLongDescription   += "Slow %D changes its direction upward";
-                    ExitFilterShortDescription  += "Slow %D changes its direction downward";
+                    ExitFilterLongDescription += "Slow %D changes its direction upward";
+                    ExitFilterShortDescription += "Slow %D changes its direction downward";
                     break;
 
                 case "Slow %D changes its direction downward":
-                    EntryFilterLongDescription  += "Slow %D changes its direction downward";
+                    EntryFilterLongDescription += "Slow %D changes its direction downward";
                     EntryFilterShortDescription += "Slow %D changes its direction upward";
-                    ExitFilterLongDescription   += "Slow %D changes its direction downward";
-                    ExitFilterShortDescription  += "Slow %D changes its direction upward";
+                    ExitFilterLongDescription += "Slow %D changes its direction downward";
+                    ExitFilterShortDescription += "Slow %D changes its direction upward";
                     break;
             }
         }
@@ -401,7 +401,7 @@ namespace ForexStrategyBuilder.Indicators.Store
         {
             return IndicatorName +
                 (IndParam.CheckParam[0].Checked ? "* (" : " (") +
-                IndParam.ListParam[1].Text         + ", " + // Smoothing method
+                IndParam.ListParam[1].Text + ", " + // Smoothing method
                 IndParam.NumParam[0].ValueToString + ", " + // %K period
                 IndParam.NumParam[1].ValueToString + ", " + // Fast %D period
                 IndParam.NumParam[2].ValueToString + ")";   // Slow %D period

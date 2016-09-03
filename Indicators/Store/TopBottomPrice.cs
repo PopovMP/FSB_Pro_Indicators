@@ -81,14 +81,14 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.ListParam[0].ToolTip = "Logic of application of the indicator.";
 
             IndParam.ListParam[1].Caption = "Base price";
-            IndParam.ListParam[1].ItemList = new[] {"High & Low"};
+            IndParam.ListParam[1].ItemList = new[] { "High & Low" };
             IndParam.ListParam[1].Index = 0;
             IndParam.ListParam[1].Text = IndParam.ListParam[1].ItemList[IndParam.ListParam[1].Index];
             IndParam.ListParam[1].Enabled = true;
             IndParam.ListParam[1].ToolTip = "Used price from the indicator.";
 
             IndParam.ListParam[2].Caption = "Base period";
-            IndParam.ListParam[2].ItemList = new[] {"Previous bar", "Previous day", "Previous week", "Previous month"};
+            IndParam.ListParam[2].ItemList = new[] { "Previous bar", "Previous day", "Previous week", "Previous month" };
             IndParam.ListParam[2].Index = 1;
             IndParam.ListParam[2].Text = IndParam.ListParam[2].ItemList[IndParam.ListParam[2].Index];
             IndParam.ListParam[2].Enabled = true;
@@ -111,14 +111,17 @@ namespace ForexStrategyBuilder.Indicators.Store
                 case 0: // Previous bar
                     isPeriodChanged = true;
                     break;
+
                 case 1: // Previous day
                     isPeriodChanged = Time[bar].Day != Time[bar - 1].Day;
                     break;
+
                 case 2: // Previous week
                     isPeriodChanged = Period == DataPeriod.W1 ||
                                       Time[bar].DayOfWeek <= DayOfWeek.Wednesday &&
                                       Time[bar - 1].DayOfWeek > DayOfWeek.Wednesday;
                     break;
+
                 case 3: // Previous month
                     isPeriodChanged = Time[bar].Month != Time[bar - 1].Month;
                     break;
@@ -132,8 +135,8 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            double shift = IndParam.NumParam[0].Value*Point;
-            const int firstBar = 1;
+            double shift = IndParam.NumParam[0].Value * Point;
+            const int firstBar = 2;
 
             // Calculation
             var topPrice = new double[Bars];
@@ -338,7 +341,7 @@ namespace ForexStrategyBuilder.Indicators.Store
 
         public override void SetDescription()
         {
-            var shift = (int) IndParam.NumParam[0].Value;
+            var shift = (int)IndParam.NumParam[0].Value;
 
             string upperTrade;
             string lowerTrade;

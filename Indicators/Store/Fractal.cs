@@ -87,7 +87,7 @@ namespace ForexStrategyBuilder.Indicators.Store
 
             // Reading the parameters
             var isVisible = IndParam.ListParam[1].Text == "Visible";
-            var shift = IndParam.NumParam[0].Value*Point;
+            var shift = IndParam.NumParam[0].Value * Point;
             const int firstBar = 8;
 
             var upFractals = new double[Bars];
@@ -284,7 +284,7 @@ namespace ForexStrategyBuilder.Indicators.Store
 
         public override void SetDescription()
         {
-            var shift = (int) IndParam.NumParam[0].Value;
+            var shift = (int)IndParam.NumParam[0].Value;
 
             string upperTrade;
             string lowerTrade;

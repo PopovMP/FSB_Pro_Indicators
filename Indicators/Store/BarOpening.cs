@@ -36,14 +36,14 @@ namespace ForexStrategyBuilder.Indicators.Store
 
             // The ComboBox parameters
             IndParam.ListParam[0].Caption = "Logic";
-            IndParam.ListParam[0].ItemList = new[] {"Enter the market at the beginning of the bar"};
+            IndParam.ListParam[0].ItemList = new[] { "Enter the market at the beginning of the bar" };
             IndParam.ListParam[0].Index = 0;
             IndParam.ListParam[0].Text = IndParam.ListParam[0].ItemList[IndParam.ListParam[0].Index];
             IndParam.ListParam[0].Enabled = true;
             IndParam.ListParam[0].ToolTip = "Logic of application of the indicator.";
 
             IndParam.ListParam[1].Caption = "Base price";
-            IndParam.ListParam[1].ItemList = new[] {"Open"};
+            IndParam.ListParam[1].ItemList = new[] { "Open" };
             IndParam.ListParam[1].Index = 0;
             IndParam.ListParam[1].Text = IndParam.ListParam[1].ItemList[IndParam.ListParam[1].Index];
             IndParam.ListParam[1].Enabled = true;
@@ -58,13 +58,13 @@ namespace ForexStrategyBuilder.Indicators.Store
             Component = new IndicatorComp[1];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "Opening price of the bar",
-                    DataType = IndComponentType.OpenPrice,
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = 2,
-                    Value = Open
-                };
+            {
+                CompName = "Opening price of the bar",
+                DataType = IndComponentType.OpenPrice,
+                ChartType = IndChartType.NoChart,
+                FirstBar = 2,
+                Value = Open
+            };
         }
 
         public override void SetDescription()

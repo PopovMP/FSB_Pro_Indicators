@@ -56,33 +56,33 @@ namespace ForexStrategyBuilder.Indicators.Store
 
             // Calculation
             const int firstBar = 2;
-            var adIb = new double[Bars];
+            var insideBAr = new double[Bars];
 
-            for (int iBar = 2; iBar < Bars; iBar++)
+            for (int bar = 2; bar < Bars; bar++)
             {
-                adIb[iBar] = ((High[iBar - 1] < High[iBar - 2]) && (Low[iBar - 1] > Low[iBar - 2])) ? 1 : 0;
+                insideBAr[bar] = ((High[bar - 1] < High[bar - 2]) && (Low[bar - 1] > Low[bar - 2])) ? 1 : 0;
             }
 
             // Saving the components
             Component = new IndicatorComp[2];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "Allow long entry",
-                    DataType = IndComponentType.AllowOpenLong,
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = firstBar,
-                    Value = adIb
-                };
+            {
+                CompName = "Allow long entry",
+                DataType = IndComponentType.AllowOpenLong,
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = insideBAr
+            };
 
             Component[1] = new IndicatorComp
-                {
-                    CompName = "Allow short entry",
-                    DataType = IndComponentType.AllowOpenShort,
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = firstBar,
-                    Value = adIb
-                };
+            {
+                CompName = "Allow short entry",
+                DataType = IndComponentType.AllowOpenShort,
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = insideBAr
+            };
         }
 
         public override void SetDescription()

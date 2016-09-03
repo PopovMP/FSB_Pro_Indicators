@@ -74,72 +74,75 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            var period = (int) IndParam.NumParam[0].Value;
-            int prvs = IndParam.CheckParam[0].Checked ? 1 : 0;
+            var period = (int)IndParam.NumParam[0].Value;
+            int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
             int firstBar = period + 4;
 
-            var adRvi = new double[Bars];
+            var rvi = new double[Bars];
             for (int bar = period + 3; bar < Bars; bar++)
             {
-                double dNum = 0;
-                double dDeNum = 0;
-                for (int j = bar; j > bar - period; j--)
+                double num = 0;
+                double deNum = 0;
+                for (int i = bar; i > bar - period; i--)
                 {
-                    double dValueUp = ((Close[j] - Open[j]) + 2*(Close[j - 1] - Open[j - 1]) +
-                                       2*(Close[j - 2] - Open[j - 2]) + (Close[j - 3] - Open[j - 3]))/6;
-                    double dValueDown = ((High[j] - Low[j]) + 2*(High[j - 1] - Low[j - 1]) +
-                                         2*(High[j - 2] - Low[j - 2]) + (High[j - 3] - Low[j - 3]))/6;
-                    dNum += dValueUp;
-                    dDeNum += dValueDown;
+                    double upValue = ((Close[i] - Open[i]) + 2 * (Close[i - 1] - Open[i - 1]) +
+                                       2 * (Close[i - 2] - Open[i - 2]) + (Close[i - 3] - Open[i - 3])) / 6;
+                    double downValue = ((High[i] - Low[i]) + 2 * (High[i - 1] - Low[i - 1]) +
+                                         2 * (High[i - 2] - Low[i - 2]) + (High[i - 3] - Low[i - 3])) / 6;
+                    num += upValue;
+                    deNum += downValue;
                 }
-                if (Math.Abs(dDeNum - 0) > Epsilon)
-                    adRvi[bar] = dNum/dDeNum;
+
+                if (Math.Abs(deNum - 0) > Epsilon)
+                    rvi[bar] = num / deNum;
                 else
-                    adRvi[bar] = dNum;
+                    rvi[bar] = num;
             }
 
-            var adMASignal = new double[Bars];
-            for (int iBar = 4; iBar < Bars; iBar++)
-                adMASignal[iBar] = (adRvi[iBar] + 2*adRvi[iBar - 1] + 2*adRvi[iBar - 2] + adRvi[iBar - 3])/6;
+            var signalMa = new double[Bars];
+            for (int bar = 4; bar < Bars; bar++)
+            {
+                signalMa[bar] = (rvi[bar] + 2 * rvi[bar - 1] + 2 * rvi[bar - 2] + rvi[bar - 3]) / 6;
+            }
 
             // Saving the components
             Component = new IndicatorComp[4];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "RVI Line",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Line,
-                    ChartColor = Color.Green,
-                    FirstBar = firstBar,
-                    Value = adRvi
-                };
+            {
+                CompName = "RVI Line",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Line,
+                ChartColor = Color.Green,
+                FirstBar = firstBar,
+                Value = rvi
+            };
 
             Component[1] = new IndicatorComp
-                {
-                    CompName = "Signal line",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Line,
-                    ChartColor = Color.Red,
-                    FirstBar = firstBar,
-                    Value = adMASignal
-                };
+            {
+                CompName = "Signal line",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Line,
+                ChartColor = Color.Red,
+                FirstBar = firstBar,
+                Value = signalMa
+            };
 
             Component[2] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = firstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             Component[3] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = firstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             // Sets the Component's type
             if (SlotType == SlotTypes.OpenFilter)
@@ -160,62 +163,62 @@ namespace ForexStrategyBuilder.Indicators.Store
             switch (IndParam.ListParam[0].Text)
             {
                 case "RVI line rises":
-                    OscillatorLogic(firstBar, prvs, adRvi, 0, 0, ref Component[2], ref Component[3],
+                    OscillatorLogic(firstBar, previous, rvi, 0, 0, ref Component[2], ref Component[3],
                                     IndicatorLogic.The_indicator_rises);
                     break;
 
                 case "RVI line falls":
-                    OscillatorLogic(firstBar, prvs, adRvi, 0, 0, ref Component[2], ref Component[3],
+                    OscillatorLogic(firstBar, previous, rvi, 0, 0, ref Component[2], ref Component[3],
                                     IndicatorLogic.The_indicator_falls);
                     break;
 
                 case "RVI line is higher than zero":
-                    OscillatorLogic(firstBar, prvs, adRvi, 0, 0, ref Component[2], ref Component[3],
+                    OscillatorLogic(firstBar, previous, rvi, 0, 0, ref Component[2], ref Component[3],
                                     IndicatorLogic.The_indicator_is_higher_than_the_level_line);
                     break;
 
                 case "RVI line is lower than zero":
-                    OscillatorLogic(firstBar, prvs, adRvi, 0, 0, ref Component[2], ref Component[3],
+                    OscillatorLogic(firstBar, previous, rvi, 0, 0, ref Component[2], ref Component[3],
                                     IndicatorLogic.The_indicator_is_lower_than_the_level_line);
                     break;
 
                 case "RVI line crosses the zero line upward":
-                    OscillatorLogic(firstBar, prvs, adRvi, 0, 0, ref Component[2], ref Component[3],
+                    OscillatorLogic(firstBar, previous, rvi, 0, 0, ref Component[2], ref Component[3],
                                     IndicatorLogic.The_indicator_crosses_the_level_line_upward);
                     break;
 
                 case "RVI line crosses the zero line downward":
-                    OscillatorLogic(firstBar, prvs, adRvi, 0, 0, ref Component[2], ref Component[3],
+                    OscillatorLogic(firstBar, previous, rvi, 0, 0, ref Component[2], ref Component[3],
                                     IndicatorLogic.The_indicator_crosses_the_level_line_downward);
                     break;
 
                 case "RVI line changes its direction upward":
-                    OscillatorLogic(firstBar, prvs, adRvi, 0, 0, ref Component[2], ref Component[3],
+                    OscillatorLogic(firstBar, previous, rvi, 0, 0, ref Component[2], ref Component[3],
                                     IndicatorLogic.The_indicator_changes_its_direction_upward);
                     break;
 
                 case "RVI line changes its direction downward":
-                    OscillatorLogic(firstBar, prvs, adRvi, 0, 0, ref Component[2], ref Component[3],
+                    OscillatorLogic(firstBar, previous, rvi, 0, 0, ref Component[2], ref Component[3],
                                     IndicatorLogic.The_indicator_changes_its_direction_downward);
                     break;
 
                 case "RVI line crosses the Signal line upward":
-                    IndicatorCrossesAnotherIndicatorUpwardLogic(firstBar, prvs, adRvi, adMASignal, ref Component[2],
+                    IndicatorCrossesAnotherIndicatorUpwardLogic(firstBar, previous, rvi, signalMa, ref Component[2],
                                                                 ref Component[3]);
                     break;
 
                 case "RVI line crosses the Signal line downward":
-                    IndicatorCrossesAnotherIndicatorDownwardLogic(firstBar, prvs, adRvi, adMASignal, ref Component[2],
+                    IndicatorCrossesAnotherIndicatorDownwardLogic(firstBar, previous, rvi, signalMa, ref Component[2],
                                                                   ref Component[3]);
                     break;
 
                 case "RVI line is higher than the Signal line":
-                    IndicatorIsHigherThanAnotherIndicatorLogic(firstBar, prvs, adRvi, adMASignal, ref Component[2],
+                    IndicatorIsHigherThanAnotherIndicatorLogic(firstBar, previous, rvi, signalMa, ref Component[2],
                                                                ref Component[3]);
                     break;
 
                 case "RVI line is lower than the Signal line":
-                    IndicatorIsLowerThanAnotherIndicatorLogic(firstBar, prvs, adRvi, adMASignal, ref Component[2],
+                    IndicatorIsLowerThanAnotherIndicatorLogic(firstBar, previous, rvi, signalMa, ref Component[2],
                                                               ref Component[3]);
                     break;
             }

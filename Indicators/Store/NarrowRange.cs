@@ -58,73 +58,79 @@ namespace ForexStrategyBuilder.Indicators.Store
         {
             DataSet = dataSet;
 
-            int iPrvs = IndParam.CheckParam[0].Checked ? 1 : 0;
+            int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
-            int iStepBack = (IndParam.ListParam[0].Text == "There is a NR4 formation" ? 3 : 6);
-            int iFirstBar = iStepBack + iPrvs;
-            var adNr = new double[Bars];
-            var adRange = new double[Bars];
+            int backStep = (IndParam.ListParam[0].Text == "There is a NR4 formation" ? 3 : 6);
+            int firstBar = backStep + previous;
+            var narrowRange = new double[Bars];
+            var range = new double[Bars];
 
-            for (int iBar = 0; iBar < Bars; iBar++)
+            for (int bar = 0; bar < Bars; bar++)
             {
-                adRange[iBar] = High[iBar] - Low[iBar];
-                adNr[iBar] = 0;
+                range[bar] = High[bar] - Low[bar];
+                narrowRange[bar] = 0;
             }
 
             // Calculation of the logic
-            for (int iBar = iFirstBar; iBar < Bars; iBar++)
+            for (int bar = firstBar; bar < Bars; bar++)
             {
-                bool bNarrowRange = true;
-                for (int i = 1; i <= iStepBack; i++)
-                    if (adRange[iBar - i - iPrvs] <= adRange[iBar - iPrvs])
+                bool isNarrowRange = true;
+                for (int i = 1; i <= backStep; i++)
+                {
+                    if (range[bar - i - previous] <= range[bar - previous])
                     {
-                        bNarrowRange = false;
+                        isNarrowRange = false;
                         break;
                     }
+                }
 
-                if (bNarrowRange) adNr[iBar] = 1;
+                if (isNarrowRange)
+                    narrowRange[bar] = 1;
             }
 
             // Saving the components
             Component = new IndicatorComp[3];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "Bar Range",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Histogram,
-                    FirstBar = iFirstBar,
-                    Value = new double[Bars]
-                };
+            {
+                CompName = "Bar Range",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Histogram,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
+
             for (int i = 0; i < Bars; i++)
-                Component[0].Value[i] = Math.Round(adRange[i]/Point);
+            {
+                Component[0].Value[i] = Math.Round(range[i] / Point);
+            }
 
             Component[1] = new IndicatorComp
-                {
-                    CompName = "Allow long entry",
-                    DataType = IndComponentType.AllowOpenLong,
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = iFirstBar,
-                    Value = adNr
-                };
+            {
+                CompName = "Allow long entry",
+                DataType = IndComponentType.AllowOpenLong,
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = narrowRange
+            };
 
             Component[2] = new IndicatorComp
-                {
-                    CompName = "Allow short entry",
-                    DataType = IndComponentType.AllowOpenShort,
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = iFirstBar,
-                    Value = adNr
-                };
+            {
+                CompName = "Allow short entry",
+                DataType = IndComponentType.AllowOpenShort,
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = narrowRange
+            };
         }
 
         public override void SetDescription()
         {
-            string sFormation = (IndParam.ListParam[0].Text == "There is a NR4 formation" ? "NR4" : "NR7");
+            string formation = (IndParam.ListParam[0].Text == "There is a NR4 formation" ? "NR4" : "NR7");
 
-            EntryFilterLongDescription = "there is a " + sFormation + " formation";
-            EntryFilterShortDescription = "there is a " + sFormation + " formation";
+            EntryFilterLongDescription = "there is a " + formation + " formation";
+            EntryFilterShortDescription = "there is a " + formation + " formation";
         }
 
         public override string ToString()

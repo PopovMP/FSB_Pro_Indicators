@@ -51,15 +51,15 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.ListParam[0].ToolTip = "Logic of application of the indicator.";
 
             IndParam.ListParam[1].Caption = "Smoothing method";
-            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof (MAMethod));
-            IndParam.ListParam[1].Index = (int) MAMethod.Simple;
+            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof(MAMethod));
+            IndParam.ListParam[1].Index = (int)MAMethod.Simple;
             IndParam.ListParam[1].Text = IndParam.ListParam[1].ItemList[IndParam.ListParam[1].Index];
             IndParam.ListParam[1].Enabled = true;
             IndParam.ListParam[1].ToolTip = "The Moving Average method used for smoothing the values.";
 
             IndParam.ListParam[2].Caption = "Base price";
-            IndParam.ListParam[2].ItemList = Enum.GetNames(typeof (BasePrice));
-            IndParam.ListParam[2].Index = (int) BasePrice.Median;
+            IndParam.ListParam[2].ItemList = Enum.GetNames(typeof(BasePrice));
+            IndParam.ListParam[2].Index = (int)BasePrice.Median;
             IndParam.ListParam[2].Text = IndParam.ListParam[2].ItemList[IndParam.ListParam[2].Index];
             IndParam.ListParam[2].Enabled = true;
             IndParam.ListParam[2].ToolTip = "The price the indicator is based on.";
@@ -85,7 +85,7 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.NumParam[3].Max = 10;
             IndParam.NumParam[3].Point = 4;
             IndParam.NumParam[3].Enabled = true;
-            IndParam.NumParam[3].ToolTip = "A critical level (for the appropriate logic).";
+            IndParam.NumParam[3].ToolTip = "A signal level.";
 
             // The CheckBox parameters
             IndParam.CheckParam[0].Caption = "Use previous bar value";
@@ -98,15 +98,15 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            var maMethod = (MAMethod) IndParam.ListParam[1].Index;
-            var basePrice = (BasePrice) IndParam.ListParam[2].Index;
-            var periodSlow = (int) IndParam.NumParam[0].Value;
-            var periodFast = (int) IndParam.NumParam[1].Value;
+            var maMethod = (MAMethod)IndParam.ListParam[1].Index;
+            var basePrice = (BasePrice)IndParam.ListParam[2].Index;
+            var periodSlow = (int)IndParam.NumParam[0].Value;
+            var periodFast = (int)IndParam.NumParam[1].Value;
             double level = IndParam.NumParam[3].Value;
             int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
-            int firstBar = periodSlow + 2;
+            int firstBar = Math.Max(periodSlow, periodFast) + previous + 2;
 
             double[] maSlow = MovingAverage(periodSlow, 0, maMethod, Price(basePrice));
             double[] maFast = MovingAverage(periodFast, 0, maMethod, Price(basePrice));
@@ -121,27 +121,27 @@ namespace ForexStrategyBuilder.Indicators.Store
             Component = new IndicatorComp[3];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "AO",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Histogram,
-                    FirstBar = firstBar,
-                    Value = awesomeOscillator
-                };
+            {
+                CompName = "AO",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Histogram,
+                FirstBar = firstBar,
+                Value = awesomeOscillator
+            };
 
             Component[1] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = firstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             Component[2] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = firstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             // Sets the Component's type
             if (SlotType == SlotTypes.OpenFilter)
@@ -166,42 +166,42 @@ namespace ForexStrategyBuilder.Indicators.Store
             {
                 case "AO rises":
                     indicatorLogic = IndicatorLogic.The_indicator_rises;
-                    SpecialValues = new double[] {0};
+                    SpecialValues = new double[] { 0 };
                     break;
 
                 case "AO falls":
                     indicatorLogic = IndicatorLogic.The_indicator_falls;
-                    SpecialValues = new double[] {0};
+                    SpecialValues = new double[] { 0 };
                     break;
 
                 case "AO is higher than the Level line":
                     indicatorLogic = IndicatorLogic.The_indicator_is_higher_than_the_level_line;
-                    SpecialValues = new[] {level, -level};
+                    SpecialValues = new[] { level, -level };
                     break;
 
                 case "AO is lower than the Level line":
                     indicatorLogic = IndicatorLogic.The_indicator_is_lower_than_the_level_line;
-                    SpecialValues = new[] {level, -level};
+                    SpecialValues = new[] { level, -level };
                     break;
 
                 case "AO crosses the Level line upward":
                     indicatorLogic = IndicatorLogic.The_indicator_crosses_the_level_line_upward;
-                    SpecialValues = new[] {level, -level};
+                    SpecialValues = new[] { level, -level };
                     break;
 
                 case "AO crosses the Level line downward":
                     indicatorLogic = IndicatorLogic.The_indicator_crosses_the_level_line_downward;
-                    SpecialValues = new[] {level, -level};
+                    SpecialValues = new[] { level, -level };
                     break;
 
                 case "AO changes its direction upward":
                     indicatorLogic = IndicatorLogic.The_indicator_changes_its_direction_upward;
-                    SpecialValues = new double[] {0};
+                    SpecialValues = new double[] { 0 };
                     break;
 
                 case "AO changes its direction downward":
                     indicatorLogic = IndicatorLogic.The_indicator_changes_its_direction_downward;
-                    SpecialValues = new double[] {0};
+                    SpecialValues = new double[] { 0 };
                     break;
             }
 

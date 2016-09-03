@@ -56,22 +56,22 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.ListParam[0].ToolTip = "Logic of application of the indicator.";
 
             IndParam.ListParam[1].Caption = "Smoothing method";
-            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof (MAMethod));
-            IndParam.ListParam[1].Index = (int) MAMethod.Exponential;
+            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof(MAMethod));
+            IndParam.ListParam[1].Index = (int)MAMethod.Exponential;
             IndParam.ListParam[1].Text = IndParam.ListParam[1].ItemList[IndParam.ListParam[1].Index];
             IndParam.ListParam[1].Enabled = true;
             IndParam.ListParam[1].ToolTip = "The smoothing method of Moving Averages.";
 
             IndParam.ListParam[2].Caption = "Base price";
-            IndParam.ListParam[2].ItemList = Enum.GetNames(typeof (BasePrice));
-            IndParam.ListParam[2].Index = (int) BasePrice.Close;
+            IndParam.ListParam[2].ItemList = Enum.GetNames(typeof(BasePrice));
+            IndParam.ListParam[2].Index = (int)BasePrice.Close;
             IndParam.ListParam[2].Text = IndParam.ListParam[2].ItemList[IndParam.ListParam[2].Index];
             IndParam.ListParam[2].Enabled = true;
             IndParam.ListParam[2].ToolTip = "The price the Moving Averages are based on.";
 
             IndParam.ListParam[3].Caption = "Signal line method";
-            IndParam.ListParam[3].ItemList = Enum.GetNames(typeof (MAMethod));
-            IndParam.ListParam[3].Index = (int) MAMethod.Simple;
+            IndParam.ListParam[3].ItemList = Enum.GetNames(typeof(MAMethod));
+            IndParam.ListParam[3].Index = (int)MAMethod.Simple;
             IndParam.ListParam[3].Text = IndParam.ListParam[3].ItemList[IndParam.ListParam[3].Index];
             IndParam.ListParam[3].Enabled = true;
             IndParam.ListParam[3].ToolTip = "The smoothing method of the signal line.";
@@ -109,69 +109,81 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            var maMethod = (MAMethod) IndParam.ListParam[1].Index;
-            var slMethod = (MAMethod) IndParam.ListParam[3].Index;
-            var basePrice = (BasePrice) IndParam.ListParam[2].Index;
-            var slowPeriod = (int) IndParam.NumParam[0].Value;
-            var fastPeriod = (int) IndParam.NumParam[1].Value;
-            var signalLinePeriod = (int) IndParam.NumParam[2].Value;
+            var maMethod = (MAMethod)IndParam.ListParam[1].Index;
+            var slMethod = (MAMethod)IndParam.ListParam[3].Index;
+            var basePrice = (BasePrice)IndParam.ListParam[2].Index;
+            var slowPeriod = (int)IndParam.NumParam[0].Value;
+            var fastPeriod = (int)IndParam.NumParam[1].Value;
+            var signalPeriod = (int)IndParam.NumParam[2].Value;
             int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
-            int firstBar = slowPeriod + fastPeriod + 3;
+            int firstBar = Math.Max(Math.Max(slowPeriod, fastPeriod), signalPeriod) + previous + 2;
 
-            double[] adMASlow = MovingAverage(slowPeriod, 0, maMethod, Price(basePrice));
-            double[] adMAFast = MovingAverage(fastPeriod, 0, maMethod, Price(basePrice));
+            double[] maSlow = MovingAverage(slowPeriod, 0, maMethod, Price(basePrice));
+            double[] maFast = MovingAverage(fastPeriod, 0, maMethod, Price(basePrice));
 
-            var adMACD = new double[Bars];
+            var macd = new double[Bars];
 
             for (int bar = slowPeriod - 1; bar < Bars; bar++)
-                adMACD[bar] = adMAFast[bar] - adMASlow[bar];
+            {
+                macd[bar] = maFast[bar] - maSlow[bar];
+            }
 
-            double[] maSignalLine = MovingAverage(signalLinePeriod, 0, slMethod, adMACD);
+            double[] maSignalLine = MovingAverage(signalPeriod, 0, slMethod, macd);
 
-            // adHistogram represents MACD oscillator
-            var adHistogram = new double[Bars];
-            for (int bar = slowPeriod + signalLinePeriod - 1; bar < Bars; bar++)
-                adHistogram[bar] = adMACD[bar] - maSignalLine[bar];
+            // Tge histogram represents MACD oscillator
+            var histogram = new double[Bars];
+            for (int bar = slowPeriod + signalPeriod - 1; bar < Bars; bar++)
+            {
+                histogram[bar] = macd[bar] - maSignalLine[bar];
+            }
 
             // Saving the components
             Component = new IndicatorComp[5];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "Histogram",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Histogram,
-                    FirstBar = firstBar,
-                    Value = adHistogram
-                };
+            {
+                CompName = "Histogram",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Histogram,
+                FirstBar = firstBar,
+                Value = histogram
+            };
 
             Component[1] = new IndicatorComp
-                {
-                    CompName = "Signal line",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Line,
-                    ChartColor = Color.Gold,
-                    FirstBar = firstBar,
-                    Value = maSignalLine
-                };
+            {
+                CompName = "Signal line",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Line,
+                ChartColor = Color.Gold,
+                FirstBar = firstBar,
+                Value = maSignalLine
+            };
 
             Component[2] = new IndicatorComp
-                {
-                    CompName = "MACD line",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Line,
-                    ChartColor = Color.Blue,
-                    FirstBar = firstBar,
-                    Value = adMACD
-                };
+            {
+                CompName = "MACD line",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Line,
+                ChartColor = Color.Blue,
+                FirstBar = firstBar,
+                Value = macd
+            };
 
             Component[3] = new IndicatorComp
-                {ChartType = IndChartType.NoChart, FirstBar = firstBar, Value = new double[Bars]};
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             Component[4] = new IndicatorComp
-                {ChartType = IndChartType.NoChart, FirstBar = firstBar, Value = new double[Bars]};
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             // Sets the Component's type
             if (SlotType == SlotTypes.OpenFilter)
@@ -192,63 +204,63 @@ namespace ForexStrategyBuilder.Indicators.Store
             switch (IndParam.ListParam[0].Text)
             {
                 case "MACD line rises":
-                    OscillatorLogic(firstBar, previous, adMACD, 0, 0, ref Component[3], ref Component[4],
-                                    IndicatorLogic.The_indicator_rises);
+                    OscillatorLogic(firstBar, previous, macd, 0, 0, ref Component[3], ref Component[4],
+                        IndicatorLogic.The_indicator_rises);
                     break;
 
                 case "MACD line falls":
-                    OscillatorLogic(firstBar, previous, adMACD, 0, 0, ref Component[3], ref Component[4],
-                                    IndicatorLogic.The_indicator_falls);
+                    OscillatorLogic(firstBar, previous, macd, 0, 0, ref Component[3], ref Component[4],
+                        IndicatorLogic.The_indicator_falls);
                     break;
 
                 case "MACD line is higher than zero":
-                    OscillatorLogic(firstBar, previous, adMACD, 0, 0, ref Component[3], ref Component[4],
-                                    IndicatorLogic.The_indicator_is_higher_than_the_level_line);
+                    OscillatorLogic(firstBar, previous, macd, 0, 0, ref Component[3], ref Component[4],
+                        IndicatorLogic.The_indicator_is_higher_than_the_level_line);
                     break;
 
                 case "MACD line is lower than zero":
-                    OscillatorLogic(firstBar, previous, adMACD, 0, 0, ref Component[3], ref Component[4],
-                                    IndicatorLogic.The_indicator_is_lower_than_the_level_line);
+                    OscillatorLogic(firstBar, previous, macd, 0, 0, ref Component[3], ref Component[4],
+                        IndicatorLogic.The_indicator_is_lower_than_the_level_line);
                     break;
 
                 case "MACD line crosses the zero line upward":
-                    OscillatorLogic(firstBar, previous, adMACD, 0, 0, ref Component[3], ref Component[4],
-                                    IndicatorLogic.The_indicator_crosses_the_level_line_upward);
+                    OscillatorLogic(firstBar, previous, macd, 0, 0, ref Component[3], ref Component[4],
+                        IndicatorLogic.The_indicator_crosses_the_level_line_upward);
                     break;
 
                 case "MACD line crosses the zero line downward":
-                    OscillatorLogic(firstBar, previous, adMACD, 0, 0, ref Component[3], ref Component[4],
-                                    IndicatorLogic.The_indicator_crosses_the_level_line_downward);
+                    OscillatorLogic(firstBar, previous, macd, 0, 0, ref Component[3], ref Component[4],
+                        IndicatorLogic.The_indicator_crosses_the_level_line_downward);
                     break;
 
                 case "MACD line changes its direction upward":
-                    OscillatorLogic(firstBar, previous, adMACD, 0, 0, ref Component[3], ref Component[4],
-                                    IndicatorLogic.The_indicator_changes_its_direction_upward);
+                    OscillatorLogic(firstBar, previous, macd, 0, 0, ref Component[3], ref Component[4],
+                        IndicatorLogic.The_indicator_changes_its_direction_upward);
                     break;
 
                 case "MACD line changes its direction downward":
-                    OscillatorLogic(firstBar, previous, adMACD, 0, 0, ref Component[3], ref Component[4],
-                                    IndicatorLogic.The_indicator_changes_its_direction_downward);
+                    OscillatorLogic(firstBar, previous, macd, 0, 0, ref Component[3], ref Component[4],
+                        IndicatorLogic.The_indicator_changes_its_direction_downward);
                     break;
 
                 case "MACD line crosses the Signal line upward":
-                    OscillatorLogic(firstBar, previous, adHistogram, 0, 0, ref Component[3], ref Component[4],
-                                    IndicatorLogic.The_indicator_crosses_the_level_line_upward);
+                    OscillatorLogic(firstBar, previous, histogram, 0, 0, ref Component[3], ref Component[4],
+                        IndicatorLogic.The_indicator_crosses_the_level_line_upward);
                     break;
 
                 case "MACD line crosses the Signal line downward":
-                    OscillatorLogic(firstBar, previous, adHistogram, 0, 0, ref Component[3], ref Component[4],
-                                    IndicatorLogic.The_indicator_crosses_the_level_line_downward);
+                    OscillatorLogic(firstBar, previous, histogram, 0, 0, ref Component[3], ref Component[4],
+                        IndicatorLogic.The_indicator_crosses_the_level_line_downward);
                     break;
 
                 case "MACD line is higher than the Signal line":
-                    OscillatorLogic(firstBar, previous, adHistogram, 0, 0, ref Component[3], ref Component[4],
-                                    IndicatorLogic.The_indicator_is_higher_than_the_level_line);
+                    OscillatorLogic(firstBar, previous, histogram, 0, 0, ref Component[3], ref Component[4],
+                        IndicatorLogic.The_indicator_is_higher_than_the_level_line);
                     break;
 
                 case "MACD line is lower than the Signal line":
-                    OscillatorLogic(firstBar, previous, adHistogram, 0, 0, ref Component[3], ref Component[4],
-                                    IndicatorLogic.The_indicator_is_lower_than_the_level_line);
+                    OscillatorLogic(firstBar, previous, histogram, 0, 0, ref Component[3], ref Component[4],
+                        IndicatorLogic.The_indicator_is_lower_than_the_level_line);
                     break;
             }
         }

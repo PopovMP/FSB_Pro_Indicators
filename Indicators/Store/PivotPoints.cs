@@ -70,7 +70,7 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.ListParam[0].ToolTip = "Logic of application of the indicator.";
 
             IndParam.ListParam[1].Caption = "Base price";
-            IndParam.ListParam[1].ItemList = new[] {"One day", "One bar"};
+            IndParam.ListParam[1].ItemList = new[] { "One day", "One bar" };
             IndParam.ListParam[1].Index = 0;
             IndParam.ListParam[1].Text = IndParam.ListParam[1].ItemList[IndParam.ListParam[1].Index];
             IndParam.ListParam[1].Enabled = true;
@@ -95,84 +95,84 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            double dShift = IndParam.NumParam[0].Value*Point;
-            int prvs = IndParam.CheckParam[0].Checked ? 1 : 0;
+            double shift = IndParam.NumParam[0].Value * Point;
+            int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
-            int firstBar = 1;
-            var adPp = new double[Bars];
-            var adR1 = new double[Bars];
-            var adR2 = new double[Bars];
-            var adR3 = new double[Bars];
-            var adS1 = new double[Bars];
-            var adS2 = new double[Bars];
-            var adS3 = new double[Bars];
+            int firstBar = previous + 2;
+            var pp = new double[Bars];
+            var r1 = new double[Bars];
+            var r2 = new double[Bars];
+            var r3 = new double[Bars];
+            var s1 = new double[Bars];
+            var s2 = new double[Bars];
+            var s3 = new double[Bars];
 
-            var adH = new double[Bars];
-            var adL = new double[Bars];
-            var adC = new double[Bars];
+            var high = new double[Bars];
+            var low = new double[Bars];
+            var close = new double[Bars];
 
             if (IndParam.ListParam[1].Text == "One bar" ||
                 Period == DataPeriod.D1 || Period == DataPeriod.W1)
             {
-                adH = High;
-                adL = Low;
-                adC = Close;
+                high = High;
+                low = Low;
+                close = Close;
             }
             else
             {
-                prvs = 0;
+                previous = 0;
 
-                adH[0] = 0;
-                adL[0] = 0;
-                adC[0] = 0;
+                high[0] = 0;
+                low[0] = 0;
+                close[0] = 0;
 
-                double dTop = double.MinValue;
-                double dBottom = double.MaxValue;
+                double top = double.MinValue;
+                double bottom = double.MaxValue;
 
-                for (int iBar = 1; iBar < Bars; iBar++)
+                for (int bar = 1; bar < Bars; bar++)
                 {
-                    if (High[iBar - 1] > dTop)
-                        dTop = High[iBar - 1];
-                    if (Low[iBar - 1] < dBottom)
-                        dBottom = Low[iBar - 1];
+                    if (High[bar - 1] > top)
+                        top = High[bar - 1];
+                    if (Low[bar - 1] < bottom)
+                        bottom = Low[bar - 1];
 
-                    if (Time[iBar].Day != Time[iBar - 1].Day)
+                    if (Time[bar].Day != Time[bar - 1].Day)
                     {
-                        adH[iBar] = dTop;
-                        adL[iBar] = dBottom;
-                        adC[iBar] = Close[iBar - 1];
-                        dTop = double.MinValue;
-                        dBottom = double.MaxValue;
+                        high[bar] = top;
+                        low[bar] = bottom;
+                        close[bar] = Close[bar - 1];
+                        top = double.MinValue;
+                        bottom = double.MaxValue;
                     }
                     else
                     {
-                        adH[iBar] = adH[iBar - 1];
-                        adL[iBar] = adL[iBar - 1];
-                        adC[iBar] = adC[iBar - 1];
+                        high[bar] = high[bar - 1];
+                        low[bar] = low[bar - 1];
+                        close[bar] = close[bar - 1];
                     }
                 }
 
                 // first Bar
-                for (int iBar = 1; iBar < Bars; iBar++)
+                for (int bar = 1; bar < Bars; bar++)
                 {
-                    if (Time[iBar].Day != Time[iBar - 1].Day)
+                    if (Time[bar].Day != Time[bar - 1].Day)
                     {
-                        firstBar = iBar;
+                        firstBar = bar;
                         break;
                     }
                 }
             }
 
-            for (int iBar = firstBar; iBar < Bars; iBar++)
+            for (int bar = firstBar; bar < Bars; bar++)
             {
-                adPp[iBar] = (adH[iBar] + adL[iBar] + adC[iBar])/3;
-                adR1[iBar] = 2*adPp[iBar] - adL[iBar];
-                adS1[iBar] = 2*adPp[iBar] - adH[iBar];
-                adR2[iBar] = adPp[iBar] + adH[iBar] - adL[iBar];
-                adS2[iBar] = adPp[iBar] - adH[iBar] + adL[iBar];
-                adR3[iBar] = adH[iBar] + 2*(adPp[iBar] - adL[iBar]);
-                adS3[iBar] = adL[iBar] - 2*(adH[iBar] - adPp[iBar]);
+                pp[bar] = (high[bar] + low[bar] + close[bar]) / 3;
+                r1[bar] = 2 * pp[bar] - low[bar];
+                s1[bar] = 2 * pp[bar] - high[bar];
+                r2[bar] = pp[bar] + high[bar] - low[bar];
+                s2[bar] = pp[bar] - high[bar] + low[bar];
+                r3[bar] = high[bar] + 2 * (pp[bar] - low[bar]);
+                s3[bar] = low[bar] - 2 * (high[bar] - pp[bar]);
             }
 
             Component = new IndicatorComp[9];
@@ -180,22 +180,22 @@ namespace ForexStrategyBuilder.Indicators.Store
             for (int iComp = 0; iComp < 7; iComp++)
             {
                 Component[iComp] = new IndicatorComp
-                    {
-                        ChartType = IndChartType.Dot,
-                        ChartColor = Color.Violet,
-                        DataType = IndComponentType.IndicatorValue,
-                        FirstBar = firstBar
-                    };
+                {
+                    ChartType = IndChartType.Dot,
+                    ChartColor = Color.Violet,
+                    DataType = IndComponentType.IndicatorValue,
+                    FirstBar = firstBar
+                };
             }
             Component[3].ChartColor = Color.Blue;
 
-            Component[0].Value = adR3;
-            Component[1].Value = adR2;
-            Component[2].Value = adR1;
-            Component[3].Value = adPp;
-            Component[4].Value = adS1;
-            Component[5].Value = adS2;
-            Component[6].Value = adS3;
+            Component[0].Value = r3;
+            Component[1].Value = r2;
+            Component[2].Value = r1;
+            Component[3].Value = pp;
+            Component[4].Value = s1;
+            Component[5].Value = s2;
+            Component[6].Value = s3;
 
             Component[0].CompName = "Resistance 3";
             Component[1].CompName = "Resistance 2";
@@ -206,18 +206,18 @@ namespace ForexStrategyBuilder.Indicators.Store
             Component[6].CompName = "Support 3";
 
             Component[7] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = firstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             Component[8] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = firstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             if (SlotType == SlotTypes.Open)
             {
@@ -238,60 +238,60 @@ namespace ForexStrategyBuilder.Indicators.Store
             {
                 case "Enter long at R3 (short at S3)":
                 case "Exit long at R3 (short at S3)":
-                    for (int iBar = firstBar; iBar < Bars; iBar++)
+                    for (int bar = firstBar; bar < Bars; bar++)
                     {
-                        Component[7].Value[iBar] = adR3[iBar - prvs] + dShift;
-                        Component[8].Value[iBar] = adS3[iBar - prvs] - dShift;
+                        Component[7].Value[bar] = r3[bar - previous] + shift;
+                        Component[8].Value[bar] = s3[bar - previous] - shift;
                     }
                     break;
                 case "Enter long at R2 (short at S2)":
                 case "Exit long at R2 (short at S2)":
-                    for (int iBar = firstBar; iBar < Bars; iBar++)
+                    for (int bar = firstBar; bar < Bars; bar++)
                     {
-                        Component[7].Value[iBar] = adR2[iBar - prvs] + dShift;
-                        Component[8].Value[iBar] = adS2[iBar - prvs] - dShift;
+                        Component[7].Value[bar] = r2[bar - previous] + shift;
+                        Component[8].Value[bar] = s2[bar - previous] - shift;
                     }
                     break;
                 case "Enter long at R1 (short at S1)":
                 case "Exit long at R1 (short at S1)":
-                    for (int iBar = firstBar; iBar < Bars; iBar++)
+                    for (int bar = firstBar; bar < Bars; bar++)
                     {
-                        Component[7].Value[iBar] = adR1[iBar - prvs] + dShift;
-                        Component[8].Value[iBar] = adS1[iBar - prvs] - dShift;
+                        Component[7].Value[bar] = r1[bar - previous] + shift;
+                        Component[8].Value[bar] = s1[bar - previous] - shift;
                     }
                     break;
-                    //---------------------------------------------------------------------
+                //---------------------------------------------------------------------
                 case "Enter the market at the Pivot Point":
                 case "Exit the market at the Pivot Point":
-                    for (int iBar = firstBar; iBar < Bars; iBar++)
+                    for (int bar = firstBar; bar < Bars; bar++)
                     {
-                        Component[7].Value[iBar] = adPp[iBar - prvs] + dShift;
-                        Component[8].Value[iBar] = adPp[iBar - prvs] - dShift;
+                        Component[7].Value[bar] = pp[bar - previous] + shift;
+                        Component[8].Value[bar] = pp[bar - previous] - shift;
                     }
                     break;
-                    //---------------------------------------------------------------------
+                //---------------------------------------------------------------------
                 case "Enter long at S1 (short at R1)":
                 case "Exit long at S1 (short at R1)":
-                    for (int iBar = firstBar; iBar < Bars; iBar++)
+                    for (int bar = firstBar; bar < Bars; bar++)
                     {
-                        Component[7].Value[iBar] = adS1[iBar - prvs] - dShift;
-                        Component[8].Value[iBar] = adR1[iBar - prvs] + dShift;
+                        Component[7].Value[bar] = s1[bar - previous] - shift;
+                        Component[8].Value[bar] = r1[bar - previous] + shift;
                     }
                     break;
                 case "Enter long at S2 (short at R2)":
                 case "Exit long at S2 (short at R2)":
-                    for (int iBar = firstBar; iBar < Bars; iBar++)
+                    for (int bar = firstBar; bar < Bars; bar++)
                     {
-                        Component[7].Value[iBar] = adS2[iBar - prvs] - dShift;
-                        Component[8].Value[iBar] = adR2[iBar - prvs] + dShift;
+                        Component[7].Value[bar] = s2[bar - previous] - shift;
+                        Component[8].Value[bar] = r2[bar - previous] + shift;
                     }
                     break;
                 case "Enter long at S3 (short at R3)":
                 case "Exit long at S3 (short at R3)":
-                    for (int iBar = firstBar; iBar < Bars; iBar++)
+                    for (int bar = firstBar; bar < Bars; bar++)
                     {
-                        Component[7].Value[iBar] = adS3[iBar - prvs] - dShift;
-                        Component[8].Value[iBar] = adR3[iBar - prvs] + dShift;
+                        Component[7].Value[bar] = s3[bar - previous] - shift;
+                        Component[8].Value[bar] = r3[bar - previous] + shift;
                     }
                     break;
             }
@@ -299,86 +299,86 @@ namespace ForexStrategyBuilder.Indicators.Store
 
         public override void SetDescription()
         {
-            var iShift = (int) IndParam.NumParam[0].Value;
+            var shift = (int)IndParam.NumParam[0].Value;
 
-            string sUpperTrade;
-            string sLowerTrade;
+            string upperTrade;
+            string lowerTrade;
 
-            if (iShift > 0)
+            if (shift > 0)
             {
-                sUpperTrade = iShift + " points above the ";
-                sLowerTrade = iShift + " points below the ";
+                upperTrade = shift + " points above the ";
+                lowerTrade = shift + " points below the ";
             }
-            else if (iShift == 0)
+            else if (shift == 0)
             {
-                sUpperTrade = "at ";
-                sLowerTrade = "at ";
+                upperTrade = "at ";
+                lowerTrade = "at ";
             }
             else
             {
-                sUpperTrade = -iShift + " points below the ";
-                sLowerTrade = -iShift + " points above the ";
+                upperTrade = -shift + " points below the ";
+                lowerTrade = -shift + " points above the ";
             }
 
             switch (IndParam.ListParam[0].Text)
             {
                 case "Enter long at R3 (short at S3)":
-                    EntryPointLongDescription = sUpperTrade + "Pivot Point Resistance 3 level";
-                    EntryPointShortDescription = sLowerTrade + "Pivot Point Support 3 level";
+                    EntryPointLongDescription = upperTrade + "Pivot Point Resistance 3 level";
+                    EntryPointShortDescription = lowerTrade + "Pivot Point Support 3 level";
                     break;
                 case "Exit long at R3 (short at S3)":
-                    ExitPointLongDescription = sUpperTrade + "Pivot Point Resistance 3 level";
-                    ExitPointShortDescription = sLowerTrade + "Pivot Point Support 3 level";
+                    ExitPointLongDescription = upperTrade + "Pivot Point Resistance 3 level";
+                    ExitPointShortDescription = lowerTrade + "Pivot Point Support 3 level";
                     break;
                 case "Enter long at R2 (short at S2)":
-                    EntryPointLongDescription = sUpperTrade + "Pivot Point Resistance 2 level";
-                    EntryPointShortDescription = sLowerTrade + "Pivot Point Support 2 level";
+                    EntryPointLongDescription = upperTrade + "Pivot Point Resistance 2 level";
+                    EntryPointShortDescription = lowerTrade + "Pivot Point Support 2 level";
                     break;
                 case "Exit long at R2 (short at S2)":
-                    ExitPointLongDescription = sUpperTrade + "Pivot Point Resistance 2 level";
-                    ExitPointShortDescription = sLowerTrade + "Pivot Point Support 2 level";
+                    ExitPointLongDescription = upperTrade + "Pivot Point Resistance 2 level";
+                    ExitPointShortDescription = lowerTrade + "Pivot Point Support 2 level";
                     break;
                 case "Enter long at R1 (short at S1)":
-                    EntryPointLongDescription = sUpperTrade + "Pivot Point Resistance 1 level";
-                    EntryPointShortDescription = sLowerTrade + "Pivot Point Support 1 level";
+                    EntryPointLongDescription = upperTrade + "Pivot Point Resistance 1 level";
+                    EntryPointShortDescription = lowerTrade + "Pivot Point Support 1 level";
                     break;
                 case "Exit long at R1 (short at S1)":
-                    ExitPointLongDescription = sUpperTrade + "Pivot Point Resistance 1 level";
-                    ExitPointShortDescription = sLowerTrade + "Pivot Point Support 1 level";
+                    ExitPointLongDescription = upperTrade + "Pivot Point Resistance 1 level";
+                    ExitPointShortDescription = lowerTrade + "Pivot Point Support 1 level";
                     break;
-                    //---------------------------------------------------------------------
+                //---------------------------------------------------------------------
                 case "Enter the market at the Pivot Point":
-                    EntryPointLongDescription = sUpperTrade + "Pivot Point";
-                    EntryPointShortDescription = sLowerTrade + "Pivot Point";
+                    EntryPointLongDescription = upperTrade + "Pivot Point";
+                    EntryPointShortDescription = lowerTrade + "Pivot Point";
                     break;
                 case "Exit the market at the Pivot Point":
-                    ExitPointLongDescription = sUpperTrade + "Pivot Point";
-                    ExitPointShortDescription = sLowerTrade + "Pivot Point";
+                    ExitPointLongDescription = upperTrade + "Pivot Point";
+                    ExitPointShortDescription = lowerTrade + "Pivot Point";
                     break;
-                    //---------------------------------------------------------------------
+                //---------------------------------------------------------------------
                 case "Enter long at S1 (short at R1)":
-                    EntryPointLongDescription = sLowerTrade + "Pivot Point Support 1 level";
-                    EntryPointShortDescription = sUpperTrade + "Pivot Point Resistance 1 level";
+                    EntryPointLongDescription = lowerTrade + "Pivot Point Support 1 level";
+                    EntryPointShortDescription = upperTrade + "Pivot Point Resistance 1 level";
                     break;
                 case "Exit long at S1 (short at R1)":
-                    ExitPointLongDescription = sLowerTrade + "Pivot Point Support 1 level";
-                    ExitPointShortDescription = sUpperTrade + "Pivot Point Resistance 1 level";
+                    ExitPointLongDescription = lowerTrade + "Pivot Point Support 1 level";
+                    ExitPointShortDescription = upperTrade + "Pivot Point Resistance 1 level";
                     break;
                 case "Enter long at S2 (short at R2)":
-                    EntryPointLongDescription = sLowerTrade + "Pivot Point Support 2 level";
-                    EntryPointShortDescription = sUpperTrade + "Pivot Point Resistance 2 level";
+                    EntryPointLongDescription = lowerTrade + "Pivot Point Support 2 level";
+                    EntryPointShortDescription = upperTrade + "Pivot Point Resistance 2 level";
                     break;
                 case "Exit long at S2 (short at R2)":
-                    ExitPointLongDescription = sLowerTrade + "Pivot Point Support 2 level";
-                    ExitPointShortDescription = sUpperTrade + "Pivot Point Resistance 2 level";
+                    ExitPointLongDescription = lowerTrade + "Pivot Point Support 2 level";
+                    ExitPointShortDescription = upperTrade + "Pivot Point Resistance 2 level";
                     break;
                 case "Enter long at S3 (short at R3)":
-                    EntryPointLongDescription = sLowerTrade + "Pivot Point Support 3 level";
-                    EntryPointShortDescription = sUpperTrade + "Pivot Point Resistance 3 level";
+                    EntryPointLongDescription = lowerTrade + "Pivot Point Support 3 level";
+                    EntryPointShortDescription = upperTrade + "Pivot Point Resistance 3 level";
                     break;
                 case "Exit long at S3 (short at R3)":
-                    ExitPointLongDescription = sLowerTrade + "Pivot Point Support 3 level";
-                    ExitPointShortDescription = sUpperTrade + "Pivot Point Resistance 3 level";
+                    ExitPointLongDescription = lowerTrade + "Pivot Point Support 3 level";
+                    ExitPointShortDescription = upperTrade + "Pivot Point Resistance 3 level";
                     break;
             }
         }

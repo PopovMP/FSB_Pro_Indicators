@@ -38,14 +38,14 @@ namespace ForexStrategyBuilder.Indicators.Store
 
             // The ComboBox parameters
             IndParam.ListParam[0].Caption = "Logic";
-            IndParam.ListParam[0].ItemList = new[] {"Enter the market at the beginning of the day"};
+            IndParam.ListParam[0].ItemList = new[] { "Enter the market at the beginning of the day" };
             IndParam.ListParam[0].Index = 0;
             IndParam.ListParam[0].Text = IndParam.ListParam[0].ItemList[IndParam.ListParam[0].Index];
             IndParam.ListParam[0].Enabled = true;
             IndParam.ListParam[0].ToolTip = "Logic of application of the indicator.";
 
             IndParam.ListParam[1].Caption = "Base price";
-            IndParam.ListParam[1].ItemList = new[] {"Open"};
+            IndParam.ListParam[1].ItemList = new[] { "Open" };
             IndParam.ListParam[1].Index = 0;
             IndParam.ListParam[1].Text = IndParam.ListParam[1].ItemList[IndParam.ListParam[1].Index];
             IndParam.ListParam[1].Enabled = true;
@@ -57,23 +57,25 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Calculation
-            var adOpenPrice = new double[Bars];
+            var openPrice = new double[Bars];
 
             for (int bar = 1; bar < Bars; bar++)
+            {
                 if (Time[bar - 1].Day != Time[bar].Day)
-                    adOpenPrice[bar] = Open[bar];
+                    openPrice[bar] = Open[bar];
+            }
 
             // Saving the components
             Component = new IndicatorComp[1];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "Opening price of the day",
-                    DataType = IndComponentType.OpenPrice,
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = 2,
-                    Value = adOpenPrice
-                };
+            {
+                CompName = "Opening price of the day",
+                DataType = IndComponentType.OpenPrice,
+                ChartType = IndChartType.NoChart,
+                FirstBar = 2,
+                Value = openPrice
+            };
         }
 
         public override void SetDescription()

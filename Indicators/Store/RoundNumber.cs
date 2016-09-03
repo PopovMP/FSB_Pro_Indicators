@@ -82,35 +82,35 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            double shift = IndParam.NumParam[0].Value*Point;
-            var digids = (int) IndParam.NumParam[1].Value;
+            double shift = IndParam.NumParam[0].Value * Point;
+            var digids = (int)IndParam.NumParam[1].Value;
 
             // Calculation
             var upperRn = new double[Bars];
             var lowerRn = new double[Bars];
 
-            const int firstBar = 1;
+            const int firstBar = 2;
 
-            for (int iBar = 1; iBar < Bars; iBar++)
+            for (int bar = firstBar; bar < Bars; bar++)
             {
-                double dNearestRound;
+                double nearestRound;
 
-                int iCutDigids = Digits - digids;
-                if (iCutDigids >= 0)
-                    dNearestRound = Math.Round(Open[iBar], iCutDigids);
+                int digidsCut = Digits - digids;
+                if (digidsCut >= 0)
+                    nearestRound = Math.Round(Open[bar], digidsCut);
                 else
-                    dNearestRound = Math.Round(Open[iBar]*Math.Pow(10, iCutDigids))/Math.Pow(10, iCutDigids);
+                    nearestRound = Math.Round(Open[bar] * Math.Pow(10, digidsCut)) / Math.Pow(10, digidsCut);
 
 
-                if (dNearestRound < Open[iBar])
+                if (nearestRound < Open[bar])
                 {
-                    upperRn[iBar] = dNearestRound + (Point*Math.Pow(10, digids));
-                    lowerRn[iBar] = dNearestRound;
+                    upperRn[bar] = nearestRound + (Point * Math.Pow(10, digids));
+                    lowerRn[bar] = nearestRound;
                 }
                 else
                 {
-                    upperRn[iBar] = dNearestRound;
-                    lowerRn[iBar] = dNearestRound - (Point*Math.Pow(10, digids));
+                    upperRn[bar] = nearestRound;
+                    lowerRn[bar] = nearestRound - (Point * Math.Pow(10, digids));
                 }
             }
 
@@ -118,38 +118,38 @@ namespace ForexStrategyBuilder.Indicators.Store
             Component = new IndicatorComp[4];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "Higher round number",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Level,
-                    ChartColor = Color.SpringGreen,
-                    FirstBar = firstBar,
-                    Value = upperRn
-                };
+            {
+                CompName = "Higher round number",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Level,
+                ChartColor = Color.SpringGreen,
+                FirstBar = firstBar,
+                Value = upperRn
+            };
 
             Component[1] = new IndicatorComp
-                {
-                    CompName = "Lower round number",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Level,
-                    ChartColor = Color.DarkRed,
-                    FirstBar = firstBar,
-                    Value = lowerRn
-                };
+            {
+                CompName = "Lower round number",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Level,
+                ChartColor = Color.DarkRed,
+                FirstBar = firstBar,
+                Value = lowerRn
+            };
 
             Component[2] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = firstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             Component[3] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = firstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             if (SlotType == SlotTypes.Open)
             {
@@ -170,18 +170,18 @@ namespace ForexStrategyBuilder.Indicators.Store
             {
                 case "Enter long at the higher round number":
                 case "Exit long at the higher round number":
-                    for (int iBar = firstBar; iBar < Bars; iBar++)
+                    for (int bar = firstBar; bar < Bars; bar++)
                     {
-                        Component[2].Value[iBar] = upperRn[iBar] + shift;
-                        Component[3].Value[iBar] = lowerRn[iBar] - shift;
+                        Component[2].Value[bar] = upperRn[bar] + shift;
+                        Component[3].Value[bar] = lowerRn[bar] - shift;
                     }
                     break;
                 case "Enter long at the lower round number":
                 case "Exit long at the lower round number":
-                    for (int iBar = firstBar; iBar < Bars; iBar++)
+                    for (int bar = firstBar; bar < Bars; bar++)
                     {
-                        Component[2].Value[iBar] = lowerRn[iBar] - shift;
-                        Component[3].Value[iBar] = upperRn[iBar] + shift;
+                        Component[2].Value[bar] = lowerRn[bar] - shift;
+                        Component[3].Value[bar] = upperRn[bar] + shift;
                     }
                     break;
             }
@@ -189,7 +189,7 @@ namespace ForexStrategyBuilder.Indicators.Store
 
         public override void SetDescription()
         {
-            var iShift = (int) IndParam.NumParam[0].Value;
+            var iShift = (int)IndParam.NumParam[0].Value;
 
             string sUpperTrade;
             string sLowerTrade;

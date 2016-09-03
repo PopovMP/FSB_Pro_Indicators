@@ -53,28 +53,28 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.ListParam[0].ToolTip = "Logic of application of the oscillator.";
 
             IndParam.ListParam[1].Caption = "Smoothing method";
-            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof (MAMethod));
-            IndParam.ListParam[1].Index = (int) MAMethod.Exponential;
+            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof(MAMethod));
+            IndParam.ListParam[1].Index = (int)MAMethod.Exponential;
             IndParam.ListParam[1].Text = IndParam.ListParam[1].ItemList[IndParam.ListParam[1].Index];
             IndParam.ListParam[1].Enabled = true;
             IndParam.ListParam[1].ToolTip = "Moving Average method used for smoothing the MACD value.";
 
             IndParam.ListParam[2].Caption = "Base price";
-            IndParam.ListParam[2].ItemList = Enum.GetNames(typeof (BasePrice));
-            IndParam.ListParam[2].Index = (int) BasePrice.Close;
+            IndParam.ListParam[2].ItemList = Enum.GetNames(typeof(BasePrice));
+            IndParam.ListParam[2].Index = (int)BasePrice.Close;
             IndParam.ListParam[2].Text = IndParam.ListParam[2].ItemList[IndParam.ListParam[2].Index];
             IndParam.ListParam[2].Enabled = true;
             IndParam.ListParam[2].ToolTip = "The price the indicator is based on.";
 
             IndParam.ListParam[3].Caption = "Signal line method";
-            IndParam.ListParam[3].ItemList = Enum.GetNames(typeof (MAMethod));
-            IndParam.ListParam[3].Index = (int) MAMethod.Exponential;
+            IndParam.ListParam[3].ItemList = Enum.GetNames(typeof(MAMethod));
+            IndParam.ListParam[3].Index = (int)MAMethod.Exponential;
             IndParam.ListParam[3].Text = IndParam.ListParam[3].ItemList[IndParam.ListParam[3].Index];
             IndParam.ListParam[3].Enabled = true;
             IndParam.ListParam[3].ToolTip = "The smoothing method of the signal line.";
 
             IndParam.ListParam[4].Caption = "What to compare";
-            IndParam.ListParam[4].ItemList = new[] {"Histograms", "Signal lines", "MACD lines"};
+            IndParam.ListParam[4].ItemList = new[] { "Histograms", "Signal lines", "MACD lines" };
             IndParam.ListParam[4].Index = 0;
             IndParam.ListParam[4].Text = IndParam.ListParam[4].ItemList[IndParam.ListParam[4].Index];
             IndParam.ListParam[4].Enabled = true;
@@ -157,22 +157,22 @@ namespace ForexStrategyBuilder.Indicators.Store
 
             // Calculation
             int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
-            double[] adIndicator1;
-            double[] adIndicator2;
+            double[] indicator1;
+            double[] indicator2;
 
             switch (IndParam.ListParam[4].Index)
             {
                 case 0:
-                    adIndicator1 = macd1.Component[0].Value;
-                    adIndicator2 = macd2.Component[0].Value;
+                    indicator1 = macd1.Component[0].Value;
+                    indicator2 = macd2.Component[0].Value;
                     break;
                 case 1:
-                    adIndicator1 = macd1.Component[1].Value;
-                    adIndicator2 = macd2.Component[1].Value;
+                    indicator1 = macd1.Component[1].Value;
+                    indicator2 = macd2.Component[1].Value;
                     break;
                 default:
-                    adIndicator1 = macd1.Component[2].Value;
-                    adIndicator2 = macd2.Component[2].Value;
+                    indicator1 = macd1.Component[2].Value;
+                    indicator2 = macd2.Component[2].Value;
                     break;
             }
 
@@ -186,35 +186,35 @@ namespace ForexStrategyBuilder.Indicators.Store
             }
             firstBar += 3;
 
-            var adOscillator = new double[Bars];
+            var oscillator = new double[Bars];
             for (int bar = firstBar; bar < Bars; bar++)
-                adOscillator[bar] = adIndicator1[bar] - adIndicator2[bar];
+                oscillator[bar] = indicator1[bar] - indicator2[bar];
 
             // Saving the components
             Component = new IndicatorComp[3];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "Oscillator",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Histogram,
-                    FirstBar = firstBar,
-                    Value = adOscillator
-                };
+            {
+                CompName = "Oscillator",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Histogram,
+                FirstBar = firstBar,
+                Value = oscillator
+            };
 
             Component[1] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = firstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             Component[2] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = firstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             // Sets the Component's type
             if (SlotType == SlotTypes.OpenFilter)
@@ -233,44 +233,44 @@ namespace ForexStrategyBuilder.Indicators.Store
             }
 
             // Calculation of the logic
-            var indLogic = IndicatorLogic.It_does_not_act_as_a_filter;
+            var logicRule = IndicatorLogic.It_does_not_act_as_a_filter;
 
             switch (IndParam.ListParam[0].Text)
             {
                 case "Oscillator of MACD rises":
-                    indLogic = IndicatorLogic.The_indicator_rises;
+                    logicRule = IndicatorLogic.The_indicator_rises;
                     break;
 
                 case "Oscillator of MACD falls":
-                    indLogic = IndicatorLogic.The_indicator_falls;
+                    logicRule = IndicatorLogic.The_indicator_falls;
                     break;
 
                 case "Oscillator of MACD is higher than the zero line":
-                    indLogic = IndicatorLogic.The_indicator_is_higher_than_the_level_line;
+                    logicRule = IndicatorLogic.The_indicator_is_higher_than_the_level_line;
                     break;
 
                 case "Oscillator of MACD is lower than the zero line":
-                    indLogic = IndicatorLogic.The_indicator_is_lower_than_the_level_line;
+                    logicRule = IndicatorLogic.The_indicator_is_lower_than_the_level_line;
                     break;
 
                 case "Oscillator of MACD crosses the zero line upward":
-                    indLogic = IndicatorLogic.The_indicator_crosses_the_level_line_upward;
+                    logicRule = IndicatorLogic.The_indicator_crosses_the_level_line_upward;
                     break;
 
                 case "Oscillator of MACD crosses the zero line downward":
-                    indLogic = IndicatorLogic.The_indicator_crosses_the_level_line_downward;
+                    logicRule = IndicatorLogic.The_indicator_crosses_the_level_line_downward;
                     break;
 
                 case "Oscillator of MACD changes its direction upward":
-                    indLogic = IndicatorLogic.The_indicator_changes_its_direction_upward;
+                    logicRule = IndicatorLogic.The_indicator_changes_its_direction_upward;
                     break;
 
                 case "Oscillator of MACD changes its direction downward":
-                    indLogic = IndicatorLogic.The_indicator_changes_its_direction_downward;
+                    logicRule = IndicatorLogic.The_indicator_changes_its_direction_downward;
                     break;
             }
 
-            OscillatorLogic(firstBar, previous, adOscillator, 0, 0, ref Component[1], ref Component[2], indLogic);
+            OscillatorLogic(firstBar, previous, oscillator, 0, 0, ref Component[1], ref Component[2], logicRule);
         }
 
         public override void SetDescription()

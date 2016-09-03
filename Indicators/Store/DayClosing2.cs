@@ -51,14 +51,14 @@ namespace ForexStrategyBuilder.Indicators.Store
 
             // The ComboBox parameters
             IndParam.ListParam[0].Caption = "Logic";
-            IndParam.ListParam[0].ItemList = new[] {"Exit the market at the end of the day"};
+            IndParam.ListParam[0].ItemList = new[] { "Exit the market at the end of the day" };
             IndParam.ListParam[0].Index = 0;
             IndParam.ListParam[0].Text = IndParam.ListParam[0].ItemList[IndParam.ListParam[0].Index];
             IndParam.ListParam[0].Enabled = true;
             IndParam.ListParam[0].ToolTip = "The execution price of all exit orders.";
 
             IndParam.ListParam[1].Caption = "Base price";
-            IndParam.ListParam[1].ItemList = new[] {"Close"};
+            IndParam.ListParam[1].ItemList = new[] { "Close" };
             IndParam.ListParam[1].Index = 0;
             IndParam.ListParam[1].Text = IndParam.ListParam[1].ItemList[IndParam.ListParam[1].Index];
             IndParam.ListParam[1].Enabled = true;
@@ -107,21 +107,21 @@ namespace ForexStrategyBuilder.Indicators.Store
         private void CalculateForBacktester()
         {
             // Calculation
-            var adClosePrice = new double[Bars];
+            var closePrice = new double[Bars];
 
             for (int bar = 1; bar < Bars; bar++)
             {
                 if (Time[bar - 1].Day != Time[bar].Day)
-                    adClosePrice[bar - 1] = Close[bar - 1];
+                    closePrice[bar - 1] = Close[bar - 1];
                 else
-                    adClosePrice[bar] = 0;
+                    closePrice[bar] = 0;
             }
 
             // Check the last bar
-            TimeSpan tsBarClosing = Time[Bars - 1].TimeOfDay.Add(new TimeSpan(0, (int) Period, 0));
+            TimeSpan tsBarClosing = Time[Bars - 1].TimeOfDay.Add(new TimeSpan(0, (int)Period, 0));
             var tsDayClosing = new TimeSpan(24, 0, 0);
             if (tsBarClosing == tsDayClosing)
-                adClosePrice[Bars - 1] = Close[Bars - 1];
+                closePrice[Bars - 1] = Close[Bars - 1];
 
             // Saving the components
             Component = new IndicatorComp[1];
@@ -132,54 +132,55 @@ namespace ForexStrategyBuilder.Indicators.Store
                 DataType = IndComponentType.ClosePrice,
                 ChartType = IndChartType.NoChart,
                 FirstBar = 2,
-                Value = adClosePrice
+                Value = closePrice
             };
         }
 
         private void CalculateForTrader()
         {
             // Reading the parameters
-            var dayClosingHour = (int) IndParam.NumParam[0].Value;
-            var dayClosingMin = (int) IndParam.NumParam[1].Value;
-            var fridayClosingHour = (int) IndParam.NumParam[2].Value;
-            var fridayClosingMin = (int) IndParam.NumParam[3].Value;
+            var dayClosingHour = (int)IndParam.NumParam[0].Value;
+            var dayClosingMin = (int)IndParam.NumParam[1].Value;
+            var fridayClosingHour = (int)IndParam.NumParam[2].Value;
+            var fridayClosingMin = (int)IndParam.NumParam[3].Value;
 
             // Calculation
             DateTime time = ServerTime;
             var closingTime = new DateTime(time.Year, time.Month, time.Day, dayClosingHour, dayClosingMin, 0);
             var fridayTime = new DateTime(time.Year, time.Month, time.Day, fridayClosingHour, fridayClosingMin, 0);
 
-            var adClosePrice = new double[Bars];
+            var closePrice = new double[Bars];
 
             // Calculation of the logic
             for (int bar = 1; bar < Bars; bar++)
             {
                 if (Time[bar - 1].Day != Time[bar].Day)
-                    adClosePrice[bar - 1] = Close[bar - 1];
+                    closePrice[bar - 1] = Close[bar - 1];
                 else
-                    adClosePrice[bar] = 0;
+                    closePrice[bar] = 0;
             }
 
-            var adAllowOpenLong = new double[Bars];
-            var adAllowOpenShort = new double[Bars];
+            var allowOpenLong = new double[Bars];
+            var allowOpenShort = new double[Bars];
 
             for (int bar = 1; bar < Bars; bar++)
             {
-                adAllowOpenLong[bar] = 1;
-                adAllowOpenShort[bar] = 1;
+                allowOpenLong[bar] = 1;
+                allowOpenShort[bar] = 1;
             }
 
             // Check the last bar
             DateTime closingPrice = time.DayOfWeek == DayOfWeek.Friday
                 ? fridayTime
                 : closingTime;
+
             if (time >= closingPrice)
             {
-                adClosePrice[Bars - 1] = Close[Bars - 1];
+                closePrice[Bars - 1] = Close[Bars - 1];
 
                 // Prevent entries after closing time
-                adAllowOpenLong[Bars - 1] = 0;
-                adAllowOpenShort[Bars - 1] = 0;
+                allowOpenLong[Bars - 1] = 0;
+                allowOpenShort[Bars - 1] = 0;
             }
 
             // Saving the components
@@ -191,7 +192,7 @@ namespace ForexStrategyBuilder.Indicators.Store
                 DataType = IndComponentType.ClosePrice,
                 ChartType = IndChartType.NoChart,
                 FirstBar = 2,
-                Value = adClosePrice
+                Value = closePrice
             };
 
             Component[1] = new IndicatorComp
@@ -201,7 +202,7 @@ namespace ForexStrategyBuilder.Indicators.Store
                 ChartType = IndChartType.NoChart,
                 ShowInDynInfo = false,
                 FirstBar = 2,
-                Value = adAllowOpenLong
+                Value = allowOpenLong
             };
 
             Component[2] = new IndicatorComp
@@ -211,7 +212,7 @@ namespace ForexStrategyBuilder.Indicators.Store
                 ChartType = IndChartType.NoChart,
                 ShowInDynInfo = false,
                 FirstBar = 2,
-                Value = adAllowOpenShort
+                Value = allowOpenShort
             };
         }
 

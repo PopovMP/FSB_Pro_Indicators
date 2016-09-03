@@ -53,15 +53,15 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.ListParam[0].ToolTip = "Logic of application of the oscillator.";
 
             IndParam.ListParam[1].Caption = "Smoothing method";
-            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof (MAMethod));
-            IndParam.ListParam[1].Index = (int) MAMethod.Simple;
+            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof(MAMethod));
+            IndParam.ListParam[1].Index = (int)MAMethod.Simple;
             IndParam.ListParam[1].Text = IndParam.ListParam[1].ItemList[IndParam.ListParam[1].Index];
             IndParam.ListParam[1].Enabled = true;
             IndParam.ListParam[1].ToolTip = "The Moving Average method used for smoothing the Bulls Bears Power value.";
 
             IndParam.ListParam[2].Caption = "Signal line method";
-            IndParam.ListParam[2].ItemList = Enum.GetNames(typeof (MAMethod));
-            IndParam.ListParam[2].Index = (int) MAMethod.Exponential;
+            IndParam.ListParam[2].ItemList = Enum.GetNames(typeof(MAMethod));
+            IndParam.ListParam[2].Index = (int)MAMethod.Exponential;
             IndParam.ListParam[2].Text = IndParam.ListParam[2].ItemList[IndParam.ListParam[2].Index];
             IndParam.ListParam[2].Enabled = true;
             IndParam.ListParam[2].ToolTip = "The Moving Average method used for smoothing the signal line.";
@@ -92,57 +92,57 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            var maSignalMAMethod = (MAMethod) IndParam.ListParam[2].Index;
-            var iPeriod1 = (int) IndParam.NumParam[0].Value;
-            var iPeriod2 = (int) IndParam.NumParam[1].Value;
-            int iPrvs = IndParam.CheckParam[0].Checked ? 1 : 0;
+            var maSignalMAMethod = (MAMethod)IndParam.ListParam[2].Index;
+            var period1 = (int)IndParam.NumParam[0].Value;
+            var period2 = (int)IndParam.NumParam[1].Value;
+            int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
-            int iFirstBar = iPeriod1 + iPeriod2 + 2;
-            var adOscillator = new double[Bars];
+            int firstBar = Math.Max(period1, period2) + previous + 2;
+            var oscillator = new double[Bars];
 
-// ---------------------------------------------------------
-            var bbp = new BullsBearsPower();
-            bbp.Initialize(SlotType);
-            bbp.IndParam.ListParam[1].Index = IndParam.ListParam[1].Index;
-            bbp.IndParam.NumParam[0].Value = IndParam.NumParam[0].Value;
-            bbp.IndParam.CheckParam[0].Checked = IndParam.CheckParam[0].Checked;
-            bbp.Calculate(dataSet);
+            // ---------------------------------------------------------
+            var bullsBearsPower = new BullsBearsPower();
+            bullsBearsPower.Initialize(SlotType);
+            bullsBearsPower.IndParam.ListParam[1].Index = IndParam.ListParam[1].Index;
+            bullsBearsPower.IndParam.NumParam[0].Value = IndParam.NumParam[0].Value;
+            bullsBearsPower.IndParam.CheckParam[0].Checked = IndParam.CheckParam[0].Checked;
+            bullsBearsPower.Calculate(dataSet);
 
-            double[] adIndicator1 = bbp.Component[0].Value;
-            double[] adIndicator2 = MovingAverage(iPeriod2, 0, maSignalMAMethod, adIndicator1);
-// ----------------------------------------------------------
+            double[] indicator1 = bullsBearsPower.Component[0].Value;
+            double[] indicator2 = MovingAverage(period2, 0, maSignalMAMethod, indicator1);
+            // ----------------------------------------------------------
 
-            for (int iBar = iFirstBar; iBar < Bars; iBar++)
+            for (int bar = firstBar; bar < Bars; bar++)
             {
-                adOscillator[iBar] = adIndicator1[iBar] - adIndicator2[iBar];
+                oscillator[bar] = indicator1[bar] - indicator2[bar];
             }
 
             // Saving the components
             Component = new IndicatorComp[3];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "Histogram",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Histogram,
-                    FirstBar = iFirstBar,
-                    Value = adOscillator
-                };
+            {
+                CompName = "Histogram",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Histogram,
+                FirstBar = firstBar,
+                Value = oscillator
+            };
 
             Component[1] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = iFirstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             Component[2] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = iFirstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             // Sets the Component's type
             if (SlotType == SlotTypes.OpenFilter)
@@ -161,44 +161,44 @@ namespace ForexStrategyBuilder.Indicators.Store
             }
 
             // Calculation of the logic
-            var indLogic = IndicatorLogic.It_does_not_act_as_a_filter;
+            var logicRule = IndicatorLogic.It_does_not_act_as_a_filter;
 
             switch (IndParam.ListParam[0].Text)
             {
                 case "BBP MA Oscillator rises":
-                    indLogic = IndicatorLogic.The_indicator_rises;
+                    logicRule = IndicatorLogic.The_indicator_rises;
                     break;
 
                 case "BBP MA Oscillator falls":
-                    indLogic = IndicatorLogic.The_indicator_falls;
+                    logicRule = IndicatorLogic.The_indicator_falls;
                     break;
 
                 case "BBP MA Oscillator is higher than the zero line":
-                    indLogic = IndicatorLogic.The_indicator_is_higher_than_the_level_line;
+                    logicRule = IndicatorLogic.The_indicator_is_higher_than_the_level_line;
                     break;
 
                 case "BBP MA Oscillator is lower than the zero line":
-                    indLogic = IndicatorLogic.The_indicator_is_lower_than_the_level_line;
+                    logicRule = IndicatorLogic.The_indicator_is_lower_than_the_level_line;
                     break;
 
                 case "BBP MA Oscillator crosses the zero line upward":
-                    indLogic = IndicatorLogic.The_indicator_crosses_the_level_line_upward;
+                    logicRule = IndicatorLogic.The_indicator_crosses_the_level_line_upward;
                     break;
 
                 case "BBP MA Oscillator crosses the zero line downward":
-                    indLogic = IndicatorLogic.The_indicator_crosses_the_level_line_downward;
+                    logicRule = IndicatorLogic.The_indicator_crosses_the_level_line_downward;
                     break;
 
                 case "BBP MA Oscillator changes its direction upward":
-                    indLogic = IndicatorLogic.The_indicator_changes_its_direction_upward;
+                    logicRule = IndicatorLogic.The_indicator_changes_its_direction_upward;
                     break;
 
                 case "BBP MA Oscillator changes its direction downward":
-                    indLogic = IndicatorLogic.The_indicator_changes_its_direction_downward;
+                    logicRule = IndicatorLogic.The_indicator_changes_its_direction_downward;
                     break;
             }
 
-            OscillatorLogic(iFirstBar, iPrvs, adOscillator, 0, 0, ref Component[1], ref Component[2], indLogic);
+            OscillatorLogic(firstBar, previous, oscillator, 0, 0, ref Component[1], ref Component[2], logicRule);
         }
 
         public override void SetDescription()

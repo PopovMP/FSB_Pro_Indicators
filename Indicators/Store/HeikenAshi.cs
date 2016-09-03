@@ -73,7 +73,7 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.ListParam[0].ToolTip = "Logic of application of the Donchian Channel.";
 
             IndParam.ListParam[1].Caption = "Base price";
-            IndParam.ListParam[1].ItemList = new[] {"High, Low, Open, Close"};
+            IndParam.ListParam[1].ItemList = new[] { "High, Low, Open, Close" };
             IndParam.ListParam[1].Index = 0;
             IndParam.ListParam[1].Text = IndParam.ListParam[1].ItemList[IndParam.ListParam[1].Index];
             IndParam.ListParam[1].Enabled = true;
@@ -90,87 +90,87 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            int iPrvs = IndParam.CheckParam[0].Checked ? 1 : 0;
+            int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
-            var adHaOpen = new double[Bars];
-            var adHaHigh = new double[Bars];
-            var adHaLow = new double[Bars];
-            var adHaClose = new double[Bars];
+            var haOpen = new double[Bars];
+            var haHigh = new double[Bars];
+            var haLow = new double[Bars];
+            var haClose = new double[Bars];
 
-            adHaOpen[0] = Open[0];
-            adHaHigh[0] = High[0];
-            adHaLow[0] = Low[0];
-            adHaClose[0] = Close[0];
+            haOpen[0] = Open[0];
+            haHigh[0] = High[0];
+            haLow[0] = Low[0];
+            haClose[0] = Close[0];
 
-            int iFirstBar = 1 + iPrvs;
+            int firstBar = 1 + previous;
 
             for (int bar = 1; bar < Bars; bar++)
             {
-                adHaClose[bar] = (Open[bar] + High[bar] + Low[bar] + Close[bar])/4;
-                adHaOpen[bar] = (adHaOpen[bar - 1] + adHaClose[bar - 1])/2;
-                adHaHigh[bar] = High[bar] > adHaOpen[bar] ? High[bar] : adHaOpen[bar];
-                adHaHigh[bar] = adHaClose[bar] > adHaHigh[bar] ? adHaClose[bar] : adHaHigh[bar];
-                adHaLow[bar] = Low[bar] < adHaOpen[bar] ? Low[bar] : adHaOpen[bar];
-                adHaLow[bar] = adHaClose[bar] < adHaLow[bar] ? adHaClose[bar] : adHaLow[bar];
+                haClose[bar] = (Open[bar] + High[bar] + Low[bar] + Close[bar]) / 4;
+                haOpen[bar] = (haOpen[bar - 1] + haClose[bar - 1]) / 2;
+                haHigh[bar] = High[bar] > haOpen[bar] ? High[bar] : haOpen[bar];
+                haHigh[bar] = haClose[bar] > haHigh[bar] ? haClose[bar] : haHigh[bar];
+                haLow[bar] = Low[bar] < haOpen[bar] ? Low[bar] : haOpen[bar];
+                haLow[bar] = haClose[bar] < haLow[bar] ? haClose[bar] : haLow[bar];
             }
 
             // Saving the components
             Component = new IndicatorComp[6];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "H.A. Open",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Dot,
-                    ChartColor = Color.Green,
-                    FirstBar = iFirstBar,
-                    Value = adHaOpen
-                };
+            {
+                CompName = "H.A. Open",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Dot,
+                ChartColor = Color.Green,
+                FirstBar = firstBar,
+                Value = haOpen
+            };
 
             Component[1] = new IndicatorComp
-                {
-                    CompName = "H.A. High",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Dot,
-                    ChartColor = Color.Blue,
-                    FirstBar = iFirstBar,
-                    Value = adHaHigh
-                };
+            {
+                CompName = "H.A. High",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Dot,
+                ChartColor = Color.Blue,
+                FirstBar = firstBar,
+                Value = haHigh
+            };
 
             Component[2] = new IndicatorComp
-                {
-                    CompName = "H.A. Low",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Dot,
-                    ChartColor = Color.Blue,
-                    FirstBar = iFirstBar,
-                    Value = adHaLow
-                };
+            {
+                CompName = "H.A. Low",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Dot,
+                ChartColor = Color.Blue,
+                FirstBar = firstBar,
+                Value = haLow
+            };
 
             Component[3] = new IndicatorComp
-                {
-                    CompName = "H.A. Close",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Dot,
-                    ChartColor = Color.Red,
-                    FirstBar = iFirstBar,
-                    Value = adHaClose
-                };
+            {
+                CompName = "H.A. Close",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Dot,
+                ChartColor = Color.Red,
+                FirstBar = firstBar,
+                Value = haClose
+            };
 
             Component[4] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = iFirstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             Component[5] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = iFirstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             // Sets the Component's type
             if (SlotType == SlotTypes.Open)
@@ -204,18 +204,18 @@ namespace ForexStrategyBuilder.Indicators.Store
 
             if (SlotType == SlotTypes.Open || SlotType == SlotTypes.Close)
             {
-                for (int iBar = 2; iBar < Bars; iBar++)
+                for (int bar = 2; bar < Bars; bar++)
                 {
                     if (IndParam.ListParam[0].Text == "Enter long at the H.A. High" ||
                         IndParam.ListParam[0].Text == "Exit long at the H.A. High")
                     {
-                        Component[4].Value[iBar] = adHaHigh[iBar - iPrvs];
-                        Component[5].Value[iBar] = adHaLow[iBar - iPrvs];
+                        Component[4].Value[bar] = haHigh[bar - previous];
+                        Component[5].Value[bar] = haLow[bar - previous];
                     }
                     else
                     {
-                        Component[4].Value[iBar] = adHaLow[iBar - iPrvs];
-                        Component[5].Value[iBar] = adHaHigh[iBar - iPrvs];
+                        Component[4].Value[bar] = haLow[bar - previous];
+                        Component[5].Value[bar] = haHigh[bar - previous];
                     }
                 }
             }
@@ -224,50 +224,38 @@ namespace ForexStrategyBuilder.Indicators.Store
                 switch (IndParam.ListParam[0].Text)
                 {
                     case "White H.A. bar without lower shadow":
-                        for (int iBar = iFirstBar; iBar < Bars; iBar++)
+                        for (int bar = firstBar; bar < Bars; bar++)
                         {
-                            Component[4].Value[iBar] = adHaClose[iBar - iPrvs] > adHaOpen[iBar - iPrvs] &&
-                                                       Math.Abs(adHaLow[iBar - iPrvs] - adHaOpen[iBar - iPrvs]) <
-                                                       Epsilon
-                                                           ? 1
-                                                           : 0;
-                            Component[5].Value[iBar] = adHaClose[iBar - iPrvs] < adHaOpen[iBar - iPrvs] &&
-                                                       Math.Abs(adHaHigh[iBar - iPrvs] - adHaOpen[iBar - iPrvs]) <
-                                                       Epsilon
-                                                           ? 1
-                                                           : 0;
+                            Component[4].Value[bar] = haClose[bar - previous] > haOpen[bar - previous] &&
+                                                       Math.Abs(haLow[bar - previous] - haOpen[bar - previous]) < Epsilon ? 1 : 0;
+                            Component[5].Value[bar] = haClose[bar - previous] < haOpen[bar - previous] &&
+                                                       Math.Abs(haHigh[bar - previous] - haOpen[bar - previous]) < Epsilon ? 1 : 0;
                         }
                         break;
 
                     case "White H.A. bar":
-                        for (int iBar = iFirstBar; iBar < Bars; iBar++)
+                        for (int bar = firstBar; bar < Bars; bar++)
                         {
-                            Component[4].Value[iBar] = adHaClose[iBar - iPrvs] > adHaOpen[iBar - iPrvs] ? 1 : 0;
-                            Component[5].Value[iBar] = adHaClose[iBar - iPrvs] < adHaOpen[iBar - iPrvs] ? 1 : 0;
+                            Component[4].Value[bar] = haClose[bar - previous] > haOpen[bar - previous] ? 1 : 0;
+                            Component[5].Value[bar] = haClose[bar - previous] < haOpen[bar - previous] ? 1 : 0;
                         }
                         break;
 
                     case "Black H.A. bar":
-                        for (int iBar = iFirstBar; iBar < Bars; iBar++)
+                        for (int bar = firstBar; bar < Bars; bar++)
                         {
-                            Component[4].Value[iBar] = adHaClose[iBar - iPrvs] < adHaOpen[iBar - iPrvs] ? 1 : 0;
-                            Component[5].Value[iBar] = adHaClose[iBar - iPrvs] > adHaOpen[iBar - iPrvs] ? 1 : 0;
+                            Component[4].Value[bar] = haClose[bar - previous] < haOpen[bar - previous] ? 1 : 0;
+                            Component[5].Value[bar] = haClose[bar - previous] > haOpen[bar - previous] ? 1 : 0;
                         }
                         break;
 
                     case "Black H.A. bar without upper shadow":
-                        for (int iBar = iFirstBar; iBar < Bars; iBar++)
+                        for (int bar = firstBar; bar < Bars; bar++)
                         {
-                            Component[4].Value[iBar] = adHaClose[iBar - iPrvs] < adHaOpen[iBar - iPrvs] &&
-                                                       Math.Abs(adHaHigh[iBar - iPrvs] - adHaOpen[iBar - iPrvs]) <
-                                                       Epsilon
-                                                           ? 1
-                                                           : 0;
-                            Component[5].Value[iBar] = adHaClose[iBar - iPrvs] > adHaOpen[iBar - iPrvs] &&
-                                                       Math.Abs(adHaLow[iBar - iPrvs] - adHaOpen[iBar - iPrvs]) <
-                                                       Epsilon
-                                                           ? 1
-                                                           : 0;
+                            Component[4].Value[bar] = haClose[bar - previous] < haOpen[bar - previous] &&
+                                                       Math.Abs(haHigh[bar - previous] - haOpen[bar - previous]) < Epsilon ? 1 : 0;
+                            Component[5].Value[bar] = haClose[bar - previous] > haOpen[bar - previous] &&
+                                                       Math.Abs(haLow[bar - previous] - haOpen[bar - previous]) < Epsilon ? 1 : 0;
                         }
                         break;
                 }

@@ -70,8 +70,8 @@ namespace ForexStrategyBuilder.Indicators.Store
 
         public override void SetDescription()
         {
-            var stopLoss = (int) IndParam.NumParam[0].Value;
-            var takeProfit = (int) IndParam.NumParam[1].Value;
+            var stopLoss = (int)IndParam.NumParam[0].Value;
+            var takeProfit = (int)IndParam.NumParam[1].Value;
 
             ExitPointLongDescription = string.Format("when the market falls {0} points or rises {1} points from the last entry price", stopLoss, takeProfit);
             ExitPointShortDescription = string.Format("when the market rises {0} points or falls {1} points from the last entry price", stopLoss, takeProfit);

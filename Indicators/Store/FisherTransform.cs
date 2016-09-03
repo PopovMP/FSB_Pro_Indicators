@@ -51,8 +51,8 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.ListParam[0].ToolTip = "Logic of application of the indicator.";
 
             IndParam.ListParam[1].Caption = "Base price";
-            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof (BasePrice));
-            IndParam.ListParam[1].Index = (int) BasePrice.Median;
+            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof(BasePrice));
+            IndParam.ListParam[1].Index = (int)BasePrice.Median;
             IndParam.ListParam[1].Text = IndParam.ListParam[1].ItemList[IndParam.ListParam[1].Index];
             IndParam.ListParam[1].Enabled = true;
             IndParam.ListParam[1].ToolTip = "The price Fisher Transform is based on.";
@@ -76,72 +76,72 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            var basePrice = (BasePrice) IndParam.ListParam[1].Index;
-            var iPeriod = (int) IndParam.NumParam[0].Value;
-            int iPrvs = IndParam.CheckParam[0].Checked ? 1 : 0;
+            var basePrice = (BasePrice)IndParam.ListParam[1].Index;
+            var period = (int)IndParam.NumParam[0].Value;
+            int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
-            int iFirstBar = iPeriod + 2;
+            int firstBar = period + previous + 2;
 
-            double[] adPrice = Price(basePrice);
-            var adValue = new double[Bars];
+            double[] price = Price(basePrice);
+            var signal = new double[Bars];
 
-            for (int iBar = 0; iBar < iPeriod; iBar++)
-                adValue[iBar] = 0;
+            for (int bar = 0; bar < period; bar++)
+                signal[bar] = 0;
 
-            for (int iBar = iPeriod; iBar < Bars; iBar++)
+            for (int bar = period; bar < Bars; bar++)
             {
-                double dHighestHigh = double.MinValue;
-                double dLowestLow = double.MaxValue;
-                for (int i = 0; i < iPeriod; i++)
+                double highestHigh = double.MinValue;
+                double lowestLow = double.MaxValue;
+                for (int i = 0; i < period; i++)
                 {
-                    if (adPrice[iBar - i] > dHighestHigh)
-                        dHighestHigh = adPrice[iBar - i];
-                    if (adPrice[iBar - i] < dLowestLow)
-                        dLowestLow = adPrice[iBar - i];
+                    if (price[bar - i] > highestHigh)
+                        highestHigh = price[bar - i];
+                    if (price[bar - i] < lowestLow)
+                        lowestLow = price[bar - i];
                 }
 
-                if (Math.Abs(dHighestHigh - dLowestLow) < Epsilon)
-                    dHighestHigh = dLowestLow + Point;
-                if (Math.Abs(dHighestHigh - dLowestLow - 0.5) < Epsilon)
-                    dHighestHigh += Point;
+                if (Math.Abs(highestHigh - lowestLow) < Epsilon)
+                    highestHigh = lowestLow + Point;
+                if (Math.Abs(highestHigh - lowestLow - 0.5) < Epsilon)
+                    highestHigh += Point;
 
-                adValue[iBar] = 0.33*2*((adPrice[iBar] - dLowestLow)/(dHighestHigh - dLowestLow) - 0.5) +
-                                0.67*adValue[iBar - 1];
+                signal[bar] = 0.33 * 2 * ((price[bar] - lowestLow) / (highestHigh - lowestLow) - 0.5) +
+                                0.67 * signal[bar - 1];
             }
 
-            var adFt = new double[Bars];
-            adFt[0] = 0;
-            for (int iBar = 1; iBar < Bars; iBar++)
+            var fisher = new double[Bars];
+            fisher[0] = 0;
+            for (int bar = 1; bar < Bars; bar++)
             {
-                adFt[iBar] = 0.5*Math.Log10((1 + adValue[iBar])/(1 - adValue[iBar])) + 0.5*adFt[iBar - 1];
+                fisher[bar] = 0.5 * Math.Log10((1 + signal[bar]) / (1 - signal[bar])) + 0.5 * fisher[bar - 1];
             }
 
             // Saving the components
             Component = new IndicatorComp[3];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "Fisher Transform",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Histogram,
-                    FirstBar = iFirstBar,
-                    Value = adFt
-                };
+            {
+                CompName = "Fisher Transform",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Histogram,
+                FirstBar = firstBar,
+                Value = fisher
+            };
 
             Component[1] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = iFirstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             Component[2] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = iFirstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             // Sets the Component's type
             if (SlotType == SlotTypes.OpenFilter)
@@ -160,44 +160,44 @@ namespace ForexStrategyBuilder.Indicators.Store
             }
 
             // Calculation of the logic
-            var indLogic = IndicatorLogic.It_does_not_act_as_a_filter;
+            var logicRule = IndicatorLogic.It_does_not_act_as_a_filter;
 
             switch (IndParam.ListParam[0].Text)
             {
                 case "Fisher Transform rises":
-                    indLogic = IndicatorLogic.The_indicator_rises;
+                    logicRule = IndicatorLogic.The_indicator_rises;
                     break;
 
                 case "Fisher Transform falls":
-                    indLogic = IndicatorLogic.The_indicator_falls;
+                    logicRule = IndicatorLogic.The_indicator_falls;
                     break;
 
                 case "Fisher Transform is higher than the zero line":
-                    indLogic = IndicatorLogic.The_indicator_is_higher_than_the_level_line;
+                    logicRule = IndicatorLogic.The_indicator_is_higher_than_the_level_line;
                     break;
 
                 case "Fisher Transform is lower than the zero line":
-                    indLogic = IndicatorLogic.The_indicator_is_lower_than_the_level_line;
+                    logicRule = IndicatorLogic.The_indicator_is_lower_than_the_level_line;
                     break;
 
                 case "Fisher Transform crosses the zero line upward":
-                    indLogic = IndicatorLogic.The_indicator_crosses_the_level_line_upward;
+                    logicRule = IndicatorLogic.The_indicator_crosses_the_level_line_upward;
                     break;
 
                 case "Fisher Transform crosses the zero line downward":
-                    indLogic = IndicatorLogic.The_indicator_crosses_the_level_line_downward;
+                    logicRule = IndicatorLogic.The_indicator_crosses_the_level_line_downward;
                     break;
 
                 case "Fisher Transform changes its direction upward":
-                    indLogic = IndicatorLogic.The_indicator_changes_its_direction_upward;
+                    logicRule = IndicatorLogic.The_indicator_changes_its_direction_upward;
                     break;
 
                 case "Fisher Transform changes its direction downward":
-                    indLogic = IndicatorLogic.The_indicator_changes_its_direction_downward;
+                    logicRule = IndicatorLogic.The_indicator_changes_its_direction_downward;
                     break;
             }
 
-            OscillatorLogic(iFirstBar, iPrvs, adFt, 0, 0, ref Component[1], ref Component[2], indLogic);
+            OscillatorLogic(firstBar, previous, fisher, 0, 0, ref Component[1], ref Component[2], logicRule);
         }
 
         public override void SetDescription()

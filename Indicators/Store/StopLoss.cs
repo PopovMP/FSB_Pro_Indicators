@@ -37,21 +37,21 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.IsAllowLTF = false;
 
             // The ComboBox parameters
-            IndParam.ListParam[0].Caption  = "Logic";
+            IndParam.ListParam[0].Caption = "Logic";
             IndParam.ListParam[0].ItemList = new string[]
             {
                 "Exit at Stop Loss level",
             };
-            IndParam.ListParam[0].Index   = 0;
-            IndParam.ListParam[0].Text    = IndParam.ListParam[0].ItemList[IndParam.ListParam[0].Index];
+            IndParam.ListParam[0].Index = 0;
+            IndParam.ListParam[0].Text = IndParam.ListParam[0].ItemList[IndParam.ListParam[0].Index];
             IndParam.ListParam[0].Enabled = true;
             IndParam.ListParam[0].ToolTip = "Logic of application of the indicator.";
 
             // The NumericUpDown parameters
             IndParam.NumParam[0].Caption = "Stop Loss";
-            IndParam.NumParam[0].Value   = 200;
-            IndParam.NumParam[0].Min     = 5;
-            IndParam.NumParam[0].Max     = 5000;
+            IndParam.NumParam[0].Value = 200;
+            IndParam.NumParam[0].Min = 5;
+            IndParam.NumParam[0].Max = 5000;
             IndParam.NumParam[0].Enabled = true;
             IndParam.NumParam[0].ToolTip = "Stop value in points.";
         }
@@ -65,7 +65,7 @@ namespace ForexStrategyBuilder.Indicators.Store
         {
             int stopLoss = (int)IndParam.NumParam[0].Value;
 
-            ExitPointLongDescription  = string.Format("when the market falls {0} points from the last entry price", stopLoss);
+            ExitPointLongDescription = string.Format("when the market falls {0} points from the last entry price", stopLoss);
             ExitPointShortDescription = string.Format("when the market rises {0} points from the last entry price", stopLoss);
         }
 

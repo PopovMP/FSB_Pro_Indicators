@@ -67,7 +67,7 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.NumParam[1].Min = 0;
             IndParam.NumParam[1].Max = 100;
             IndParam.NumParam[1].Enabled = true;
-            IndParam.NumParam[1].ToolTip = "A critical level (for the appropriate logic).";
+            IndParam.NumParam[1].ToolTip = "A signal level.";
 
             // The CheckBox parameters
             IndParam.CheckParam[0].Caption = "Use previous bar value";
@@ -80,71 +80,72 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            var iPeriod = (int) IndParam.NumParam[0].Value;
-            double dLevel = IndParam.NumParam[1].Value;
-            int iPrvs = IndParam.CheckParam[0].Checked ? 1 : 0;
+            var period = (int)IndParam.NumParam[0].Value;
+            double level = IndParam.NumParam[1].Value;
+            int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
-            int iFirstBar = iPeriod + iPrvs;
+            int firstBar = period + previous + 2;
 
             // Calculating Money Flow
-            var adMf = new double[Bars];
-            for (int iBar = 1; iBar < Bars; iBar++)
+            var moneyFlow = new double[Bars];
+            for (int bar = 1; bar < Bars; bar++)
             {
-                double dAvg = (High[iBar] + Low[iBar] + Close[iBar])/3;
-                double dAvg1 = (High[iBar - 1] + Low[iBar - 1] + Close[iBar - 1])/3;
-                if (dAvg > dAvg1)
-                    adMf[iBar] = adMf[iBar - 1] + dAvg*Volume[iBar];
-                else if (dAvg < dAvg1)
-                    adMf[iBar] = adMf[iBar - 1] - dAvg*Volume[iBar];
+                double average = (High[bar] + Low[bar] + Close[bar]) / 3;
+                double average1 = (High[bar - 1] + Low[bar - 1] + Close[bar - 1]) / 3;
+                if (average > average1)
+                    moneyFlow[bar] = moneyFlow[bar - 1] + average * Volume[bar];
+                else if (average < average1)
+                    moneyFlow[bar] = moneyFlow[bar - 1] - average * Volume[bar];
                 else
-                    adMf[iBar] = adMf[iBar - 1];
+                    moneyFlow[bar] = moneyFlow[bar - 1];
             }
 
             // Calculating Money Flow Index
-            var adMfi = new double[Bars];
-            for (int iBar = iPeriod + 1; iBar < Bars; iBar++)
+            var moneyFlowIndex = new double[Bars];
+            for (int bar = period + 1; bar < Bars; bar++)
             {
-                double dPmf = 0;
-                double dNmf = 0;
-                for (int index = 0; index < iPeriod; index++)
+                double pos = 0;
+                double neg = 0;
+                for (int index = 0; index < period; index++)
                 {
-                    if (adMf[iBar - index] > adMf[iBar - index - 1])
-                        dPmf += adMf[iBar - index] - adMf[iBar - index - 1];
-                    if (adMf[iBar - index] < adMf[iBar - index - 1])
-                        dNmf += adMf[iBar - index - 1] - adMf[iBar - index];
+                    if (moneyFlow[bar - index] > moneyFlow[bar - index - 1])
+                        pos += moneyFlow[bar - index] - moneyFlow[bar - index - 1];
+                    if (moneyFlow[bar - index] < moneyFlow[bar - index - 1])
+                        neg += moneyFlow[bar - index - 1] - moneyFlow[bar - index];
                 }
-                if (Math.Abs(dNmf - 0) < Epsilon)
-                    adMfi[iBar] = 100.0;
+
+                if (Math.Abs(neg - 0) < Epsilon)
+                    moneyFlowIndex[bar] = 100.0;
                 else
-                    adMfi[iBar] = 100.0 - (100.0/(1.0 + (dPmf/dNmf)));
+                    moneyFlowIndex[bar] = 100.0 - (100.0 / (1.0 + (pos / neg)));
             }
 
             // Saving the components
             Component = new IndicatorComp[3];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "Money Flow Index",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Line,
-                    ChartColor = Color.Blue,
-                    FirstBar = iFirstBar,
-                    Value = adMfi
-                };
+            {
+                CompName = "Money Flow Index",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Line,
+                ChartColor = Color.Blue,
+                FirstBar = firstBar,
+                Value = moneyFlowIndex
+            };
 
             Component[1] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = iFirstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             Component[2] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = iFirstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             // Sets the Component's type
             if (SlotType == SlotTypes.OpenFilter)
@@ -163,58 +164,58 @@ namespace ForexStrategyBuilder.Indicators.Store
             }
 
             // Calculation of the logic
-            var indLogic = IndicatorLogic.It_does_not_act_as_a_filter;
+            var logicRule = IndicatorLogic.It_does_not_act_as_a_filter;
 
             switch (IndParam.ListParam[0].Text)
             {
                 case "MFI rises":
-                    indLogic = IndicatorLogic.The_indicator_rises;
-                    SpecialValues = new double[] {50};
+                    logicRule = IndicatorLogic.The_indicator_rises;
+                    SpecialValues = new double[] { 50 };
                     break;
 
                 case "MFI falls":
-                    indLogic = IndicatorLogic.The_indicator_falls;
-                    SpecialValues = new double[] {50};
+                    logicRule = IndicatorLogic.The_indicator_falls;
+                    SpecialValues = new double[] { 50 };
                     break;
 
                 case "MFI is higher than the Level line":
-                    indLogic = IndicatorLogic.The_indicator_is_higher_than_the_level_line;
-                    SpecialValues = new[] {dLevel, 100 - dLevel};
+                    logicRule = IndicatorLogic.The_indicator_is_higher_than_the_level_line;
+                    SpecialValues = new[] { level, 100 - level };
                     break;
 
                 case "MFI is lower than the Level line":
-                    indLogic = IndicatorLogic.The_indicator_is_lower_than_the_level_line;
-                    SpecialValues = new[] {dLevel, 100 - dLevel};
+                    logicRule = IndicatorLogic.The_indicator_is_lower_than_the_level_line;
+                    SpecialValues = new[] { level, 100 - level };
                     break;
 
                 case "MFI crosses the Level line upward":
-                    indLogic = IndicatorLogic.The_indicator_crosses_the_level_line_upward;
-                    SpecialValues = new[] {dLevel, 100 - dLevel};
+                    logicRule = IndicatorLogic.The_indicator_crosses_the_level_line_upward;
+                    SpecialValues = new[] { level, 100 - level };
                     break;
 
                 case "MFI crosses the Level line downward":
-                    indLogic = IndicatorLogic.The_indicator_crosses_the_level_line_downward;
-                    SpecialValues = new[] {dLevel, 100 - dLevel};
+                    logicRule = IndicatorLogic.The_indicator_crosses_the_level_line_downward;
+                    SpecialValues = new[] { level, 100 - level };
                     break;
 
                 case "MFI changes its direction upward":
-                    indLogic = IndicatorLogic.The_indicator_changes_its_direction_upward;
-                    SpecialValues = new double[] {50};
+                    logicRule = IndicatorLogic.The_indicator_changes_its_direction_upward;
+                    SpecialValues = new double[] { 50 };
                     break;
 
                 case "MFI changes its direction downward":
-                    indLogic = IndicatorLogic.The_indicator_changes_its_direction_downward;
-                    SpecialValues = new double[] {50};
+                    logicRule = IndicatorLogic.The_indicator_changes_its_direction_downward;
+                    SpecialValues = new double[] { 50 };
                     break;
             }
 
-            OscillatorLogic(iFirstBar, iPrvs, adMfi, dLevel, 100 - dLevel, ref Component[1], ref Component[2], indLogic);
+            OscillatorLogic(firstBar, previous, moneyFlowIndex, level, 100 - level, ref Component[1], ref Component[2], logicRule);
         }
 
         public override void SetDescription()
         {
-            string sLevelLong = IndParam.NumParam[1].ValueToString;
-            string sLevelShort = IndParam.NumParam[1].AnotherValueToString(100 - IndParam.NumParam[1].Value);
+            string levelLong = IndParam.NumParam[1].ValueToString;
+            string levelShort = IndParam.NumParam[1].AnotherValueToString(100 - IndParam.NumParam[1].Value);
 
             EntryFilterLongDescription = ToString() + " ";
             EntryFilterShortDescription = ToString() + " ";
@@ -238,31 +239,31 @@ namespace ForexStrategyBuilder.Indicators.Store
                     break;
 
                 case "MFI is higher than the Level line":
-                    EntryFilterLongDescription += "is higher than the Level " + sLevelLong;
-                    EntryFilterShortDescription += "is lower than the Level " + sLevelShort;
-                    ExitFilterLongDescription += "is higher than the Level " + sLevelLong;
-                    ExitFilterShortDescription += "is lower than the Level " + sLevelShort;
+                    EntryFilterLongDescription += "is higher than the Level " + levelLong;
+                    EntryFilterShortDescription += "is lower than the Level " + levelShort;
+                    ExitFilterLongDescription += "is higher than the Level " + levelLong;
+                    ExitFilterShortDescription += "is lower than the Level " + levelShort;
                     break;
 
                 case "MFI is lower than the Level line":
-                    EntryFilterLongDescription += "is lower than the Level " + sLevelLong;
-                    EntryFilterShortDescription += "is higher than the Level " + sLevelShort;
-                    ExitFilterLongDescription += "is lower than the Level " + sLevelLong;
-                    ExitFilterShortDescription += "is higher than the Level " + sLevelShort;
+                    EntryFilterLongDescription += "is lower than the Level " + levelLong;
+                    EntryFilterShortDescription += "is higher than the Level " + levelShort;
+                    ExitFilterLongDescription += "is lower than the Level " + levelLong;
+                    ExitFilterShortDescription += "is higher than the Level " + levelShort;
                     break;
 
                 case "MFI crosses the Level line upward":
-                    EntryFilterLongDescription += "crosses the Level " + sLevelLong + " upward";
-                    EntryFilterShortDescription += "crosses the Level " + sLevelShort + " downward";
-                    ExitFilterLongDescription += "crosses the Level " + sLevelLong + " upward";
-                    ExitFilterShortDescription += "crosses the Level " + sLevelShort + " downward";
+                    EntryFilterLongDescription += "crosses the Level " + levelLong + " upward";
+                    EntryFilterShortDescription += "crosses the Level " + levelShort + " downward";
+                    ExitFilterLongDescription += "crosses the Level " + levelLong + " upward";
+                    ExitFilterShortDescription += "crosses the Level " + levelShort + " downward";
                     break;
 
                 case "MFI crosses the Level line downward":
-                    EntryFilterLongDescription += "crosses the Level " + sLevelLong + " downward";
-                    EntryFilterShortDescription += "crosses the Level " + sLevelShort + " upward";
-                    ExitFilterLongDescription += "crosses the Level " + sLevelLong + " downward";
-                    ExitFilterShortDescription += "crosses the Level " + sLevelShort + " upward";
+                    EntryFilterLongDescription += "crosses the Level " + levelLong + " downward";
+                    EntryFilterShortDescription += "crosses the Level " + levelShort + " upward";
+                    ExitFilterLongDescription += "crosses the Level " + levelLong + " downward";
+                    ExitFilterShortDescription += "crosses the Level " + levelShort + " upward";
                     break;
 
                 case "MFI changes its direction upward":

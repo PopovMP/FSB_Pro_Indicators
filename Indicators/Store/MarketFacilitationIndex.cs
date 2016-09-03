@@ -57,46 +57,46 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            int iPrvs = IndParam.CheckParam[0].Checked ? 1 : 0;
+            int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
-            var adMfi = new double[Bars];
+            var mfi = new double[Bars];
 
             const int firstBar = 5;
 
-            for (int iBar = 0; iBar < Bars; iBar++)
+            for (int bar = 0; bar < Bars; bar++)
             {
-                if (Volume[iBar] > 0)
-                    adMfi[iBar] = 10000*(High[iBar] - Low[iBar])/Volume[iBar];
+                if (Volume[bar] > 0)
+                    mfi[bar] = 10000 * (High[bar] - Low[bar]) / Volume[bar];
                 else
-                    adMfi[iBar] = 10000*(High[iBar] - Low[iBar]);
+                    mfi[bar] = 10000 * (High[bar] - Low[bar]);
             }
 
             // Saving the components
             Component = new IndicatorComp[3];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "Market Facilitation Index",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Histogram,
-                    FirstBar = firstBar,
-                    Value = adMfi
-                };
+            {
+                CompName = "Market Facilitation Index",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Histogram,
+                FirstBar = firstBar,
+                Value = mfi
+            };
 
             Component[1] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = firstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             Component[2] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = firstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             // Sets the Component's type
             if (SlotType == SlotTypes.OpenFilter)
@@ -115,28 +115,28 @@ namespace ForexStrategyBuilder.Indicators.Store
             }
 
             // Calculation of the logic
-            var indLogic = IndicatorLogic.It_does_not_act_as_a_filter;
+            var logicRule = IndicatorLogic.It_does_not_act_as_a_filter;
 
             switch (IndParam.ListParam[0].Text)
             {
                 case "Market Facilitation Index rises":
-                    indLogic = IndicatorLogic.The_indicator_rises;
+                    logicRule = IndicatorLogic.The_indicator_rises;
                     break;
 
                 case "Market Facilitation Index falls":
-                    indLogic = IndicatorLogic.The_indicator_falls;
+                    logicRule = IndicatorLogic.The_indicator_falls;
                     break;
 
                 case "Market Facilitation Index changes its direction upward":
-                    indLogic = IndicatorLogic.The_indicator_changes_its_direction_upward;
+                    logicRule = IndicatorLogic.The_indicator_changes_its_direction_upward;
                     break;
 
                 case "Market Facilitation Index changes its direction downward":
-                    indLogic = IndicatorLogic.The_indicator_changes_its_direction_downward;
+                    logicRule = IndicatorLogic.The_indicator_changes_its_direction_downward;
                     break;
             }
 
-            NoDirectionOscillatorLogic(firstBar, iPrvs, adMfi, 0, ref Component[1], indLogic);
+            NoDirectionOscillatorLogic(firstBar, previous, mfi, 0, ref Component[1], logicRule);
             Component[2].Value = Component[1].Value;
         }
 

@@ -66,18 +66,18 @@ namespace ForexStrategyBuilder.Indicators.Store
             Component = new IndicatorComp[1];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "Stop to a transferred position",
-                    DataType = IndComponentType.Other,
-                    ShowInDynInfo = false,
-                    FirstBar = firstBar,
-                    Value = new double[Bars]
-                };
+            {
+                CompName = "Stop to a transferred position",
+                DataType = IndComponentType.Other,
+                ShowInDynInfo = false,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
         }
 
         public override void SetDescription()
         {
-            var percent = (int) IndParam.NumParam[0].Value;
+            var percent = (int)IndParam.NumParam[0].Value;
 
             ExitPointLongDescription = "at a loss of " + percent + "% of the account";
             ExitPointShortDescription = "at a loss of " + percent + "% of the account";

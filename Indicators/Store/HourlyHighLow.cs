@@ -76,7 +76,7 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.ListParam[0].ToolTip = "Logic of application of the indicator.";
 
             IndParam.ListParam[1].Caption = "Base price";
-            IndParam.ListParam[1].ItemList = new[] {"High and Low"};
+            IndParam.ListParam[1].ItemList = new[] { "High and Low" };
             IndParam.ListParam[1].Index = 0;
             IndParam.ListParam[1].Text = IndParam.ListParam[1].ItemList[IndParam.ListParam[1].Index];
             IndParam.ListParam[1].Enabled = true;
@@ -123,26 +123,26 @@ namespace ForexStrategyBuilder.Indicators.Store
         {
             DataSet = dataSet;
 
-            var fromHour  = (int) IndParam.NumParam[0].Value;
-            var fromMin   = (int) IndParam.NumParam[1].Value;
-            var untilHour = (int) IndParam.NumParam[2].Value;
-            var untilMin  = (int) IndParam.NumParam[3].Value;
+            var fromHour = (int)IndParam.NumParam[0].Value;
+            var fromMin = (int)IndParam.NumParam[1].Value;
+            var toHour = (int)IndParam.NumParam[2].Value;
+            var toMin = (int)IndParam.NumParam[3].Value;
 
-            var fromTime = new TimeSpan(fromHour,  fromMin,  0);
-            var toTime   = new TimeSpan(untilHour, untilMin, 0);
+            var fromTime = new TimeSpan(fromHour, fromMin, 0);
+            var toTime = new TimeSpan(toHour, toMin, 0);
 
-            double shift = IndParam.NumParam[4].Value*Point;
+            double shift = IndParam.NumParam[4].Value * Point;
 
             const int firstBar = 2;
 
             // Calculation
             var highPrice = new double[Bars];
-            var lowPrice  = new double[Bars];
+            var lowPrice = new double[Bars];
 
             double minPrice = Double.MaxValue;
             double maxPrice = Double.MinValue;
             highPrice[0] = 0;
-            lowPrice[0]  = 0;
+            lowPrice[0] = 0;
 
             bool isOnTimePrev = false;
             for (int bar = 1; bar < Bars; bar++)
@@ -160,20 +160,20 @@ namespace ForexStrategyBuilder.Indicators.Store
                 if (isOnTime)
                 {
                     if (maxPrice < High[bar]) maxPrice = High[bar];
-                    if (minPrice > Low[bar])  minPrice = Low[bar];
+                    if (minPrice > Low[bar]) minPrice = Low[bar];
                 }
 
                 if (!isOnTime && isOnTimePrev)
                 {
                     highPrice[bar] = maxPrice;
-                    lowPrice[bar]  = minPrice;
+                    lowPrice[bar] = minPrice;
                     maxPrice = Double.MinValue;
                     minPrice = Double.MaxValue;
                 }
                 else
                 {
                     highPrice[bar] = highPrice[bar - 1];
-                    lowPrice[bar]  = lowPrice[bar - 1];
+                    lowPrice[bar] = lowPrice[bar - 1];
                 }
 
                 isOnTimePrev = isOnTime;
@@ -185,45 +185,45 @@ namespace ForexStrategyBuilder.Indicators.Store
             for (int bar = firstBar; bar < Bars; bar++)
             {
                 upperBand[bar] = highPrice[bar] + shift;
-                lowerBand[bar] = lowPrice[bar]  - shift;
+                lowerBand[bar] = lowPrice[bar] - shift;
             }
 
             // Saving the components
             Component = new IndicatorComp[4];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "Hourly High",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Level,
-                    ChartColor = Color.DarkGreen,
-                    FirstBar = firstBar,
-                    Value = highPrice
-                };
+            {
+                CompName = "Hourly High",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Level,
+                ChartColor = Color.DarkGreen,
+                FirstBar = firstBar,
+                Value = highPrice
+            };
 
             Component[1] = new IndicatorComp
-                {
-                    CompName = "Hourly Low",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Level,
-                    ChartColor = Color.DarkRed,
-                    FirstBar = firstBar,
-                    Value = lowPrice
-                };
+            {
+                CompName = "Hourly Low",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Level,
+                ChartColor = Color.DarkRed,
+                FirstBar = firstBar,
+                Value = lowPrice
+            };
 
             Component[2] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = firstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             Component[3] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = firstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             // Sets the Component's type
             if (SlotType == SlotTypes.Open)
@@ -332,15 +332,15 @@ namespace ForexStrategyBuilder.Indicators.Store
 
         public override void SetDescription()
         {
-            var shift = (int) IndParam.NumParam[4].Value;
+            var shift = (int)IndParam.NumParam[4].Value;
 
-            var fromHour = (int) IndParam.NumParam[0].Value;
-            var fromMin  = (int) IndParam.NumParam[1].Value;
-            var toHour   = (int) IndParam.NumParam[2].Value;
-            var toMin    = (int) IndParam.NumParam[3].Value;
+            var fromHour = (int)IndParam.NumParam[0].Value;
+            var fromMin = (int)IndParam.NumParam[1].Value;
+            var toHour = (int)IndParam.NumParam[2].Value;
+            var toMin = (int)IndParam.NumParam[3].Value;
 
             string fromTime = fromHour.ToString("00") + ":" + fromMin.ToString("00");
-            string toTimne  = toHour.ToString("00") + ":" + toMin.ToString("00");
+            string toTimne = toHour.ToString("00") + ":" + toMin.ToString("00");
             string interval = "(" + fromTime + " - " + toTimne + ")";
 
             string upperTrade;
@@ -430,12 +430,12 @@ namespace ForexStrategyBuilder.Indicators.Store
 
         public override string ToString()
         {
-            var fromHour  = (int) IndParam.NumParam[0].Value;
-            var fromMin   = (int) IndParam.NumParam[1].Value;
-            var toHour = (int) IndParam.NumParam[2].Value;
-            var toMin  = (int) IndParam.NumParam[3].Value;
+            var fromHour = (int)IndParam.NumParam[0].Value;
+            var fromMin = (int)IndParam.NumParam[1].Value;
+            var toHour = (int)IndParam.NumParam[2].Value;
+            var toMin = (int)IndParam.NumParam[3].Value;
 
-            string fromTime  = fromHour.ToString("00")  + ":" + fromMin.ToString("00");
+            string fromTime = fromHour.ToString("00") + ":" + fromMin.ToString("00");
             string toTime = toHour.ToString("00") + ":" + toMin.ToString("00");
 
             return IndicatorName + " (" +

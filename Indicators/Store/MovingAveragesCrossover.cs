@@ -47,22 +47,22 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.ListParam[0].ToolTip = "Logic of application of the indicator.";
 
             IndParam.ListParam[1].Caption = "Base price";
-            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof (BasePrice));
-            IndParam.ListParam[1].Index = (int) BasePrice.Close;
+            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof(BasePrice));
+            IndParam.ListParam[1].Index = (int)BasePrice.Close;
             IndParam.ListParam[1].Text = IndParam.ListParam[1].ItemList[IndParam.ListParam[1].Index];
             IndParam.ListParam[1].Enabled = true;
             IndParam.ListParam[1].ToolTip = "The price both Moving Averages are based on.";
 
             IndParam.ListParam[3].Caption = "Fast MA method";
-            IndParam.ListParam[3].ItemList = Enum.GetNames(typeof (MAMethod));
-            IndParam.ListParam[3].Index = (int) MAMethod.Simple;
+            IndParam.ListParam[3].ItemList = Enum.GetNames(typeof(MAMethod));
+            IndParam.ListParam[3].Index = (int)MAMethod.Simple;
             IndParam.ListParam[3].Text = IndParam.ListParam[3].ItemList[IndParam.ListParam[3].Index];
             IndParam.ListParam[3].Enabled = true;
             IndParam.ListParam[3].ToolTip = "The method used for smoothing Fast Moving Averages.";
 
             IndParam.ListParam[4].Caption = "Slow MA method";
-            IndParam.ListParam[4].ItemList = Enum.GetNames(typeof (MAMethod));
-            IndParam.ListParam[4].Index = (int) MAMethod.Simple;
+            IndParam.ListParam[4].ItemList = Enum.GetNames(typeof(MAMethod));
+            IndParam.ListParam[4].Index = (int)MAMethod.Simple;
             IndParam.ListParam[4].Text = IndParam.ListParam[4].ItemList[IndParam.ListParam[4].Index];
             IndParam.ListParam[4].Enabled = true;
             IndParam.ListParam[4].ToolTip = "The method used for smoothing Slow Moving Averages.";
@@ -109,59 +109,61 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            var basePrice = (BasePrice) IndParam.ListParam[1].Index;
-            var fastMAMethod = (MAMethod) IndParam.ListParam[3].Index;
-            var slowMAMethod = (MAMethod) IndParam.ListParam[4].Index;
-            var iNFastMA = (int) IndParam.NumParam[0].Value;
-            var iNSlowMA = (int) IndParam.NumParam[1].Value;
-            var iSFastMA = (int) IndParam.NumParam[2].Value;
-            var iSSlowMA = (int) IndParam.NumParam[3].Value;
-            int iPrvs = IndParam.CheckParam[0].Checked ? 1 : 0;
+            var basePrice = (BasePrice)IndParam.ListParam[1].Index;
+            var fastMAMethod = (MAMethod)IndParam.ListParam[3].Index;
+            var slowMAMethod = (MAMethod)IndParam.ListParam[4].Index;
+            var periodFast = (int)IndParam.NumParam[0].Value;
+            var periodSlow = (int)IndParam.NumParam[1].Value;
+            var shiftFast = (int)IndParam.NumParam[2].Value;
+            var shiftSlow = (int)IndParam.NumParam[3].Value;
+            int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
-            int iFirstBar = Math.Max(iNFastMA + iSFastMA, iNSlowMA + iSSlowMA) + 2;
-            double[] adMAFast = MovingAverage(iNFastMA, iSFastMA, fastMAMethod, Price(basePrice));
-            double[] adMASlow = MovingAverage(iNSlowMA, iSSlowMA, slowMAMethod, Price(basePrice));
-            var adMAOscillator = new double[Bars];
+            int firstBar = Math.Max(periodFast + shiftFast, periodSlow + shiftSlow) + previous + 2;
+            double[] maFast = MovingAverage(periodFast, shiftFast, fastMAMethod, Price(basePrice));
+            double[] maSlow = MovingAverage(periodSlow, shiftSlow, slowMAMethod, Price(basePrice));
+            var maOscillator = new double[Bars];
 
-            for (int iBar = iFirstBar; iBar < Bars; iBar++)
-                adMAOscillator[iBar] = adMAFast[iBar] - adMASlow[iBar];
+            for (int bar = firstBar; bar < Bars; bar++)
+            {
+                maOscillator[bar] = maFast[bar] - maSlow[bar];
+            }
 
             // Saving the components
             Component = new IndicatorComp[4];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "Fast Moving Average",
-                    ChartColor = Color.Goldenrod,
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Line,
-                    FirstBar = iFirstBar,
-                    Value = adMAFast
-                };
+            {
+                CompName = "Fast Moving Average",
+                ChartColor = Color.Goldenrod,
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Line,
+                FirstBar = firstBar,
+                Value = maFast
+            };
 
             Component[1] = new IndicatorComp
-                {
-                    CompName = "Slow Moving Average",
-                    ChartColor = Color.IndianRed,
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Line,
-                    FirstBar = iFirstBar,
-                    Value = adMASlow
-                };
+            {
+                CompName = "Slow Moving Average",
+                ChartColor = Color.IndianRed,
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Line,
+                FirstBar = firstBar,
+                Value = maSlow
+            };
 
             Component[2] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = iFirstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             Component[3] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = iFirstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             // Sets the Component's type
             if (SlotType == SlotTypes.OpenFilter)
@@ -180,25 +182,25 @@ namespace ForexStrategyBuilder.Indicators.Store
             }
 
             // Calculation of the logic
-            var indLogic = IndicatorLogic.It_does_not_act_as_a_filter;
+            var logicRule = IndicatorLogic.It_does_not_act_as_a_filter;
 
             switch (IndParam.ListParam[0].Text)
             {
                 case "Fast MA crosses Slow MA upward":
-                    indLogic = IndicatorLogic.The_indicator_crosses_the_level_line_upward;
+                    logicRule = IndicatorLogic.The_indicator_crosses_the_level_line_upward;
                     break;
                 case "Fast MA crosses Slow MA downward":
-                    indLogic = IndicatorLogic.The_indicator_crosses_the_level_line_downward;
+                    logicRule = IndicatorLogic.The_indicator_crosses_the_level_line_downward;
                     break;
                 case "Fast MA is higher than Slow MA":
-                    indLogic = IndicatorLogic.The_indicator_is_higher_than_the_level_line;
+                    logicRule = IndicatorLogic.The_indicator_is_higher_than_the_level_line;
                     break;
                 case "Fast MA is lower than Slow MA":
-                    indLogic = IndicatorLogic.The_indicator_is_lower_than_the_level_line;
+                    logicRule = IndicatorLogic.The_indicator_is_lower_than_the_level_line;
                     break;
             }
 
-            OscillatorLogic(iFirstBar, iPrvs, adMAOscillator, 0, 0, ref Component[2], ref Component[3], indLogic);
+            OscillatorLogic(firstBar, previous, maOscillator, 0, 0, ref Component[2], ref Component[3], logicRule);
         }
 
         public override void SetDescription()

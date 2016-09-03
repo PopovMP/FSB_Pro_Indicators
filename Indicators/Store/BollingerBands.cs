@@ -81,15 +81,15 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.ListParam[0].ToolTip = "Logic of application of the indicator.";
 
             IndParam.ListParam[1].Caption = "Smoothing method";
-            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof (MAMethod));
-            IndParam.ListParam[1].Index = (int) MAMethod.Simple;
+            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof(MAMethod));
+            IndParam.ListParam[1].Index = (int)MAMethod.Simple;
             IndParam.ListParam[1].Text = IndParam.ListParam[1].ItemList[IndParam.ListParam[1].Index];
             IndParam.ListParam[1].Enabled = true;
             IndParam.ListParam[1].ToolTip = "The method of smoothing of central Moving Average.";
 
             IndParam.ListParam[2].Caption = "Base price";
-            IndParam.ListParam[2].ItemList = Enum.GetNames(typeof (BasePrice));
-            IndParam.ListParam[2].Index = (int) BasePrice.Close;
+            IndParam.ListParam[2].ItemList = Enum.GetNames(typeof(BasePrice));
+            IndParam.ListParam[2].Index = (int)BasePrice.Close;
             IndParam.ListParam[2].Text = IndParam.ListParam[2].ItemList[IndParam.ListParam[2].Index];
             IndParam.ListParam[2].Enabled = true;
             IndParam.ListParam[2].ToolTip = "The price the central Moving Average is based on.";
@@ -124,71 +124,79 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            var maMethod = (MAMethod) IndParam.ListParam[1].Index;
-            var price = (BasePrice) IndParam.ListParam[2].Index;
-            var nMA = (int) IndParam.NumParam[0].Value;
-            double mpl = IndParam.NumParam[1].Value;
-            int prvs = IndParam.CheckParam[0].Checked ? 1 : 0;
+            var maMethod = (MAMethod)IndParam.ListParam[1].Index;
+            var basePrice = (BasePrice)IndParam.ListParam[2].Index;
+            var period = (int)IndParam.NumParam[0].Value;
+            double multiplier = IndParam.NumParam[1].Value;
+            int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
-            double[] adPrice = Price(price);
-            double[] adMA = MovingAverage(nMA, 0, maMethod, adPrice);
-            var adUpBand = new double[Bars];
-            var adDnBand = new double[Bars];
+            double[] price = Price(basePrice);
+            double[] ma = MovingAverage(period, 0, maMethod, price);
+            var upperBand = new double[Bars];
+            var lowerBand = new double[Bars];
 
-            int firstBar = nMA + prvs + 2;
+            int firstBar = period + previous + 2;
 
-            for (int bar = nMA; bar < Bars; bar++)
+            for (int bar = period; bar < Bars; bar++)
             {
                 double sum = 0;
-                for (int i = 0; i < nMA; i++)
+                for (int i = 0; i < period; i++)
                 {
-                    double delta = (adPrice[bar - i] - adMA[bar]);
-                    sum += delta*delta;
+                    double delta = (price[bar - i] - ma[bar]);
+                    sum += delta * delta;
                 }
-                double stdDev = Math.Sqrt(sum/nMA);
-                adUpBand[bar] = adMA[bar] + mpl*stdDev;
-                adDnBand[bar] = adMA[bar] - mpl*stdDev;
+                double stdDev = Math.Sqrt(sum / period);
+                upperBand[bar] = ma[bar] + multiplier * stdDev;
+                lowerBand[bar] = ma[bar] - multiplier * stdDev;
             }
 
             // Saving the components
             Component = new IndicatorComp[5];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "Upper Band",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Line,
-                    ChartColor = Color.Blue,
-                    FirstBar = firstBar,
-                    Value = adUpBand
-                };
+            {
+                CompName = "Upper Band",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Line,
+                ChartColor = Color.Blue,
+                FirstBar = firstBar,
+                Value = upperBand
+            };
 
             Component[1] = new IndicatorComp
-                {
-                    CompName = "Moving Average",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Line,
-                    ChartColor = Color.Gold,
-                    FirstBar = firstBar,
-                    Value = adMA
-                };
+            {
+                CompName = "Moving Average",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Line,
+                ChartColor = Color.Gold,
+                FirstBar = firstBar,
+                Value = ma
+            };
 
             Component[2] = new IndicatorComp
-                {
-                    CompName = "Lower Band",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Line,
-                    ChartColor = Color.Blue,
-                    FirstBar = firstBar,
-                    Value = adDnBand
-                };
+            {
+                CompName = "Lower Band",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Line,
+                ChartColor = Color.Blue,
+                FirstBar = firstBar,
+                Value = lowerBand
+            };
 
             Component[3] = new IndicatorComp
-                {ChartType = IndChartType.NoChart, FirstBar = firstBar, Value = new double[Bars]};
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             Component[4] = new IndicatorComp
-                {ChartType = IndChartType.NoChart, FirstBar = firstBar, Value = new double[Bars]};
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             // Sets the Component's type.
             switch (SlotType)
@@ -221,7 +229,7 @@ namespace ForexStrategyBuilder.Indicators.Store
 
             if (SlotType == SlotTypes.Open || SlotType == SlotTypes.Close)
             {
-                if (nMA > 1)
+                if (period > 1)
                 {
                     for (int bar = firstBar; bar < Bars; bar++)
                     {
@@ -229,8 +237,8 @@ namespace ForexStrategyBuilder.Indicators.Store
                         double open = Open[bar]; // Current open price
 
                         // Upper band
-                        double valueUp = adUpBand[bar - prvs]; // Current value
-                        double valueUp1 = adUpBand[bar - prvs - 1]; // Previous value
+                        double valueUp = upperBand[bar - previous]; // Current value
+                        double valueUp1 = upperBand[bar - previous - 1]; // Previous value
                         double tempValUp = valueUp;
 
                         if ((valueUp1 > High[bar - 1] && valueUp < open) || // The Open price jumps above the indicator
@@ -240,14 +248,12 @@ namespace ForexStrategyBuilder.Indicators.Store
                             tempValUp = open; // The entry/exit level is moved to Open price
 
                         // Lower band
-                        double valueDown = adDnBand[bar - prvs]; // Current value
-                        double valueDown1 = adDnBand[bar - prvs - 1]; // Previous value
+                        double valueDown = lowerBand[bar - previous]; // Current value
+                        double valueDown1 = lowerBand[bar - previous - 1]; // Previous value
                         double tempValDown = valueDown;
 
-                        if ((valueDown1 > High[bar - 1] && valueDown < open) ||
-                            // The Open price jumps above the indicator
-                            (valueDown1 < Low[bar - 1] && valueDown > open) ||
-                            // The Open price jumps below the indicator
+                        if ((valueDown1 > High[bar - 1] && valueDown < open) || // The Open price jumps above the indicator
+                            (valueDown1 < Low[bar - 1] && valueDown > open) || // The Open price jumps below the indicator
                             (Close[bar - 1] < valueDown && valueDown < open) || // The Open price is in a positive gap
                             (Close[bar - 1] > valueDown && valueDown > open)) // The Open price is in a negative gap
                             tempValDown = open; // The entry/exit level is moved to Open price
@@ -272,13 +278,13 @@ namespace ForexStrategyBuilder.Indicators.Store
                         if (IndParam.ListParam[0].Text == "Enter long at Upper Band" ||
                             IndParam.ListParam[0].Text == "Exit long at Upper Band")
                         {
-                            Component[3].Value[bar] = adUpBand[bar - prvs];
-                            Component[4].Value[bar] = adDnBand[bar - prvs];
+                            Component[3].Value[bar] = upperBand[bar - previous];
+                            Component[4].Value[bar] = lowerBand[bar - previous];
                         }
                         else
                         {
-                            Component[3].Value[bar] = adDnBand[bar - prvs];
-                            Component[4].Value[bar] = adUpBand[bar - prvs];
+                            Component[3].Value[bar] = lowerBand[bar - previous];
+                            Component[4].Value[bar] = upperBand[bar - previous];
                         }
                     }
                 }
@@ -288,42 +294,42 @@ namespace ForexStrategyBuilder.Indicators.Store
                 switch (IndParam.ListParam[0].Text)
                 {
                     case "The bar opens below Upper Band":
-                        BandIndicatorLogic(firstBar, prvs, adUpBand, adDnBand, ref Component[3], ref Component[4],
+                        BandIndicatorLogic(firstBar, previous, upperBand, lowerBand, ref Component[3], ref Component[4],
                                            BandIndLogic.The_bar_opens_below_the_Upper_Band);
                         break;
 
                     case "The bar opens above Upper Band":
-                        BandIndicatorLogic(firstBar, prvs, adUpBand, adDnBand, ref Component[3], ref Component[4],
+                        BandIndicatorLogic(firstBar, previous, upperBand, lowerBand, ref Component[3], ref Component[4],
                                            BandIndLogic.The_bar_opens_above_the_Upper_Band);
                         break;
 
                     case "The bar opens below Lower Band":
-                        BandIndicatorLogic(firstBar, prvs, adUpBand, adDnBand, ref Component[3], ref Component[4],
+                        BandIndicatorLogic(firstBar, previous, upperBand, lowerBand, ref Component[3], ref Component[4],
                                            BandIndLogic.The_bar_opens_below_the_Lower_Band);
                         break;
 
                     case "The bar opens above Lower Band":
-                        BandIndicatorLogic(firstBar, prvs, adUpBand, adDnBand, ref Component[3], ref Component[4],
+                        BandIndicatorLogic(firstBar, previous, upperBand, lowerBand, ref Component[3], ref Component[4],
                                            BandIndLogic.The_bar_opens_above_the_Lower_Band);
                         break;
 
                     case "The bar opens below Upper Band after opening above it":
-                        BandIndicatorLogic(firstBar, prvs, adUpBand, adDnBand, ref Component[3], ref Component[4],
+                        BandIndicatorLogic(firstBar, previous, upperBand, lowerBand, ref Component[3], ref Component[4],
                                            BandIndLogic.The_bar_opens_below_the_Upper_Band_after_opening_above_it);
                         break;
 
                     case "The bar opens above Upper Band after opening below it":
-                        BandIndicatorLogic(firstBar, prvs, adUpBand, adDnBand, ref Component[3], ref Component[4],
+                        BandIndicatorLogic(firstBar, previous, upperBand, lowerBand, ref Component[3], ref Component[4],
                                            BandIndLogic.The_bar_opens_above_the_Upper_Band_after_opening_below_it);
                         break;
 
                     case "The bar opens below Lower Band after opening above it":
-                        BandIndicatorLogic(firstBar, prvs, adUpBand, adDnBand, ref Component[3], ref Component[4],
+                        BandIndicatorLogic(firstBar, previous, upperBand, lowerBand, ref Component[3], ref Component[4],
                                            BandIndLogic.The_bar_opens_below_the_Lower_Band_after_opening_above_it);
                         break;
 
                     case "The bar opens above Lower Band after opening below it":
-                        BandIndicatorLogic(firstBar, prvs, adUpBand, adDnBand, ref Component[3], ref Component[4],
+                        BandIndicatorLogic(firstBar, previous, upperBand, lowerBand, ref Component[3], ref Component[4],
                                            BandIndLogic.The_bar_opens_above_the_Lower_Band_after_opening_below_it);
                         break;
 
@@ -364,22 +370,22 @@ namespace ForexStrategyBuilder.Indicators.Store
                         break;
 
                     case "The bar closes below Upper Band":
-                        BandIndicatorLogic(firstBar, prvs, adUpBand, adDnBand, ref Component[3], ref Component[4],
+                        BandIndicatorLogic(firstBar, previous, upperBand, lowerBand, ref Component[3], ref Component[4],
                                            BandIndLogic.The_bar_closes_below_the_Upper_Band);
                         break;
 
                     case "The bar closes above Upper Band":
-                        BandIndicatorLogic(firstBar, prvs, adUpBand, adDnBand, ref Component[3], ref Component[4],
+                        BandIndicatorLogic(firstBar, previous, upperBand, lowerBand, ref Component[3], ref Component[4],
                                            BandIndLogic.The_bar_closes_above_the_Upper_Band);
                         break;
 
                     case "The bar closes below Lower Band":
-                        BandIndicatorLogic(firstBar, prvs, adUpBand, adDnBand, ref Component[3], ref Component[4],
+                        BandIndicatorLogic(firstBar, previous, upperBand, lowerBand, ref Component[3], ref Component[4],
                                            BandIndLogic.The_bar_closes_below_the_Lower_Band);
                         break;
 
                     case "The bar closes above Lower Band":
-                        BandIndicatorLogic(firstBar, prvs, adUpBand, adDnBand, ref Component[3], ref Component[4],
+                        BandIndicatorLogic(firstBar, previous, upperBand, lowerBand, ref Component[3], ref Component[4],
                                            BandIndLogic.The_bar_closes_above_the_Lower_Band);
                         break;
                 }

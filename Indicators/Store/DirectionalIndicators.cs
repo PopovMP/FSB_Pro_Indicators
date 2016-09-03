@@ -57,14 +57,14 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.ListParam[0].ToolTip = "Logic of application of the indicator.";
 
             IndParam.ListParam[1].Caption = "Smoothing method";
-            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof (MAMethod));
-            IndParam.ListParam[1].Index = (int) MAMethod.Exponential;
+            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof(MAMethod));
+            IndParam.ListParam[1].Index = (int)MAMethod.Exponential;
             IndParam.ListParam[1].Text = IndParam.ListParam[1].ItemList[IndParam.ListParam[1].Index];
             IndParam.ListParam[1].Enabled = true;
             IndParam.ListParam[1].ToolTip = "The Moving Average method used for ADI smoothing.";
 
             IndParam.ListParam[2].Caption = "Base price";
-            IndParam.ListParam[2].ItemList = new[] {"Bar range"};
+            IndParam.ListParam[2].ItemList = new[] { "Bar range" };
             IndParam.ListParam[2].Index = 0;
             IndParam.ListParam[2].Text = IndParam.ListParam[2].ItemList[IndParam.ListParam[2].Index];
             IndParam.ListParam[2].Enabled = true;
@@ -89,12 +89,12 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            var maMethod = (MAMethod) IndParam.ListParam[1].Index;
-            var period = (int) IndParam.NumParam[0].Value;
-            int prev = IndParam.CheckParam[0].Checked ? 1 : 0;
+            var maMethod = (MAMethod)IndParam.ListParam[1].Index;
+            var period = (int)IndParam.NumParam[0].Value;
+            int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
-            int firstBar = period + 2;
+            int firstBar = period + previous + 2;
 
             var diPos = new double[Bars];
             var diNeg = new double[Bars];
@@ -110,12 +110,12 @@ namespace ForexStrategyBuilder.Indicators.Store
                 double deltaLow = Low[bar - 1] - Low[bar];
 
                 if (deltaHigh > 0 && deltaHigh > deltaLow)
-                    diPos[bar] = 100*deltaHigh/trueRange;
+                    diPos[bar] = 100 * deltaHigh / trueRange;
                 else
                     diPos[bar] = 0;
 
                 if (deltaLow > 0 && deltaLow > deltaHigh)
-                    diNeg[bar] = 100*deltaLow/trueRange;
+                    diNeg[bar] = 100 * deltaLow / trueRange;
                 else
                     diNeg[bar] = 0;
             }
@@ -132,38 +132,38 @@ namespace ForexStrategyBuilder.Indicators.Store
             Component = new IndicatorComp[4];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "ADI+",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Line,
-                    ChartColor = Color.Green,
-                    FirstBar = firstBar,
-                    Value = adiPos
-                };
+            {
+                CompName = "ADI+",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Line,
+                ChartColor = Color.Green,
+                FirstBar = firstBar,
+                Value = adiPos
+            };
 
             Component[1] = new IndicatorComp
-                {
-                    CompName = "ADI-",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Line,
-                    ChartColor = Color.Red,
-                    FirstBar = firstBar,
-                    Value = adiNeg
-                };
+            {
+                CompName = "ADI-",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Line,
+                ChartColor = Color.Red,
+                FirstBar = firstBar,
+                Value = adiNeg
+            };
 
             Component[2] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = firstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             Component[3] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = firstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             // Sets the Component's type
             if (SlotType == SlotTypes.OpenFilter)
@@ -184,62 +184,62 @@ namespace ForexStrategyBuilder.Indicators.Store
             switch (IndParam.ListParam[0].Text)
             {
                 case "ADI+ rises":
-                    OscillatorLogic(firstBar, prev, adiPos, 0, 0, ref Component[2], ref Component[3],
+                    OscillatorLogic(firstBar, previous, adiPos, 0, 0, ref Component[2], ref Component[3],
                                     IndicatorLogic.The_indicator_rises);
                     break;
 
                 case "ADI+ falls":
-                    OscillatorLogic(firstBar, prev, adiPos, 0, 0, ref Component[2], ref Component[3],
+                    OscillatorLogic(firstBar, previous, adiPos, 0, 0, ref Component[2], ref Component[3],
                                     IndicatorLogic.The_indicator_falls);
                     break;
 
                 case "ADI- rises":
-                    OscillatorLogic(firstBar, prev, adiNeg, 0, 0, ref Component[2], ref Component[3],
+                    OscillatorLogic(firstBar, previous, adiNeg, 0, 0, ref Component[2], ref Component[3],
                                     IndicatorLogic.The_indicator_rises);
                     break;
 
                 case "ADI- falls":
-                    OscillatorLogic(firstBar, prev, adiNeg, 0, 0, ref Component[2], ref Component[3],
+                    OscillatorLogic(firstBar, previous, adiNeg, 0, 0, ref Component[2], ref Component[3],
                                     IndicatorLogic.The_indicator_falls);
                     break;
 
                 case "ADI+ is higher than ADI-":
-                    OscillatorLogic(firstBar, prev, adiOsc, 0, 0, ref Component[2], ref Component[3],
+                    OscillatorLogic(firstBar, previous, adiOsc, 0, 0, ref Component[2], ref Component[3],
                                     IndicatorLogic.The_indicator_is_higher_than_the_level_line);
                     break;
 
                 case "ADI+ is lower than ADI-":
-                    OscillatorLogic(firstBar, prev, adiOsc, 0, 0, ref Component[2], ref Component[3],
+                    OscillatorLogic(firstBar, previous, adiOsc, 0, 0, ref Component[2], ref Component[3],
                                     IndicatorLogic.The_indicator_is_lower_than_the_level_line);
                     break;
 
                 case "ADI+ crosses ADI- line upward":
-                    OscillatorLogic(firstBar, prev, adiOsc, 0, 0, ref Component[2], ref Component[3],
+                    OscillatorLogic(firstBar, previous, adiOsc, 0, 0, ref Component[2], ref Component[3],
                                     IndicatorLogic.The_indicator_crosses_the_level_line_upward);
                     break;
 
                 case "ADI+ crosses ADI- line downward":
-                    OscillatorLogic(firstBar, prev, adiOsc, 0, 0, ref Component[2], ref Component[3],
+                    OscillatorLogic(firstBar, previous, adiOsc, 0, 0, ref Component[2], ref Component[3],
                                     IndicatorLogic.The_indicator_crosses_the_level_line_downward);
                     break;
 
                 case "ADI+ changes its direction upward":
-                    OscillatorLogic(firstBar, prev, adiPos, 0, 0, ref Component[2], ref Component[3],
+                    OscillatorLogic(firstBar, previous, adiPos, 0, 0, ref Component[2], ref Component[3],
                                     IndicatorLogic.The_indicator_changes_its_direction_upward);
                     break;
 
                 case "ADI+ changes its direction downward":
-                    OscillatorLogic(firstBar, prev, adiPos, 0, 0, ref Component[2], ref Component[3],
+                    OscillatorLogic(firstBar, previous, adiPos, 0, 0, ref Component[2], ref Component[3],
                                     IndicatorLogic.The_indicator_changes_its_direction_downward);
                     break;
 
                 case "ADI- changes its direction upward":
-                    OscillatorLogic(firstBar, prev, adiNeg, 0, 0, ref Component[2], ref Component[3],
+                    OscillatorLogic(firstBar, previous, adiNeg, 0, 0, ref Component[2], ref Component[3],
                                     IndicatorLogic.The_indicator_changes_its_direction_upward);
                     break;
 
                 case "ADI- changes its direction downward":
-                    OscillatorLogic(firstBar, prev, adiNeg, 0, 0, ref Component[2], ref Component[3],
+                    OscillatorLogic(firstBar, previous, adiNeg, 0, 0, ref Component[2], ref Component[3],
                                     IndicatorLogic.The_indicator_changes_its_direction_downward);
                     break;
             }

@@ -24,8 +24,7 @@ namespace ForexStrategyBuilder.Indicators.Store
             IsDeafultGroupAll = true;
             IsGeneratable = false;
 
-            WarningMessage =
-                "This indicator is designed to be used in the backtester only. It doesn't work in the trader.";
+            WarningMessage = "This indicator is designed to be used in the backtester only. It doesn't work in the trader.";
 
             IndicatorAuthor = "Miroslav Popov";
             IndicatorVersion = "2.0";
@@ -74,87 +73,103 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            var newest = (int) IndParam.NumParam[0].Value;
-            var oldest = (int) IndParam.NumParam[1].Value;
+            var newest = (int)IndParam.NumParam[0].Value;
+            var oldest = (int)IndParam.NumParam[1].Value;
 
             // Calculation
-            int firstBar = 0;
-            var adBars = new double[Bars];
+            int firstBar = 2;
+            var signal = new double[Bars];
 
             // Calculation of the logic
-			if (IsBacktester)
-			{
-				switch (IndParam.ListParam[0].Text)
-				{
-					case "Do not use the newest bars":
-						for (int bar = firstBar; bar < Bars - newest; bar++)
-							adBars[bar] = 1;
-						break;
-					case "Do not use the oldest bars":
-						firstBar = Math.Min(oldest, Bars - 300);
-						for (int bar = firstBar; bar < Bars; bar++)
-							adBars[bar] = 1;
-						break;
-					case "Do not use the newest bars and oldest bars":
-						firstBar = Math.Min(oldest, Bars - 300);
-						int lastBar = Math.Max(firstBar + 300, Bars - newest);
-						for (int bar = firstBar; bar < lastBar; bar++)
-							adBars[bar] = 1;
-						break;
-					case "Use the newest bars only":
-						firstBar = Math.Max(0, Bars - newest);
-						firstBar = Math.Min(firstBar, Bars - 300);
-						for (int bar = firstBar; bar < Bars; bar++)
-							adBars[bar] = 1;
-						break;
-					case "Use the oldest bars only":
-						oldest = Math.Max(300, oldest);
-						for (int bar = firstBar; bar < oldest; bar++)
-							adBars[bar] = 1;
-						break;
-				}
-			}
-			else
-			{
-				for (int bar = firstBar; bar < Bars; bar++)
-					adBars[bar] = 1;
-			}
+            if (IsBacktester)
+            {
+                switch (IndParam.ListParam[0].Text)
+                {
+                    case "Do not use the newest bars":
+                        for (int bar = firstBar; bar < Bars - newest; bar++)
+                        {
+                            signal[bar] = 1;
+                        }
+                        break;
 
-			// Saving the components
+                    case "Do not use the oldest bars":
+                        firstBar = Math.Min(oldest, Bars - 300);
+                        for (int bar = firstBar; bar < Bars; bar++)
+                        {
+                            signal[bar] = 1;
+                        }
+                        break;
+
+                    case "Do not use the newest bars and oldest bars":
+                        firstBar = Math.Min(oldest, Bars - 300);
+                        int lastBar = Math.Max(firstBar + 300, Bars - newest);
+                        for (int bar = firstBar; bar < lastBar; bar++)
+                        {
+                            signal[bar] = 1;
+                        }
+                        break;
+
+                    case "Use the newest bars only":
+                        firstBar = Math.Max(0, Bars - newest);
+                        firstBar = Math.Min(firstBar, Bars - 300);
+                        for (int bar = firstBar; bar < Bars; bar++)
+                        {
+                            signal[bar] = 1;
+                        }
+                        break;
+
+                    case "Use the oldest bars only":
+                        oldest = Math.Max(300, oldest);
+                        for (int bar = firstBar; bar < oldest; bar++)
+                        {
+                            signal[bar] = 1;
+                        }
+                        break;
+                }
+            }
+            else
+            {
+                for (int bar = firstBar; bar < Bars; bar++)
+                {
+                    signal[bar] = 1;
+                }
+            }
+
+            // Saving the components
             Component = new IndicatorComp[2];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "(No) Used bars",
-                    DataType = IndComponentType.AllowOpenLong,
-                    ChartType = IndChartType.NoChart,
-                    ShowInDynInfo = false,
-                    FirstBar = firstBar,
-                    Value = adBars
-                };
+            {
+                CompName = "(No) Used bars",
+                DataType = IndComponentType.AllowOpenLong,
+                ChartType = IndChartType.NoChart,
+                ShowInDynInfo = false,
+                FirstBar = firstBar,
+                Value = signal
+            };
 
             Component[1] = new IndicatorComp
-                {
-                    CompName = "(No) Used bars",
-                    DataType = IndComponentType.AllowOpenShort,
-                    ChartType = IndChartType.NoChart,
-                    ShowInDynInfo = false,
-                    FirstBar = firstBar,
-                    Value = adBars
-                };
+            {
+                CompName = "(No) Used bars",
+                DataType = IndComponentType.AllowOpenShort,
+                ChartType = IndChartType.NoChart,
+                ShowInDynInfo = false,
+                FirstBar = firstBar,
+                Value = signal
+            };
         }
 
         public override void SetDescription()
         {
-			if (!IsBacktester)
-			{
-				EntryFilterLongDescription  = "A back tester limitation. It hasn't effect on the trade.";
-				EntryFilterShortDescription = "A back tester limitation. It hasn't effect on the trade.";
-				return;
-			}
-		
-            var newest = (int) IndParam.NumParam[0].Value;
-            var oldest = (int) IndParam.NumParam[1].Value;
+            if (!IsBacktester)
+            {
+                EntryFilterLongDescription = "A back tester limitation. It hasn't effect on the trade.";
+                EntryFilterShortDescription = "A back tester limitation. It hasn't effect on the trade.";
+                return;
+            }
+
+            var newest = (int)IndParam.NumParam[0].Value;
+            var oldest = (int)IndParam.NumParam[1].Value;
 
             EntryFilterLongDescription = "(a back tester limitation) ";
             EntryFilterShortDescription = "(a back tester limitation) ";

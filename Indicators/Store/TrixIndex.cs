@@ -56,15 +56,15 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.ListParam[0].ToolTip = "Logic of application of the indicator.";
 
             IndParam.ListParam[1].Caption = "Smoothing method";
-            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof (MAMethod));
-            IndParam.ListParam[1].Index = (int) MAMethod.Exponential;
+            IndParam.ListParam[1].ItemList = Enum.GetNames(typeof(MAMethod));
+            IndParam.ListParam[1].Index = (int)MAMethod.Exponential;
             IndParam.ListParam[1].Text = IndParam.ListParam[1].ItemList[IndParam.ListParam[1].Index];
             IndParam.ListParam[1].Enabled = true;
             IndParam.ListParam[1].ToolTip = "The Moving Average method used for smoothing Trix Index value.";
 
             IndParam.ListParam[2].Caption = "Base price";
-            IndParam.ListParam[2].ItemList = Enum.GetNames(typeof (BasePrice));
-            IndParam.ListParam[2].Index = (int) BasePrice.Close;
+            IndParam.ListParam[2].ItemList = Enum.GetNames(typeof(BasePrice));
+            IndParam.ListParam[2].Index = (int)BasePrice.Close;
             IndParam.ListParam[2].Text = IndParam.ListParam[2].ItemList[IndParam.ListParam[2].Index];
             IndParam.ListParam[2].Enabled = true;
             IndParam.ListParam[2].ToolTip = "The price the indicator is based on.";
@@ -88,75 +88,79 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            var maMethod = (MAMethod) IndParam.ListParam[1].Index;
-            var basePrice = (BasePrice) IndParam.ListParam[2].Index;
-            var nPeriod = (int) IndParam.NumParam[0].Value;
-            int iPrvs = IndParam.CheckParam[0].Checked ? 1 : 0;
+            var maMethod = (MAMethod)IndParam.ListParam[1].Index;
+            var basePrice = (BasePrice)IndParam.ListParam[2].Index;
+            var period = (int)IndParam.NumParam[0].Value;
+            int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
-            int firstBar = 2*nPeriod + 2;
+            int firstBar = period + previous + 2;
 
-            double[] ma1 = MovingAverage(nPeriod, 0, maMethod, Price(basePrice));
-            double[] ma2 = MovingAverage(nPeriod, 0, maMethod, ma1);
-            double[] ma3 = MovingAverage(nPeriod, 0, maMethod, ma2);
+            double[] ma1 = MovingAverage(period, 0, maMethod, Price(basePrice));
+            double[] ma2 = MovingAverage(period, 0, maMethod, ma1);
+            double[] ma3 = MovingAverage(period, 0, maMethod, ma2);
 
-            var adTrix = new double[Bars];
+            var trix = new double[Bars];
 
             for (int bar = firstBar; bar < Bars; bar++)
-                adTrix[bar] = 100*(ma3[bar] - ma3[bar - 1])/ma3[bar - 1];
+            {
+                trix[bar] = 100 * (ma3[bar] - ma3[bar - 1]) / ma3[bar - 1];
+            }
 
-            double[] adSignal = MovingAverage(nPeriod, 0, maMethod, adTrix);
+            double[] signal = MovingAverage(period, 0, maMethod, trix);
 
             // adHistogram represents Trix Index oscillator
-            var adHistogram = new double[Bars];
+            var histogram = new double[Bars];
             for (int bar = firstBar; bar < Bars; bar++)
-                adHistogram[bar] = adTrix[bar] - adSignal[bar];
+            {
+                histogram[bar] = trix[bar] - signal[bar];
+            }
 
             // Saving the components
             Component = new IndicatorComp[5];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "Histogram",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Histogram,
-                    FirstBar = firstBar,
-                    Value = adHistogram
-                };
+            {
+                CompName = "Histogram",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Histogram,
+                FirstBar = firstBar,
+                Value = histogram
+            };
 
             Component[1] = new IndicatorComp
-                {
-                    CompName = "Signal",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Line,
-                    ChartColor = Color.Gold,
-                    FirstBar = firstBar,
-                    Value = adSignal
-                };
+            {
+                CompName = "Signal",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Line,
+                ChartColor = Color.Gold,
+                FirstBar = firstBar,
+                Value = signal
+            };
 
             Component[2] = new IndicatorComp
-                {
-                    CompName = "Trix Line",
-                    DataType = IndComponentType.IndicatorValue,
-                    ChartType = IndChartType.Line,
-                    ChartColor = Color.Blue,
-                    FirstBar = firstBar,
-                    Value = adTrix
-                };
+            {
+                CompName = "Trix Line",
+                DataType = IndComponentType.IndicatorValue,
+                ChartType = IndChartType.Line,
+                ChartColor = Color.Blue,
+                FirstBar = firstBar,
+                Value = trix
+            };
 
             Component[3] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = firstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             Component[4] = new IndicatorComp
-                {
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = firstBar,
-                    Value = new double[Bars]
-                };
+            {
+                ChartType = IndChartType.NoChart,
+                FirstBar = firstBar,
+                Value = new double[Bars]
+            };
 
             // Sets the Component's type
             if (SlotType == SlotTypes.OpenFilter)
@@ -177,62 +181,62 @@ namespace ForexStrategyBuilder.Indicators.Store
             switch (IndParam.ListParam[0].Text)
             {
                 case "Trix Index line rises":
-                    OscillatorLogic(firstBar, iPrvs, adTrix, 0, 0, ref Component[3], ref Component[4],
+                    OscillatorLogic(firstBar, previous, trix, 0, 0, ref Component[3], ref Component[4],
                                     IndicatorLogic.The_indicator_rises);
                     break;
 
                 case "Trix Index line falls":
-                    OscillatorLogic(firstBar, iPrvs, adTrix, 0, 0, ref Component[3], ref Component[4],
+                    OscillatorLogic(firstBar, previous, trix, 0, 0, ref Component[3], ref Component[4],
                                     IndicatorLogic.The_indicator_falls);
                     break;
 
                 case "Trix Index line is higher than zero":
-                    OscillatorLogic(firstBar, iPrvs, adTrix, 0, 0, ref Component[3], ref Component[4],
+                    OscillatorLogic(firstBar, previous, trix, 0, 0, ref Component[3], ref Component[4],
                                     IndicatorLogic.The_indicator_is_higher_than_the_level_line);
                     break;
 
                 case "Trix Index line is lower than zero":
-                    OscillatorLogic(firstBar, iPrvs, adTrix, 0, 0, ref Component[3], ref Component[4],
+                    OscillatorLogic(firstBar, previous, trix, 0, 0, ref Component[3], ref Component[4],
                                     IndicatorLogic.The_indicator_is_lower_than_the_level_line);
                     break;
 
                 case "Trix Index line crosses the zero line upward":
-                    OscillatorLogic(firstBar, iPrvs, adTrix, 0, 0, ref Component[3], ref Component[4],
+                    OscillatorLogic(firstBar, previous, trix, 0, 0, ref Component[3], ref Component[4],
                                     IndicatorLogic.The_indicator_crosses_the_level_line_upward);
                     break;
 
                 case "Trix Index line crosses the zero line downward":
-                    OscillatorLogic(firstBar, iPrvs, adTrix, 0, 0, ref Component[3], ref Component[4],
+                    OscillatorLogic(firstBar, previous, trix, 0, 0, ref Component[3], ref Component[4],
                                     IndicatorLogic.The_indicator_crosses_the_level_line_downward);
                     break;
 
                 case "Trix Index line changes its direction upward":
-                    OscillatorLogic(firstBar, iPrvs, adTrix, 0, 0, ref Component[3], ref Component[4],
+                    OscillatorLogic(firstBar, previous, trix, 0, 0, ref Component[3], ref Component[4],
                                     IndicatorLogic.The_indicator_changes_its_direction_upward);
                     break;
 
                 case "Trix Index line changes its direction downward":
-                    OscillatorLogic(firstBar, iPrvs, adTrix, 0, 0, ref Component[3], ref Component[4],
+                    OscillatorLogic(firstBar, previous, trix, 0, 0, ref Component[3], ref Component[4],
                                     IndicatorLogic.The_indicator_changes_its_direction_downward);
                     break;
 
                 case "Trix Index line crosses the Signal line upward":
-                    OscillatorLogic(firstBar, iPrvs, adHistogram, 0, 0, ref Component[3], ref Component[4],
+                    OscillatorLogic(firstBar, previous, histogram, 0, 0, ref Component[3], ref Component[4],
                                     IndicatorLogic.The_indicator_crosses_the_level_line_upward);
                     break;
 
                 case "Trix Index line crosses the Signal line downward":
-                    OscillatorLogic(firstBar, iPrvs, adHistogram, 0, 0, ref Component[3], ref Component[4],
+                    OscillatorLogic(firstBar, previous, histogram, 0, 0, ref Component[3], ref Component[4],
                                     IndicatorLogic.The_indicator_crosses_the_level_line_downward);
                     break;
 
                 case "Trix Index line is higher than the Signal line":
-                    OscillatorLogic(firstBar, iPrvs, adHistogram, 0, 0, ref Component[3], ref Component[4],
+                    OscillatorLogic(firstBar, previous, histogram, 0, 0, ref Component[3], ref Component[4],
                                     IndicatorLogic.The_indicator_is_higher_than_the_level_line);
                     break;
 
                 case "Trix Index line is lower than the Signal line":
-                    OscillatorLogic(firstBar, iPrvs, adHistogram, 0, 0, ref Component[3], ref Component[4],
+                    OscillatorLogic(firstBar, previous, histogram, 0, 0, ref Component[3], ref Component[4],
                                     IndicatorLogic.The_indicator_is_lower_than_the_level_line);
                     break;
             }

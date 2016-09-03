@@ -62,7 +62,7 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.NumParam[1].Max = 5000;
             IndParam.NumParam[1].Point = 0;
             IndParam.NumParam[1].Enabled = true;
-            IndParam.NumParam[1].ToolTip = "A critical level (for the appropriate logic).";
+            IndParam.NumParam[1].ToolTip = "A signal level.";
 
             // The CheckBox parameters
             IndParam.CheckParam[0].Caption = "Use previous bar value";
@@ -75,12 +75,12 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            var barsNumber = (int) IndParam.NumParam[0].Value;
+            var barsCount = (int)IndParam.NumParam[0].Value;
             double level = IndParam.NumParam[1].Value;
             int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
-            int firstBar = barsNumber + 1;
+            int firstBar = barsCount + previous + 2;
 
             var range = new double[Bars];
 
@@ -88,7 +88,7 @@ namespace ForexStrategyBuilder.Indicators.Store
             {
                 double maxHigh = double.MinValue;
                 double minLow = double.MaxValue;
-                for (int i = 0; i < barsNumber; i++)
+                for (int i = 0; i < barsCount; i++)
                 {
                     if (High[bar - i] > maxHigh)
                         maxHigh = High[bar - i];
@@ -109,8 +109,11 @@ namespace ForexStrategyBuilder.Indicators.Store
                 FirstBar = firstBar,
                 Value = new double[Bars]
             };
+
             for (int bar = 0; bar < Bars; bar++)
-                Component[0].Value[bar] = Math.Round(range[bar]/Point);
+            {
+                Component[0].Value[bar] = Math.Round(range[bar] / Point);
+            }
 
             Component[1] = new IndicatorComp
             {
@@ -143,36 +146,36 @@ namespace ForexStrategyBuilder.Indicators.Store
             }
 
             // Calculation of the logic
-            var indLogic = IndicatorLogic.It_does_not_act_as_a_filter;
+            var logicRule = IndicatorLogic.It_does_not_act_as_a_filter;
 
             switch (IndParam.ListParam[0].Text)
             {
                 case "Bar Range rises":
-                    indLogic = IndicatorLogic.The_indicator_rises;
+                    logicRule = IndicatorLogic.The_indicator_rises;
                     break;
 
                 case "Bar Range falls":
-                    indLogic = IndicatorLogic.The_indicator_falls;
+                    logicRule = IndicatorLogic.The_indicator_falls;
                     break;
 
                 case "Bar Range is higher than the Level line":
-                    indLogic = IndicatorLogic.The_indicator_is_higher_than_the_level_line;
-                    SpecialValues = new[] {level};
+                    logicRule = IndicatorLogic.The_indicator_is_higher_than_the_level_line;
+                    SpecialValues = new[] { level };
                     break;
 
                 case "Bar Range is lower than the Level line":
-                    indLogic = IndicatorLogic.The_indicator_is_lower_than_the_level_line;
-                    SpecialValues = new[] {level};
+                    logicRule = IndicatorLogic.The_indicator_is_lower_than_the_level_line;
+                    SpecialValues = new[] { level };
                     break;
             }
 
-            NoDirectionOscillatorLogic(firstBar, previous, range, level*Point, ref Component[1], indLogic);
+            NoDirectionOscillatorLogic(firstBar, previous, range, level * Point, ref Component[1], logicRule);
             Component[2].Value = Component[1].Value;
         }
 
         public override void SetDescription()
         {
-            var barsNumber = (int) IndParam.NumParam[0].Value;
+            var barsNumber = (int)IndParam.NumParam[0].Value;
             string levelLong = IndParam.NumParam[1].ValueToString;
             string levelShort = levelLong;
 

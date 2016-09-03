@@ -80,13 +80,13 @@ namespace ForexStrategyBuilder.Indicators.Store
             Component = new IndicatorComp[1];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "Trailing Stop for the transferred position",
-                    DataType = IndComponentType.Other,
-                    ShowInDynInfo = false,
-                    FirstBar = 1,
-                    Value = new double[Bars]
-                };
+            {
+                CompName = "Trailing Stop for the transferred position",
+                DataType = IndComponentType.Other,
+                ShowInDynInfo = false,
+                FirstBar = 1,
+                Value = new double[Bars]
+            };
         }
 
         public override void SetDescription()

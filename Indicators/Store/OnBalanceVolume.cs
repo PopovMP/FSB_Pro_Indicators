@@ -20,8 +20,8 @@ namespace ForexStrategyBuilder.Indicators.Store
     {
         public OnBalanceVolume()
         {
-            IndicatorName  = "On Balance Volume";
-            PossibleSlots  = SlotTypes.OpenFilter | SlotTypes.CloseFilter;
+            IndicatorName = "On Balance Volume";
+            PossibleSlots = SlotTypes.OpenFilter | SlotTypes.CloseFilter;
             SeparatedChart = true;
 
             IndicatorAuthor = "Miroslav Popov";
@@ -34,7 +34,7 @@ namespace ForexStrategyBuilder.Indicators.Store
             SlotType = slotType;
 
             // The ComboBox parameters
-            IndParam.ListParam[0].Caption  = "Logic";
+            IndParam.ListParam[0].Caption = "Logic";
             IndParam.ListParam[0].ItemList = new string[]
             {
                 "On Balance Volume rises",
@@ -42,8 +42,8 @@ namespace ForexStrategyBuilder.Indicators.Store
                 "On Balance Volume changes its direction upward",
                 "On Balance Volume changes its direction downward"
             };
-            IndParam.ListParam[0].Index   = 0;
-            IndParam.ListParam[0].Text    = IndParam.ListParam[0].ItemList[IndParam.ListParam[0].Index];
+            IndParam.ListParam[0].Index = 0;
+            IndParam.ListParam[0].Text = IndParam.ListParam[0].ItemList[IndParam.ListParam[0].Index];
             IndParam.ListParam[0].Enabled = true;
             IndParam.ListParam[0].ToolTip = "Logic of application of the indicator.";
 
@@ -59,28 +59,28 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            int iPrvs = IndParam.CheckParam[0].Checked ? 1 : 0;
+            int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
-            double[] adOBV  = new double[Bars];
+            double[] obv = new double[Bars];
 
-            const int iFirstBar = 5;
+            const int firstBar = 5;
 
-            adOBV[0] = Volume[0];
+            obv[0] = Volume[0];
 
-            for (int iBar = 1; iBar < Bars; iBar++)
+            for (int bar = 1; bar < Bars; bar++)
             {
-                if (Close[iBar] > Close[iBar - 1])
+                if (Close[bar] > Close[bar - 1])
                 {
-                    adOBV[iBar] = adOBV[iBar - 1] + Volume[iBar];
+                    obv[bar] = obv[bar - 1] + Volume[bar];
                 }
-                else if (Close[iBar] < Close[iBar - 1])
+                else if (Close[bar] < Close[bar - 1])
                 {
-                    adOBV[iBar] = adOBV[iBar - 1] - Volume[iBar];
+                    obv[bar] = obv[bar - 1] - Volume[bar];
                 }
                 else
                 {
-                    adOBV[iBar] = adOBV[iBar - 1];
+                    obv[bar] = obv[bar - 1];
                 }
             }
 
@@ -88,22 +88,22 @@ namespace ForexStrategyBuilder.Indicators.Store
             Component = new IndicatorComp[3];
 
             Component[0] = new IndicatorComp();
-            Component[0].CompName   = "On Balance Volume";
-            Component[0].DataType   = IndComponentType.IndicatorValue;
-            Component[0].ChartType  = IndChartType.Line;
+            Component[0].CompName = "On Balance Volume";
+            Component[0].DataType = IndComponentType.IndicatorValue;
+            Component[0].ChartType = IndChartType.Line;
             Component[0].ChartColor = Color.Green;
-            Component[0].FirstBar   = iFirstBar;
-            Component[0].Value      = adOBV;
+            Component[0].FirstBar = firstBar;
+            Component[0].Value = obv;
 
             Component[1] = new IndicatorComp();
             Component[1].ChartType = IndChartType.NoChart;
-            Component[1].FirstBar  = iFirstBar;
-            Component[1].Value     = new double[Bars];
+            Component[1].FirstBar = firstBar;
+            Component[1].Value = new double[Bars];
 
             Component[2] = new IndicatorComp();
             Component[2].ChartType = IndChartType.NoChart;
-            Component[2].FirstBar  = iFirstBar;
-            Component[2].Value     = new double[Bars];
+            Component[2].FirstBar = firstBar;
+            Component[2].Value = new double[Bars];
 
             // Sets the Component's type
             if (SlotType == SlotTypes.OpenFilter)
@@ -122,65 +122,66 @@ namespace ForexStrategyBuilder.Indicators.Store
             }
 
             // Calculation of the logic
-            var indLogic = IndicatorLogic.It_does_not_act_as_a_filter;
+            var logicRule = IndicatorLogic.It_does_not_act_as_a_filter;
 
             switch (IndParam.ListParam[0].Text)
             {
                 case "On Balance Volume rises":
-                    indLogic = IndicatorLogic.The_indicator_rises;
+                    logicRule = IndicatorLogic.The_indicator_rises;
                     break;
 
                 case "On Balance Volume falls":
-                    indLogic = IndicatorLogic.The_indicator_falls;
+                    logicRule = IndicatorLogic.The_indicator_falls;
                     break;
 
                 case "On Balance Volume changes its direction upward":
-                    indLogic = IndicatorLogic.The_indicator_changes_its_direction_upward;
+                    logicRule = IndicatorLogic.The_indicator_changes_its_direction_upward;
                     break;
 
                 case "On Balance Volume changes its direction downward":
-                    indLogic = IndicatorLogic.The_indicator_changes_its_direction_downward;
+                    logicRule = IndicatorLogic.The_indicator_changes_its_direction_downward;
                     break;
             }
 
-            OscillatorLogic(iFirstBar, iPrvs, adOBV, 0, 0, ref Component[1], ref Component[2], indLogic);
+            OscillatorLogic(firstBar, previous, obv, 0, 0, ref Component[1], ref Component[2], logicRule);
 
         }
 
-        public override void SetDescription()        {
-            EntryFilterLongDescription  = ToString() + " ";
+        public override void SetDescription()
+        {
+            EntryFilterLongDescription = ToString() + " ";
             EntryFilterShortDescription = ToString() + " ";
-            ExitFilterLongDescription   = ToString() + " ";
-            ExitFilterShortDescription  = ToString() + " ";
+            ExitFilterLongDescription = ToString() + " ";
+            ExitFilterShortDescription = ToString() + " ";
 
             switch (IndParam.ListParam[0].Text)
             {
                 case "On Balance Volume rises":
-                    EntryFilterLongDescription  += "rises";
+                    EntryFilterLongDescription += "rises";
                     EntryFilterShortDescription += "falls";
-                    ExitFilterLongDescription   += "rises";
-                    ExitFilterShortDescription  += "falls";
+                    ExitFilterLongDescription += "rises";
+                    ExitFilterShortDescription += "falls";
                     break;
 
                 case "On Balance Volume falls":
-                    EntryFilterLongDescription  += "falls";
+                    EntryFilterLongDescription += "falls";
                     EntryFilterShortDescription += "rises";
-                    ExitFilterLongDescription   += "falls";
-                    ExitFilterShortDescription  += "rises";
+                    ExitFilterLongDescription += "falls";
+                    ExitFilterShortDescription += "rises";
                     break;
 
                 case "On Balance Volume changes its direction upward":
-                    EntryFilterLongDescription  += "changes its direction upward";
+                    EntryFilterLongDescription += "changes its direction upward";
                     EntryFilterShortDescription += "changes its direction downward";
-                    ExitFilterLongDescription   += "changes its direction upward";
-                    ExitFilterShortDescription  += "changes its direction downward";
+                    ExitFilterLongDescription += "changes its direction upward";
+                    ExitFilterShortDescription += "changes its direction downward";
                     break;
 
                 case "On Balance Volume changes its direction downward":
-                    EntryFilterLongDescription  += "changes its direction downward";
+                    EntryFilterLongDescription += "changes its direction downward";
                     EntryFilterShortDescription += "changes its direction upward";
-                    ExitFilterLongDescription   += "changes its direction downward";
-                    ExitFilterShortDescription  += "changes its direction upward";
+                    ExitFilterLongDescription += "changes its direction downward";
+                    ExitFilterShortDescription += "changes its direction upward";
                     break;
             }
 

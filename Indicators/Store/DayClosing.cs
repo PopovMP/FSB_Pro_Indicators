@@ -38,14 +38,14 @@ namespace ForexStrategyBuilder.Indicators.Store
 
             // The ComboBox parameters
             IndParam.ListParam[0].Caption = "Logic";
-            IndParam.ListParam[0].ItemList = new[] {"Exit the market at the end of the day"};
+            IndParam.ListParam[0].ItemList = new[] { "Exit the market at the end of the day" };
             IndParam.ListParam[0].Index = 0;
             IndParam.ListParam[0].Text = IndParam.ListParam[0].ItemList[IndParam.ListParam[0].Index];
             IndParam.ListParam[0].Enabled = true;
             IndParam.ListParam[0].ToolTip = "The execution price of all exit orders.";
 
             IndParam.ListParam[1].Caption = "Base price";
-            IndParam.ListParam[1].ItemList = new[] {"Close"};
+            IndParam.ListParam[1].ItemList = new[] { "Close" };
             IndParam.ListParam[1].Index = 0;
             IndParam.ListParam[1].Text = IndParam.ListParam[1].ItemList[IndParam.ListParam[1].Index];
             IndParam.ListParam[1].Enabled = true;
@@ -57,29 +57,31 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Calculation
-            var adClosePrice = new double[Bars];
+            var closePrice = new double[Bars];
 
             for (int bar = 1; bar < Bars; bar++)
+            {
                 if (Time[bar - 1].Day != Time[bar].Day)
-                    adClosePrice[bar - 1] = Close[bar - 1];
+                    closePrice[bar - 1] = Close[bar - 1];
+            }
 
             // Check the last bar
-            TimeSpan tsBarClosing = Time[Bars - 1].TimeOfDay.Add(new TimeSpan(0, (int) Period, 0));
+            TimeSpan tsBarClosing = Time[Bars - 1].TimeOfDay.Add(new TimeSpan(0, (int)Period, 0));
             var tsDayClosing = new TimeSpan(24, 0, 0);
             if (tsBarClosing == tsDayClosing)
-                adClosePrice[Bars - 1] = Close[Bars - 1];
+                closePrice[Bars - 1] = Close[Bars - 1];
 
             // Saving the components
             Component = new IndicatorComp[1];
 
             Component[0] = new IndicatorComp
-                {
-                    CompName = "Closing price of the day",
-                    DataType = IndComponentType.ClosePrice,
-                    ChartType = IndChartType.NoChart,
-                    FirstBar = 2,
-                    Value = adClosePrice
-                };
+            {
+                CompName = "Closing price of the day",
+                DataType = IndComponentType.ClosePrice,
+                ChartType = IndChartType.NoChart,
+                FirstBar = 2,
+                Value = closePrice
+            };
         }
 
         public override void SetDescription()
