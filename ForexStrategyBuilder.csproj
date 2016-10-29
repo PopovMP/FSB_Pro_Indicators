@@ -43,14 +43,22 @@
   <ItemGroup>
     <Compile Include="Indicators\Custom\CCIBuySellZones.cs" />
     <Compile Include="Indicators\Custom\CCIConvergenceDivergence.cs" />
+    <Compile Include="Indicators\Custom\Chande Momentum Oscillator.cs" />
+    <Compile Include="Indicators\Custom\Day of Month.cs" />
     <Compile Include="Indicators\Custom\ExitTime.cs" />
+    <Compile Include="Indicators\Custom\Gator Oscillator.cs" />
     <Compile Include="Indicators\Custom\MACDConvergenceDivergence.cs" />
+    <Compile Include="Indicators\Custom\Momentum MT.cs" />
+    <Compile Include="Indicators\Custom\Moving Average of Oscillator.cs" />
     <Compile Include="Indicators\Custom\OpenCloseGap.cs" />
+    <Compile Include="Indicators\Custom\Percent BB.cs" />
     <Compile Include="Indicators\Custom\PriceMARelation.cs" />
     <Compile Include="Indicators\Custom\CandleColor.cs" />
     <Compile Include="Indicators\Custom\RisingVolume.cs" />
     <Compile Include="Indicators\Custom\RSIConvergenceDivergence.cs" />
     <Compile Include="Indicators\Custom\TimePriceChannel.cs" />
+    <Compile Include="Indicators\Custom\Vidya Moving Average.cs" />
+    <Compile Include="Indicators\Custom\Volumes.cs" />
     <Compile Include="Indicators\Indicator.cs" />
     <Compile Include="Indicators\IndicatorBaseCalc.cs" />
     <Compile Include="Indicators\Store\AcceleratorOscillator.cs" />
