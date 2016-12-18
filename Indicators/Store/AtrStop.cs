@@ -37,9 +37,9 @@ namespace ForexStrategyBuilder.Indicators.Store
             // The ComboBox parameters
             IndParam.ListParam[0].Caption = "Logic";
             IndParam.ListParam[0].ItemList = new[]
-                {
-                    "Exit at ATR Stop level"
-                };
+            {
+                "Exit at ATR Stop level"
+            };
             IndParam.ListParam[0].Index = 0;
             IndParam.ListParam[0].Text = IndParam.ListParam[0].ItemList[IndParam.ListParam[0].Index];
             IndParam.ListParam[0].Enabled = true;
@@ -47,13 +47,13 @@ namespace ForexStrategyBuilder.Indicators.Store
 
             IndParam.ListParam[1].Caption = "Smoothing method";
             IndParam.ListParam[1].ItemList = Enum.GetNames(typeof(MAMethod));
-            IndParam.ListParam[1].Index = (int)MAMethod.Simple;
+            IndParam.ListParam[1].Index = (int) MAMethod.Simple;
             IndParam.ListParam[1].Text = IndParam.ListParam[1].ItemList[IndParam.ListParam[1].Index];
             IndParam.ListParam[1].Enabled = true;
             IndParam.ListParam[1].ToolTip = "The Moving Average method used for smoothing the ATR.";
 
             IndParam.ListParam[2].Caption = "Base price";
-            IndParam.ListParam[2].ItemList = new[] { "Bar range" };
+            IndParam.ListParam[2].ItemList = new[] {"Bar range"};
             IndParam.ListParam[2].Index = 0;
             IndParam.ListParam[2].Text = IndParam.ListParam[2].ItemList[IndParam.ListParam[2].Index];
             IndParam.ListParam[2].Enabled = true;
@@ -86,17 +86,17 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            var maMethod = (MAMethod)IndParam.ListParam[1].Index;
-            var period = (int)IndParam.NumParam[0].Value;
-            var multipl = (int)IndParam.NumParam[1].Value;
-            int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
+            var maMethod = (MAMethod) IndParam.ListParam[1].Index;
+            var period = (int) IndParam.NumParam[0].Value;
+            var multipl = IndParam.NumParam[1].Value;
+            var previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
-            int firstBar = period + previous + 2;
+            var firstBar = period + previous + 2;
 
             var atr = new double[Bars];
 
-            for (int bar = 1; bar < Bars; bar++)
+            for (var bar = 1; bar < Bars; bar++)
             {
                 atr[bar] = Math.Max(High[bar], Close[bar - 1]) - Math.Min(Low[bar], Close[bar - 1]);
             }
@@ -104,10 +104,10 @@ namespace ForexStrategyBuilder.Indicators.Store
             atr = MovingAverage(period, 0, maMethod, atr);
 
             var atrStop = new double[Bars];
-            double pip = (Digits == 5 || Digits == 3) ? 10 * Point : Point;
-            double minStop = 5 * pip;
+            var pip = Digits == 5 || Digits == 3 ? 10 * Point : Point;
+            var minStop = 5 * pip;
 
-            for (int bar = firstBar; bar < Bars - previous; bar++)
+            for (var bar = firstBar; bar < Bars - previous; bar++)
             {
                 atrStop[bar + previous] = Math.Max(atr[bar] * multipl, minStop);
             }
