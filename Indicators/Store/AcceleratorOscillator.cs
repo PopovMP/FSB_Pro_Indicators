@@ -35,16 +35,16 @@ namespace ForexStrategyBuilder.Indicators.Store
             // ComboBox parameters
             IndParam.ListParam[0].Caption = "Logic";
             IndParam.ListParam[0].ItemList = new[]
-                {
-                    "AC rises",
-                    "AC falls",
-                    "AC is higher than the Level line",
-                    "AC is lower than the Level line",
-                    "AC crosses the Level line upward",
-                    "AC crosses the Level line downward",
-                    "AC changes its direction upward",
-                    "AC changes its direction downward"
-                };
+            {
+                "AC rises",
+                "AC falls",
+                "AC is higher than the Level line",
+                "AC is lower than the Level line",
+                "AC crosses the Level line upward",
+                "AC crosses the Level line downward",
+                "AC changes its direction upward",
+                "AC changes its direction downward"
+            };
             IndParam.ListParam[0].Index = 0;
             IndParam.ListParam[0].Text = IndParam.ListParam[0].ItemList[IndParam.ListParam[0].Index];
             IndParam.ListParam[0].Enabled = true;
@@ -52,14 +52,14 @@ namespace ForexStrategyBuilder.Indicators.Store
 
             IndParam.ListParam[1].Caption = "Smoothing method";
             IndParam.ListParam[1].ItemList = Enum.GetNames(typeof(MAMethod));
-            IndParam.ListParam[1].Index = (int)MAMethod.Simple;
+            IndParam.ListParam[1].Index = (int) MAMethod.Simple;
             IndParam.ListParam[1].Text = IndParam.ListParam[1].ItemList[IndParam.ListParam[1].Index];
             IndParam.ListParam[1].Enabled = true;
             IndParam.ListParam[1].ToolTip = "The method of Moving Average used for the calculations.";
 
             IndParam.ListParam[2].Caption = "Base price";
             IndParam.ListParam[2].ItemList = Enum.GetNames(typeof(BasePrice));
-            IndParam.ListParam[2].Index = (int)BasePrice.Median;
+            IndParam.ListParam[2].Index = (int) BasePrice.Median;
             IndParam.ListParam[2].Text = IndParam.ListParam[2].ItemList[IndParam.ListParam[2].Index];
             IndParam.ListParam[2].Enabled = true;
             IndParam.ListParam[2].ToolTip = "The price the indicator is based on.";
@@ -108,29 +108,30 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            var maMethod = (MAMethod)IndParam.ListParam[1].Index;
-            var basePrice = (BasePrice)IndParam.ListParam[2].Index;
-            var periodSlow = (int)IndParam.NumParam[0].Value;
-            var periodFast = (int)IndParam.NumParam[1].Value;
-            var periodAcc = (int)IndParam.NumParam[2].Value;
-            double level = IndParam.NumParam[3].Value;
-            int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
+            var maMethod = (MAMethod) IndParam.ListParam[1].Index;
+            var basePrice = (BasePrice) IndParam.ListParam[2].Index;
+            var periodSlow = (int) IndParam.NumParam[0].Value;
+            var periodFast = (int) IndParam.NumParam[1].Value;
+            var periodAcc = (int) IndParam.NumParam[2].Value;
+            var level = IndParam.NumParam[3].Value;
+            var previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
-            int firstBar = Math.Max(Math.Max(periodSlow, periodFast), periodAcc) + previous + 2;
-            double[] maSlow = MovingAverage(periodSlow, 0, maMethod, Price(basePrice));
-            double[] maFast = MovingAverage(periodFast, 0, maMethod, Price(basePrice));
+            var firstBar = Math.Max(Math.Max(periodSlow, periodFast), periodAcc) + previous + 2;
+            double[] price = Price(basePrice);
+            double[] maSlow = MovingAverage(periodSlow, 0, maMethod, price);
+            double[] maFast = MovingAverage(periodFast, 0, maMethod, price);
             var awesomeOscillator = new double[Bars];
             var acceleratorOscillator = new double[Bars];
 
-            for (int bar = 0; bar < Bars; bar++)
+            for (var bar = 0; bar < Bars; bar++)
             {
                 awesomeOscillator[bar] = maFast[bar] - maSlow[bar];
             }
 
             double[] movingAverage = MovingAverage(periodAcc, 0, maMethod, awesomeOscillator);
 
-            for (int bar = 0; bar < Bars; bar++)
+            for (var bar = 0; bar < Bars; bar++)
             {
                 acceleratorOscillator[bar] = awesomeOscillator[bar] - movingAverage[bar];
             }
@@ -186,53 +187,54 @@ namespace ForexStrategyBuilder.Indicators.Store
             {
                 case "AC rises":
                     indicatorLogic = IndicatorLogic.The_indicator_rises;
-                    SpecialValues = new double[] { 0 };
+                    SpecialValues = new double[] {0};
                     break;
 
                 case "AC falls":
                     indicatorLogic = IndicatorLogic.The_indicator_falls;
-                    SpecialValues = new double[] { 0 };
+                    SpecialValues = new double[] {0};
                     break;
 
                 case "AC is higher than the Level line":
                     indicatorLogic = IndicatorLogic.The_indicator_is_higher_than_the_level_line;
-                    SpecialValues = new[] { level, -level };
+                    SpecialValues = new[] {level, -level};
                     break;
 
                 case "AC is lower than the Level line":
                     indicatorLogic = IndicatorLogic.The_indicator_is_lower_than_the_level_line;
-                    SpecialValues = new[] { level, -level };
+                    SpecialValues = new[] {level, -level};
                     break;
 
                 case "AC crosses the Level line upward":
                     indicatorLogic = IndicatorLogic.The_indicator_crosses_the_level_line_upward;
-                    SpecialValues = new[] { level, -level };
+                    SpecialValues = new[] {level, -level};
                     break;
 
                 case "AC crosses the Level line downward":
                     indicatorLogic = IndicatorLogic.The_indicator_crosses_the_level_line_downward;
-                    SpecialValues = new[] { level, -level };
+                    SpecialValues = new[] {level, -level};
                     break;
 
                 case "AC changes its direction upward":
                     indicatorLogic = IndicatorLogic.The_indicator_changes_its_direction_upward;
-                    SpecialValues = new double[] { 0 };
+                    SpecialValues = new double[] {0};
                     break;
 
                 case "AC changes its direction downward":
                     indicatorLogic = IndicatorLogic.The_indicator_changes_its_direction_downward;
-                    SpecialValues = new double[] { 0 };
+                    SpecialValues = new double[] {0};
                     break;
             }
 
-            OscillatorLogic(firstBar, previous, acceleratorOscillator, level, -level, ref Component[1], ref Component[2], indicatorLogic);
+            OscillatorLogic(firstBar, previous, acceleratorOscillator, level, -level, ref Component[1], ref Component[2],
+                indicatorLogic);
         }
 
         public override void SetDescription()
         {
-            bool isLevelZero = Math.Abs(IndParam.NumParam[3].Value - 0) < Epsilon;
-            string levelLong = isLevelZero ? "0" : IndParam.NumParam[3].ValueToString;
-            string levelShort = isLevelZero ? "0" : "-" + levelLong;
+            var isLevelZero = Math.Abs(IndParam.NumParam[3].Value - 0) < Epsilon;
+            var levelLong = isLevelZero ? "0" : IndParam.NumParam[3].ValueToString;
+            var levelShort = isLevelZero ? "0" : "-" + levelLong;
 
             EntryFilterLongDescription = ToString() + " ";
             EntryFilterShortDescription = ToString() + " ";
@@ -302,13 +304,13 @@ namespace ForexStrategyBuilder.Indicators.Store
         public override string ToString()
         {
             return string.Format("{0}{1} ({2}, {3}, {4}, {5}, {6})",
-                                 IndicatorName,
-                                 IndParam.CheckParam[0].Checked ? "*" : "",
-                                 IndParam.ListParam[1].Text,
-                                 IndParam.ListParam[2].Text,
-                                 IndParam.NumParam[0].ValueToString,
-                                 IndParam.NumParam[1].ValueToString,
-                                 IndParam.NumParam[2].ValueToString);
+                IndicatorName,
+                IndParam.CheckParam[0].Checked ? "*" : "",
+                IndParam.ListParam[1].Text,
+                IndParam.ListParam[2].Text,
+                IndParam.NumParam[0].ValueToString,
+                IndParam.NumParam[1].ValueToString,
+                IndParam.NumParam[2].ValueToString);
         }
     }
 }
