@@ -121,7 +121,7 @@ namespace ForexStrategyBuilder.Indicators.Store
             double sigma = Sigma();
 
             var tenkanSen = new double[Bars];
-            for (int bar = firstBar; bar < Bars; bar++)
+            for (int bar = tenkan - 1; bar < Bars; bar++)
             {
                 double highestHigh = double.MinValue;
                 double lowestLow = double.MaxValue;
@@ -136,7 +136,7 @@ namespace ForexStrategyBuilder.Indicators.Store
             }
 
             var kijunSen = new double[Bars];
-            for (int bar = firstBar; bar < Bars; bar++)
+            for (int bar = kijun - 1; bar < Bars; bar++)
             {
                 double highestHigh = double.MinValue;
                 double lowestLow = double.MaxValue;
@@ -163,7 +163,7 @@ namespace ForexStrategyBuilder.Indicators.Store
             }
 
             var senkouSpanB = new double[Bars];
-            for (int bar = firstBar; bar < Bars - kijun; bar++)
+            for (int bar = senkou - 1; bar < Bars - kijun; bar++)
             {
                 double highestHigh = double.MinValue;
                 double lowestLow = double.MaxValue;

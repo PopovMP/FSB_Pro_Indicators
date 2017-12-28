@@ -25,7 +25,7 @@ namespace ForexStrategyBuilder.Indicators.Store
             SeparatedChart = true;
 
             IndicatorAuthor = "Miroslav Popov";
-            IndicatorVersion = "2.0";
+            IndicatorVersion = "2.2";
             IndicatorDescription = "Bundled in FSB distribution.";
         }
 
@@ -96,7 +96,7 @@ namespace ForexStrategyBuilder.Indicators.Store
             int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
-            int firstBar = period + previous + 2;
+            int firstBar = period + smoothing + previous + 2;
 
             double[] price = Price(basePrice);
             var cumulativeSum = new double[Bars];

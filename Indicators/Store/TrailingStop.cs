@@ -84,7 +84,7 @@ namespace ForexStrategyBuilder.Indicators.Store
                 CompName = "Trailing Stop for the transferred position",
                 DataType = IndComponentType.Other,
                 ShowInDynInfo = false,
-                FirstBar = 1,
+                FirstBar = 2,
                 Value = new double[Bars]
             };
         }

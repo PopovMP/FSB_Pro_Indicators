@@ -75,12 +75,12 @@ namespace ForexStrategyBuilder.Indicators.Store
             DataSet = dataSet;
 
             // Reading the parameters
-            var barsCount = (int)IndParam.NumParam[0].Value;
+            var period = (int)IndParam.NumParam[0].Value;
             double level = IndParam.NumParam[1].Value;
             int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
-            int firstBar = barsCount + previous + 2;
+            int firstBar = period + previous + 2;
 
             var range = new double[Bars];
 
@@ -88,7 +88,7 @@ namespace ForexStrategyBuilder.Indicators.Store
             {
                 double maxHigh = double.MinValue;
                 double minLow = double.MaxValue;
-                for (int i = 0; i < barsCount; i++)
+                for (int i = 0; i < period; i++)
                 {
                     if (High[bar - i] > maxHigh)
                         maxHigh = High[bar - i];

@@ -110,7 +110,7 @@ namespace ForexStrategyBuilder.Indicators.Store
             int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // Calculation
-            int firstBar = Math.Max(period1, period2) + 2;
+            int firstBar = Math.Max(period1, period2) + previous + 2;
             var oscillator = new double[Bars];
 
             // ---------------------------------------------------------

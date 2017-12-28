@@ -110,7 +110,7 @@ namespace ForexStrategyBuilder.Indicators.Store
             double[] maSlow = MovingAverage(slowPeriod, 0, maMethod, Price(basePrice));
             var oscillator = new double[Bars];
 
-            for (int bar = slowPeriod; bar < Bars; bar++)
+            for (int bar = firstBar; bar < Bars; bar++)
             {
                 oscillator[bar] = maFast[bar] - maSlow[bar];
             }
