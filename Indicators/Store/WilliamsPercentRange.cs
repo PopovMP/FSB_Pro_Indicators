@@ -27,7 +27,7 @@ namespace ForexStrategyBuilder.Indicators.Store
             SeparatedChartMaxValue = 0;
 
             IndicatorAuthor = "Miroslav Popov";
-            IndicatorVersion = "2.0";
+            IndicatorVersion = "2.1";
             IndicatorDescription = "Bundled in FSB distribution.";
         }
 
@@ -111,7 +111,15 @@ namespace ForexStrategyBuilder.Indicators.Store
                     if (High[bar - index] > max) max = High[bar - index];
                     if (Low[bar - index] < min) min = Low[bar - index];
                 }
-                percentR[bar] = -100 * (max - Close[bar]) / (max - min);
+
+                if (Math.Abs(max - min) > Epsilon)
+                {
+                    percentR[bar] = -100 * (max - Close[bar]) / (max - min);
+                }
+                else
+                {
+                    percentR[bar] = -50;
+                }
             }
 
             double[] maPercentR = MovingAverage(smoothing, 0, method, percentR);

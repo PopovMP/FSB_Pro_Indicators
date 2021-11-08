@@ -8,6 +8,7 @@
 // A PARTICULAR PURPOSE.
 //==============================================================
 
+using System;
 using System.Drawing;
 using ForexStrategyBuilder.Infrastructure.Entities;
 using ForexStrategyBuilder.Infrastructure.Enums;
@@ -153,15 +154,7 @@ namespace ForexStrategyBuilder.Indicators.Store
                     }
                 }
 
-                // first Bar
-                for (int bar = 1; bar < Bars; bar++)
-                {
-                    if (Time[bar].Day != Time[bar - 1].Day)
-                    {
-                        firstBar = bar;
-                        break;
-                    }
-                }
+                firstBar = (int)Math.Ceiling(24 * 60.0 / (int)dataSet.Period) + 1;
             }
 
             for (int bar = firstBar; bar < Bars; bar++)

@@ -70,7 +70,7 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.ListParam[0].Index = 0;
             IndParam.ListParam[0].Text = IndParam.ListParam[0].ItemList[IndParam.ListParam[0].Index];
             IndParam.ListParam[0].Enabled = true;
-            IndParam.ListParam[0].ToolTip = "Logic of application of the Donchian Channel.";
+            IndParam.ListParam[0].ToolTip = "Logic of application of Heiken Ashi.";
 
             IndParam.ListParam[1].Caption = "Base price";
             IndParam.ListParam[1].ItemList = new[] { "High, Low, Open, Close" };
