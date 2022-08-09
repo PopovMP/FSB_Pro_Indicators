@@ -23,8 +23,8 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndicatorName   = "Day of Month";
             PossibleSlots   = SlotTypes.OpenFilter;
 
-            IndicatorAuthor = "Miroslav Popov";
-            IndicatorVersion = "2.0";
+            IndicatorAuthor      = "Miroslav Popov";
+            IndicatorVersion     = "2.0";
             IndicatorDescription = "A custom indicator for FSB and FST.";
         }
 
@@ -38,7 +38,7 @@ namespace ForexStrategyBuilder.Indicators.Store
 
             // The ComboBox parameters
             IndParam.ListParam[0].Caption = "Logic";
-            IndParam.ListParam[0].ItemList = new string[]
+            IndParam.ListParam[0].ItemList = new[]
             {
                 "Enter the market between the specified days"
             };
@@ -77,34 +77,38 @@ namespace ForexStrategyBuilder.Indicators.Store
             double[] signal = new double[Bars];
 
             // Calculation of the logic
-            for (int iBar = firstBar; iBar < Bars; iBar++)
+            for (int bar = firstBar; bar < Bars; bar++)
             {
                 if (fromDay < untilDay)
-                    signal[iBar] = Time[iBar].Day >= fromDay && Time[iBar].Day <  untilDay ? 1 : 0;
+                    signal[bar] = Time[bar].Day >= fromDay && Time[bar].Day <  untilDay ? 1 : 0;
                 else if (fromDay > untilDay)
-                    signal[iBar] = Time[iBar].Day >= fromDay || Time[iBar].Day <  untilDay ? 1 : 0;
+                    signal[bar] = Time[bar].Day >= fromDay || Time[bar].Day <  untilDay ? 1 : 0;
                 else
-                    signal[iBar] = 1;
+                    signal[bar] = 1;
             }
 
             // Saving the components
             Component = new IndicatorComp[2];
 
-            Component[0] = new IndicatorComp();
-            Component[0].CompName      = "Allow long entry";
-            Component[0].DataType      = IndComponentType.AllowOpenLong;
-            Component[0].ChartType     = IndChartType.NoChart;
-            Component[0].ShowInDynInfo = false;
-            Component[0].FirstBar      = firstBar;
-            Component[0].Value         = signal;
+            Component[0] = new IndicatorComp
+            {
+                CompName      = "Allow long entry",
+                DataType      = IndComponentType.AllowOpenLong,
+                ChartType     = IndChartType.NoChart,
+                ShowInDynInfo = false,
+                FirstBar      = firstBar,
+                Value         = signal
+            };
 
-            Component[1] = new IndicatorComp();
-            Component[1].CompName      = "Allow short entry";
-            Component[1].DataType      = IndComponentType.AllowOpenShort;
-            Component[1].ChartType     = IndChartType.NoChart;
-            Component[1].ShowInDynInfo = false;
-            Component[1].FirstBar      = firstBar;
-            Component[1].Value         = signal;
+            Component[1] = new IndicatorComp
+            {
+                CompName      = "Allow short entry",
+                DataType      = IndComponentType.AllowOpenShort,
+                ChartType     = IndChartType.NoChart,
+                ShowInDynInfo = false,
+                FirstBar      = firstBar,
+                Value         = signal
+            };
         }
 
         public override void SetDescription()

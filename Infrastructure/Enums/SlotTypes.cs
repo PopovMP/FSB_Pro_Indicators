@@ -15,10 +15,10 @@ namespace ForexStrategyBuilder.Infrastructure.Enums
     [Flags]
     public enum SlotTypes : short
     {
-        NotDefined = 0,
-        Open = 1,
-        OpenFilter = 2,
-        Close = 4,
+        NotDefined  = 0,
+        Open        = 1,
+        OpenFilter  = 2,
+        Close       = 4,
         CloseFilter = 8
     }
 }
