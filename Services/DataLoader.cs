@@ -10,7 +10,6 @@
 
 using System;
 using System.IO;
-using System.Linq;
 using ForexStrategyBuilder.Infrastructure.Entities;
 using ForexStrategyBuilder.Infrastructure.Enums;
 using ForexStrategyBuilder.Infrastructure.Interfaces;
@@ -49,14 +48,7 @@ namespace ForexStrategyBuilder.Services
                 IsUseStartDate     = dataSource.IsUseStartDate,
                 IsUseEndDate       = dataSource.IsUseEndDate,
                 MaximumBars        = dataSource.MaximumBars,
-                MaxIntrabarBars    = dataSource.MaxIntrabarBars,
                 MinimumBars        = dataSource.MinimumBars,
-                IsCheckDataAtLoad  = dataSource.IsCheckDataAtLoad,
-                IsCutOffBadData    = dataSource.IsCutOffBadData,
-                IsCutOffSatSunData = dataSource.IsCutOffSatSunData,
-                IsFillInDataGaps   = dataSource.IsFillInDataGaps,
-                IsCacheData        = dataSource.IsCacheDataFiles,
-                IsLongData         = false
             };
 
             return dataParams;
@@ -78,12 +70,6 @@ namespace ForexStrategyBuilder.Services
             {
                 var json = ReadTextFile(path);
                 dataSource = JsonConvert.DeserializeObject<DataSource>(json);
-
-                dataSource.InstrumentProperties.ToList().ForEach(prop =>
-                {
-                    if (Math.Abs(prop.Value.RateToGBP) < 0.00001) prop.Value.RateToGBP = 1;
-                    if (Math.Abs(prop.Value.RateToJPY) < 0.00001) prop.Value.RateToJPY = 0.01;
-                });
             }
             catch (Exception exception)
             {

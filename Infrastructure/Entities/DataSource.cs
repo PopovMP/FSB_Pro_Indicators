@@ -19,11 +19,9 @@ namespace ForexStrategyBuilder.Infrastructure.Entities
     {
         public DataSource()
         {
-            var instrumentProperties = new InstrumentProperties("EURUSD", InstrumentType.Forex);
-            instrumentProperties.SetPrecision();
             InstrumentProperties = new Dictionary<string, InstrumentProperties>(1)
             {
-                {"EURUSD", instrumentProperties}
+                {"EURUSD", new InstrumentProperties("EURUSD")}
             };
             StartDate          = new DateTime(2000,  1,  1);
             EndDate            = new DateTime(2050, 12, 31);
@@ -31,12 +29,6 @@ namespace ForexStrategyBuilder.Infrastructure.Entities
             IsUseEndDate       = false;
             MaximumBars        = 20000;
             MinimumBars        = 300;
-            MaxIntrabarBars    = 50000;
-            IsCheckDataAtLoad  = true;
-            IsCutOffBadData    = false;
-            IsCutOffSatSunData = false;
-            IsFillInDataGaps   = false;
-            IsCacheDataFiles   = true;
         }
 
         public Dictionary<string, InstrumentProperties> InstrumentProperties { get; set; }
@@ -46,11 +38,5 @@ namespace ForexStrategyBuilder.Infrastructure.Entities
         public bool IsUseEndDate { get; set; }
         public int MaximumBars { get; set; }
         public int MinimumBars { get; set; }
-        public int MaxIntrabarBars { get; set; }
-        public bool IsCheckDataAtLoad { get; set; }
-        public bool IsCutOffBadData { get; set; }
-        public bool IsCutOffSatSunData { get; set; }
-        public bool IsFillInDataGaps { get; set; }
-        public bool IsCacheDataFiles { get; set; }
     }
 }

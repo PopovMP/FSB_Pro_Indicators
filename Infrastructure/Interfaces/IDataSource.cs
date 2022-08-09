@@ -16,18 +16,12 @@ namespace ForexStrategyBuilder.Infrastructure.Interfaces
 {
     public interface IDataSource
     {
-        Dictionary<string, InstrumentProperties> InstrumentProperties { get; set; }
-        DateTime StartDate { get; set; }
-        DateTime EndDate { get; set; }
-        bool IsUseStartDate { get; set; }
-        bool IsUseEndDate { get; set; }
-        int MaximumBars { get; set; }
-        int MinimumBars { get; set; }
-        int MaxIntrabarBars { get; set; }
-        bool IsCheckDataAtLoad { get; set; }
-        bool IsCutOffBadData { get; set; }
-        bool IsCutOffSatSunData { get; set; }
-        bool IsFillInDataGaps { get; set; }
-        bool IsCacheDataFiles { get; set; }
+        Dictionary<string, InstrumentProperties> InstrumentProperties { get; }
+        DateTime StartDate { get; }
+        DateTime EndDate { get; }
+        bool IsUseStartDate { get; }
+        bool IsUseEndDate { get; }
+        int MaximumBars { get; }
+        int MinimumBars { get; }
     }
 }

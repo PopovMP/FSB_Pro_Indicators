@@ -26,12 +26,5 @@ namespace ForexStrategyBuilder.Infrastructure.Entities
         public bool IsUseEndDate { get; set; }
         public int MaximumBars { get; set; }
         public int MinimumBars { get; set; }
-        public int MaxIntrabarBars { get; set; }
-        public bool IsCheckDataAtLoad { get; set; }
-        public bool IsCutOffBadData { get; set; }
-        public bool IsCutOffSatSunData { get; set; }
-        public bool IsFillInDataGaps { get; set; }
-        public bool IsCacheData { get; set; }
-        public bool IsLongData { get; set; }
     }
 }

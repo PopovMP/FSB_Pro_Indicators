@@ -8,19 +8,13 @@
 // A PARTICULAR PURPOSE.
 //==============================================================
 
-using ForexStrategyBuilder.Infrastructure.Entities;
-using ForexStrategyBuilder.Infrastructure.Enums;
-
 namespace ForexStrategyBuilder.Infrastructure.Interfaces
 {
     public interface IInstrumentProperties
     {
 
-        int Digits { get; set; }
-        double Point { get; set; }
-        double Pip { get; set; }
-        bool IsFiveDigits { get; set; }
-
-        InstrumentProperties GetClone();
+        int Digits { get; }
+        double Point { get; }
+        double Pip { get; }
     }
 }

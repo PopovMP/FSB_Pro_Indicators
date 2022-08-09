@@ -23,8 +23,8 @@ namespace ForexStrategyBuilder.Indicators.Custom
             IndicatorName = "Candle Color";
             PossibleSlots = SlotTypes.OpenFilter | SlotTypes.CloseFilter;
 
-            IndicatorAuthor = "Miroslav Popov";
-            IndicatorVersion = "1.1";
+            IndicatorAuthor      = "Miroslav Popov";
+            IndicatorVersion     = "1.1";
             IndicatorDescription = "Detects bullish and bearish candles.";
         }
 
@@ -53,16 +53,16 @@ namespace ForexStrategyBuilder.Indicators.Custom
 
             // The NumericUpDown parameters
             IndParam.NumParam[0].Caption = "Min body height [pips]";
-            IndParam.NumParam[0].Value = 5;
-            IndParam.NumParam[0].Min = 1;
-            IndParam.NumParam[0].Max = 200;
+            IndParam.NumParam[0].Value   = 5;
+            IndParam.NumParam[0].Min     = 1;
+            IndParam.NumParam[0].Max     = 200;
             IndParam.NumParam[0].Enabled = true;
             IndParam.NumParam[0].ToolTip = "Minimum required body height in pips.";
 
             IndParam.NumParam[1].Caption = "Consecutive candles";
-            IndParam.NumParam[1].Value = 1;
-            IndParam.NumParam[1].Min = 1;
-            IndParam.NumParam[1].Max = 10;
+            IndParam.NumParam[1].Value   = 1;
+            IndParam.NumParam[1].Min     = 1;
+            IndParam.NumParam[1].Max     = 10;
             IndParam.NumParam[1].Enabled = true;
             IndParam.NumParam[1].ToolTip = "Gives a signal if there are consecutive candles.";
 
@@ -79,13 +79,13 @@ namespace ForexStrategyBuilder.Indicators.Custom
             // Reading the parameters
             var minHeight   = (int) IndParam.NumParam[0].Value;
             var consecutive = (int) IndParam.NumParam[1].Value;
-            int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
+            int previous    = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             int firstBar = 2 + consecutive + previous;
 
             var whiteCandles = new int[Bars];
             var blackCandles = new int[Bars];
-            var pipVal = dataSet.Properties.Pip*minHeight;
+            var pipVal       = dataSet.Properties.Pip*minHeight;
             for (int b = 1 + previous; b < Bars; b++)
             {
                 if (Close[b - previous] - Open[b - previous] >= pipVal)
@@ -100,15 +100,15 @@ namespace ForexStrategyBuilder.Indicators.Custom
             Component[0] = new IndicatorComp
             {
                 ChartType = IndChartType.NoChart,
-                FirstBar = firstBar,
-                Value = new double[Bars]
+                FirstBar  = firstBar,
+                Value     = new double[Bars]
             };
 
             Component[1] = new IndicatorComp
             {
                 ChartType = IndChartType.NoChart,
-                FirstBar = firstBar,
-                Value = new double[Bars]
+                FirstBar  = firstBar,
+                Value     = new double[Bars]
             };
 
             // Sets the Component's type
