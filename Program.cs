@@ -9,7 +9,6 @@
 //==============================================================
 
 using System;
-using System.IO;
 using System.Text;
 using ForexStrategyBuilder.Indicators.Custom;
 using ForexStrategyBuilder.Indicators.Store;
@@ -22,11 +21,10 @@ namespace ForexStrategyBuilder
 {
     internal class Program
     {
-        public static void Main(string[] args)
+        public static void Main()
         {
-
-            DataLoader dataLoader = new DataLoader();
-            IndicatorTester tester = new IndicatorTester();
+            DataLoader      dataLoader = new DataLoader();
+            IndicatorTester tester     = new IndicatorTester();
 
             dataLoader.UserFilesFolder = @"C:\Program Files\Forex Strategy Builder Pro\User Files";
 
@@ -50,7 +48,7 @@ namespace ForexStrategyBuilder
             PrintFirstValues(indicator, 0, 50);
 
             // Calculate indicator with random parameters for all available slots.
-            // tester.CalculateIndicatorWithRandomParameters(indicator, dataSet, 25);
+            tester.CalculateIndicatorWithRandomParameters(indicator, dataSet, 25);
 
             Console.WriteLine("Test completed without errors.");
             Console.WriteLine("Press a key to continue!");
@@ -59,16 +57,19 @@ namespace ForexStrategyBuilder
 
         private static void PrintFirstValues(IIndicator indicator, int componentIndex, int countOfValuesToPrint)
         {
-            int firstBar = indicator.Component[componentIndex].FirstBar;
             IndicatorComp component = indicator.Component[componentIndex];
+            
             var sb = new StringBuilder();
             sb.AppendLine("Indicator: " + indicator.IndicatorName);
             sb.AppendLine("Component: " + component.CompName);
             sb.AppendLine();
             sb.AppendLine("bar        value");
             sb.AppendLine("--------------------------");
+
+            int firstBar = indicator.Component[componentIndex].FirstBar;
             for (int bar = firstBar; bar < firstBar + countOfValuesToPrint; bar++)
                 sb.AppendLine(bar + "    : " + component.Value[bar]);
+
             Console.WriteLine(sb.ToString());
         }
     }

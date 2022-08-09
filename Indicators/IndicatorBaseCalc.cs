@@ -96,18 +96,18 @@ namespace ForexStrategyBuilder.Indicators
 
         private bool IsSignalComponent(IndComponentType componentType)
         {
-            return componentType == IndComponentType.AllowOpenLong ||
-            componentType == IndComponentType.AllowOpenShort ||
-            componentType == IndComponentType.CloseLongPrice ||
-            componentType == IndComponentType.ClosePrice ||
-            componentType == IndComponentType.CloseShortPrice ||
-            componentType == IndComponentType.ForceClose ||
-            componentType == IndComponentType.ForceCloseLong ||
-            componentType == IndComponentType.ForceCloseShort ||
-            componentType == IndComponentType.OpenClosePrice ||
-            componentType == IndComponentType.OpenLongPrice ||
-            componentType == IndComponentType.OpenPrice ||
-            componentType == IndComponentType.OpenShortPrice;
+            return  componentType == IndComponentType.AllowOpenLong   ||
+                    componentType == IndComponentType.AllowOpenShort  ||
+                    componentType == IndComponentType.CloseLongPrice  ||
+                    componentType == IndComponentType.ClosePrice      ||
+                    componentType == IndComponentType.CloseShortPrice ||
+                    componentType == IndComponentType.ForceClose      ||
+                    componentType == IndComponentType.ForceCloseLong  ||
+                    componentType == IndComponentType.ForceCloseShort ||
+                    componentType == IndComponentType.OpenClosePrice  ||
+                    componentType == IndComponentType.OpenLongPrice   ||
+                    componentType == IndComponentType.OpenPrice       ||
+                    componentType == IndComponentType.OpenShortPrice;
         }
 
         /// <summary>
@@ -965,7 +965,7 @@ namespace ForexStrategyBuilder.Indicators
 
             for (int bar = firstBar; bar < Bars; bar++)
             {
-                indCompLong.Value[bar] = Open[bar] > adIndValue[bar - prvs] + sigma ? 1 : 0;
+                indCompLong .Value[bar] = Open[bar] > adIndValue[bar - prvs] + sigma ? 1 : 0;
                 indCompShort.Value[bar] = Open[bar] < adIndValue[bar - prvs] - sigma ? 1 : 0;
             }
         }
@@ -981,7 +981,7 @@ namespace ForexStrategyBuilder.Indicators
 
             for (int bar = firstBar; bar < Bars; bar++)
             {
-                indCompLong.Value[bar] = Open[bar] < adIndValue[bar - prvs] - sigma ? 1 : 0;
+                indCompLong .Value[bar] = Open[bar] < adIndValue[bar - prvs] - sigma ? 1 : 0;
                 indCompShort.Value[bar] = Open[bar] > adIndValue[bar - prvs] + sigma ? 1 : 0;
             }
         }
@@ -1055,7 +1055,7 @@ namespace ForexStrategyBuilder.Indicators
 
             for (int bar = firstBar; bar < Bars; bar++)
             {
-                indCompLong.Value[bar] = Close[bar] > adIndValue[bar - prvs] + sigma ? 1 : 0;
+                indCompLong .Value[bar] = Close[bar] > adIndValue[bar - prvs] + sigma ? 1 : 0;
                 indCompShort.Value[bar] = Close[bar] < adIndValue[bar - prvs] - sigma ? 1 : 0;
             }
         }
@@ -1071,7 +1071,7 @@ namespace ForexStrategyBuilder.Indicators
 
             for (int bar = firstBar; bar < Bars; bar++)
             {
-                indCompLong.Value[bar] = Close[bar] < adIndValue[bar - prvs] - sigma ? 1 : 0;
+                indCompLong .Value[bar] = Close[bar] < adIndValue[bar - prvs] - sigma ? 1 : 0;
                 indCompShort.Value[bar] = Close[bar] > adIndValue[bar - prvs] + sigma ? 1 : 0;
             }
         }

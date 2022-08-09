@@ -19,10 +19,10 @@ namespace ForexStrategyBuilder.Services
 {
     public class DataParser
     {
-        private const string SpacePattern = @"[\t ;,]";
-        private const string DatePattern = @"\d{1,4}[\./-]\d{1,4}[\./-]\d{1,4}";
-        private const string TimePattern = @"\d{1,2}(:\d{1,2}){1,2}";
-        private const string PricePattern = @"\d+([\.,]\d+)?";
+        private const string SpacePattern  = @"[\t ;,]";
+        private const string DatePattern   = @"\d{1,4}[\./-]\d{1,4}[\./-]\d{1,4}";
+        private const string TimePattern   = @"\d{1,2}(:\d{1,2}){1,2}";
+        private const string PricePattern  = @"\d+([\.,]\d+)?";
         private const string VolumePattern = @"\d{1,10}";
 
         private static bool isOptionalDataFile;
@@ -36,21 +36,21 @@ namespace ForexStrategyBuilder.Services
             {
                 // Patten for Data Files that include a Time Field
                 const string pattern1 = "^" + // Start of the string
-                                        SpacePattern + "*" + // Zero or more white spaces
-                                        DatePattern + // Valid date pattern
-                                        SpacePattern + "+" + // One or more spaces
-                                        TimePattern + // Valid time pattern
-                                        SpacePattern + "+" + // One or more spaces
-                                        PricePattern + // Price
-                                        SpacePattern + "+" + // One or more spaces
-                                        PricePattern + // Price
-                                        SpacePattern + "+" + // One or more spaces
-                                        PricePattern + // Price
-                                        SpacePattern + "+" + // One or more spaces
-                                        PricePattern + // Price
-                                        SpacePattern + "+" + // One or more spaces
+                                        SpacePattern  + "*" + // Zero or more white spaces
+                                        DatePattern   + // Valid date pattern
+                                        SpacePattern  + "+" + // One or more spaces
+                                        TimePattern   + // Valid time pattern
+                                        SpacePattern  + "+" + // One or more spaces
+                                        PricePattern  + // Price
+                                        SpacePattern  + "+" + // One or more spaces
+                                        PricePattern  + // Price
+                                        SpacePattern  + "+" + // One or more spaces
+                                        PricePattern  + // Price
+                                        SpacePattern  + "+" + // One or more spaces
+                                        PricePattern  + // Price
+                                        SpacePattern  + "+" + // One or more spaces
                                         VolumePattern + // Optional volume
-                                        SpacePattern + "*"; // Zero or more white spaces
+                                        SpacePattern  + "*"; // Zero or more white spaces
 
                 // A data line has to start with date and has an optional time string
                 var regex = new Regex(pattern1, RegexOptions.Compiled);
@@ -68,19 +68,19 @@ namespace ForexStrategyBuilder.Services
             {
                 // Pattern for Data Files that do NOT include a Time Field
                 const string pattern2 = "^" + // Start of the string
-                                        SpacePattern + "*" + // Zero or more white spaces
-                                        DatePattern + // Valid date pattern
-                                        SpacePattern + "+" + // One or more spaces
-                                        PricePattern + // Price
-                                        SpacePattern + "+" + // One or more spaces
-                                        PricePattern + // Price
-                                        SpacePattern + "+" + // One or more spaces
-                                        PricePattern + // Price
-                                        SpacePattern + "+" + // One or more spaces
-                                        PricePattern + // Price
-                                        SpacePattern + "+" + // One or more spaces
+                                        SpacePattern  + "*" + // Zero or more white spaces
+                                        DatePattern   + // Valid date pattern
+                                        SpacePattern  + "+" + // One or more spaces
+                                        PricePattern  + // Price
+                                        SpacePattern  + "+" + // One or more spaces
+                                        PricePattern  + // Price
+                                        SpacePattern  + "+" + // One or more spaces
+                                        PricePattern  + // Price
+                                        SpacePattern  + "+" + // One or more spaces
+                                        PricePattern  + // Price
+                                        SpacePattern  + "+" + // One or more spaces
                                         VolumePattern + // Optional volume
-                                        SpacePattern + "*"; // Zero or more white spaces
+                                        SpacePattern  + "*"; // Zero or more white spaces
 
                 // A data line has to start with date and has an optional time string
                 var regex = new Regex(pattern2, RegexOptions.Compiled);
@@ -131,8 +131,8 @@ namespace ForexStrategyBuilder.Services
         /// <returns>Matched regex for the data string.</returns>
         private Regex AnalyzeInput(string dataString)
         {
-            string datePattern = GetDateMatchPattern(dataString);
-            string timePattern = GetTimeMatchPattern(dataString);
+            string datePattern  = GetDateMatchPattern(dataString);
+            string timePattern  = GetTimeMatchPattern(dataString);
             string pricePattern = PriceMatchPattern(dataString);
 
             if (!string.IsNullOrEmpty(timePattern))
@@ -274,23 +274,23 @@ namespace ForexStrategyBuilder.Services
                     // Check number of changes
                     if (changes1 > changes2 && changes1 > changes2)
                     {
-                        dayPos = 1;
+                        dayPos   = 1;
                         monthPos = 2;
-                        yearPos = 3;
+                        yearPos  = 3;
                         break;
                     }
                     if (changes3 > changes1 && changes3 > changes2)
                     {
-                        dayPos = 3;
+                        dayPos   = 3;
                         monthPos = 2;
-                        yearPos = 1;
+                        yearPos  = 1;
                         break;
                     }
                     if (changes2 > changes1 && changes2 > changes3)
                     {
-                        yearPos = 3;
+                        yearPos  = 3;
                         monthPos = 1;
-                        dayPos = 2;
+                        dayPos   = 2;
                         break;
                     }
                 }
@@ -304,12 +304,12 @@ namespace ForexStrategyBuilder.Services
                         if (changes3 > changes2)
                         {
                             monthPos = 2;
-                            dayPos = 3;
+                            dayPos   = 3;
                         }
                         else if (changes2 > changes3)
                         {
                             monthPos = 3;
-                            dayPos = 2;
+                            dayPos   = 2;
                         }
                     }
                     else if (yearPos == 3)
@@ -317,12 +317,12 @@ namespace ForexStrategyBuilder.Services
                         if (changes2 > changes1)
                         {
                             monthPos = 1;
-                            dayPos = 2;
+                            dayPos   = 2;
                         }
                         else if (changes1 > changes2)
                         {
                             monthPos = 2;
-                            dayPos = 1;
+                            dayPos   = 1;
                         }
                     }
                 }
@@ -521,11 +521,11 @@ namespace ForexStrategyBuilder.Services
 
                 var bar = new Bar
                 {
-                    Time = time,
-                    Open = ParseDouble(match.Groups["open"].Value),
-                    High = ParseDouble(match.Groups["high"].Value),
-                    Low = ParseDouble(match.Groups["low"].Value),
-                    Close = ParseDouble(match.Groups["close"].Value),
+                    Time   = time,
+                    Open   = ParseDouble(match.Groups["open"].Value),
+                    High   = ParseDouble(match.Groups["high"].Value),
+                    Low    = ParseDouble(match.Groups["low"].Value),
+                    Close  = ParseDouble(match.Groups["close"].Value),
                     Volume = int.Parse(match.Groups["volume"].Value)
                 };
                 barList.Add(bar);
@@ -537,7 +537,7 @@ namespace ForexStrategyBuilder.Services
                 throw new Exception("Could not count the data bars!");
 
             if (cutWrongTimeBars > 0)
-                LoadingNote += string.Format("Cut off {0} bars with wrong time.\r\n", cutWrongTimeBars);
+                LoadingNote += $"Cut off {cutWrongTimeBars} bars with wrong time.\r\n";
 
             return barList;
         }

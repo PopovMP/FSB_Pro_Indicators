@@ -8,7 +8,7 @@
 // A PARTICULAR PURPOSE.
 //==============================================================
 
-using System;
+using static System.String;
 
 namespace ForexStrategyBuilder.Infrastructure.Entities
 {
@@ -16,12 +16,12 @@ namespace ForexStrategyBuilder.Infrastructure.Entities
     {
         public ListParam()
         {
-            Caption = String.Empty;
+            Caption  = Empty;
             ItemList = new[] {""};
-            Index = 0;
-            Text = String.Empty;
-            Enabled = false;
-            ToolTip = String.Empty;
+            Index    = 0;
+            Text     = Empty;
+            Enabled  = false;
+            ToolTip  = Empty;
         }
 
         /// <summary>
@@ -61,14 +61,16 @@ namespace ForexStrategyBuilder.Infrastructure.Entities
         {
             var listParam = new ListParam
                 {
-                    Caption = Caption,
+                    Caption  = Caption,
                     ItemList = new string[ItemList.Length],
-                    Index = Index,
-                    Text = Text,
-                    Enabled = Enabled,
-                    ToolTip = ToolTip
+                    Index    = Index,
+                    Text     = Text,
+                    Enabled  = Enabled,
+                    ToolTip  = ToolTip
                 };
+ 
             ItemList.CopyTo(listParam.ItemList, 0);
+            
             return listParam;
         }
     }

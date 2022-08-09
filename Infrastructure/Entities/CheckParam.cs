@@ -8,7 +8,7 @@
 // A PARTICULAR PURPOSE.
 //==============================================================
 
-using System;
+using static System.String;
 
 namespace ForexStrategyBuilder.Infrastructure.Entities
 {
@@ -22,10 +22,10 @@ namespace ForexStrategyBuilder.Infrastructure.Entities
         /// </summary>
         public CheckParam()
         {
-            Caption = String.Empty;
+            Caption = Empty;
             Enabled = false;
             Checked = false;
-            ToolTip = String.Empty;
+            ToolTip = Empty;
         }
 
         /// <summary>
@@ -53,14 +53,13 @@ namespace ForexStrategyBuilder.Infrastructure.Entities
         /// </summary>
         public CheckParam Clone()
         {
-            var param = new CheckParam
+            return new CheckParam
                 {
                     Caption = Caption,
                     Enabled = Enabled,
                     Checked = Checked,
                     ToolTip = ToolTip
                 };
-            return param;
         }
     }
 }

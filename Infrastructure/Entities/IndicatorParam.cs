@@ -19,17 +19,17 @@ namespace ForexStrategyBuilder.Infrastructure.Entities
     {
         public IndicatorParam()
         {
-            SlotNumber = 0;
-            IsDefined = false;
-            SlotType = SlotTypes.NotDefined;
-            IndicatorName = String.Empty;
-            IndicatorType = TypeOfIndicator.Indicator;
-            ExecutionTime = ExecutionTime.DuringTheBar;
+            SlotNumber        = 0;
+            IsDefined         = false;
+            SlotType          = SlotTypes.NotDefined;
+            IndicatorName     = String.Empty;
+            IndicatorType     = TypeOfIndicator.Indicator;
+            ExecutionTime     = ExecutionTime.DuringTheBar;
             IsDeafultGroupAll = false;
-            IsAllowLTF = true;
-            ListParam = new ListParam[5];
-            NumParam = new NumericParam[6];
-            CheckParam = new CheckParam[2];
+            IsAllowLTF        = true;
+            ListParam         = new ListParam[5];
+            NumParam          = new NumericParam[6];
+            CheckParam        = new CheckParam[2];
 
             for (int i = 0; i < 5; i++)
                 ListParam[i] = new ListParam();
@@ -103,17 +103,17 @@ namespace ForexStrategyBuilder.Infrastructure.Entities
         {
             var indicatorParam = new IndicatorParam
                 {
-                    SlotNumber = SlotNumber,
-                    IsDefined = IsDefined,
-                    SlotType = SlotType,
-                    IndicatorName = IndicatorName,
-                    IndicatorType = IndicatorType,
-                    ExecutionTime = ExecutionTime,
+                    SlotNumber        = SlotNumber,
+                    IsDefined         = IsDefined,
+                    SlotType          = SlotType,
+                    IndicatorName     = IndicatorName,
+                    IndicatorType     = IndicatorType,
+                    ExecutionTime     = ExecutionTime,
                     IsDeafultGroupAll = IsDeafultGroupAll,
-                    IsAllowLTF = IsAllowLTF,
-                    ListParam = new ListParam[5],
-                    NumParam = new NumericParam[6],
-                    CheckParam = new CheckParam[2]
+                    IsAllowLTF        = IsAllowLTF,
+                    ListParam         = new ListParam[5],
+                    NumParam          = new NumericParam[6],
+                    CheckParam        = new CheckParam[2]
                 };
 
             for (int i = 0; i < 5; i++)
@@ -137,16 +137,15 @@ namespace ForexStrategyBuilder.Infrastructure.Entities
 
             foreach (ListParam listParam in ListParam)
                 if (listParam.Enabled)
-                    stringBuilder.AppendLine(string.Format("{0}: {1}", listParam.Caption, listParam.Text));
+                    stringBuilder.AppendLine($"{listParam.Caption}: {listParam.Text}");
 
             foreach (NumericParam numParam in NumParam)
                 if (numParam.Enabled)
-                    stringBuilder.AppendLine(string.Format("{0}: {1}", numParam.Caption, numParam.ValueToString));
+                    stringBuilder.AppendLine($"{numParam.Caption}: {numParam.ValueToString}");
 
             foreach (CheckParam checkParam in CheckParam)
                 if (checkParam.Enabled)
-                    stringBuilder.AppendLine(string.Format("{0}: {1}", checkParam.Caption,
-                                                           (checkParam.Checked ? "Yes" : "No")));
+                    stringBuilder.AppendLine($"{checkParam.Caption}: {(checkParam.Checked ? "Yes" : "No")}");
 
             return stringBuilder.ToString();
         }
@@ -158,20 +157,17 @@ namespace ForexStrategyBuilder.Infrastructure.Entities
             foreach (ListParam listParam in ListParam)
                 if (listParam.Enabled)
                     stringBuilder.AppendLine(
-                        String.Format("{0}: {1}", tm.TranslateIndicatorParam(listParam.Caption, IndicatorName),
-                            tm.TranslateIndicatorParam(listParam.Text, IndicatorName)));
+                        $"{tm.TranslateIndicatorParam(listParam.Caption, IndicatorName)}: {tm.TranslateIndicatorParam(listParam.Text, IndicatorName)}");
 
             foreach (NumericParam numParam in NumParam)
                 if (numParam.Enabled)
                     stringBuilder.AppendLine(
-                        String.Format("{0}: {1}", tm.TranslateIndicatorParam(numParam.Caption, IndicatorName),
-                            numParam.ValueToString));
+                        $"{tm.TranslateIndicatorParam(numParam.Caption, IndicatorName)}: {numParam.ValueToString}");
 
             foreach (CheckParam checkParam in CheckParam)
                 if (checkParam.Enabled)
                     stringBuilder.AppendLine(
-                        String.Format("{0}: {1}", tm.TranslateIndicatorParam(checkParam.Caption, IndicatorName), 
-                            (checkParam.Checked ? tm.T("Statistics", "Yes") : tm.T("Statistics", "No"))));
+                        $"{tm.TranslateIndicatorParam(checkParam.Caption, IndicatorName)}: {(checkParam.Checked ? tm.T("Statistics", "Yes") : tm.T("Statistics", "No"))}");
 
             return stringBuilder.ToString();
         }

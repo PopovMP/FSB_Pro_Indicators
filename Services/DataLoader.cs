@@ -22,10 +22,10 @@ namespace ForexStrategyBuilder.Services
     {
         public IDataSet LoadDataSet(string dataSourceName, string symbol, DataPeriod period)
         {
-            DataId dataId = new DataId(dataSourceName, symbol, period);
+            DataId      dataId     = new DataId(dataSourceName, symbol, period);
             IDataSource dataSource = LoadDataSource(dataId.Source);
-            DataParams dataParams = GetDataParams(dataId, UserFilesFolder, dataSource);
-            IDataSet dataSet = LoadCsvFile(dataParams);
+            DataParams  dataParams = GetDataParams(dataId, UserFilesFolder, dataSource);
+            IDataSet    dataSet    = LoadCsvFile(dataParams);
             
             dataSet.Properties = dataSource.InstrumentProperties[symbol];
 
@@ -34,29 +34,29 @@ namespace ForexStrategyBuilder.Services
 
         private DataParams GetDataParams(DataId dataId, string folder, IDataSource dataSource)
         {
-            var fileName = String.Format("{0}{1}.csv", dataId.Symbol, (int) dataId.Period);
-            var path = Path.Combine(folder, "Data", dataId.Source, fileName);
+            var fileName = $"{dataId.Symbol}{(int)dataId.Period}.csv";
+            var path     = Path.Combine(folder, "Data", dataId.Source, fileName);
 
             var dataParams = new DataParams
             {
-                DataSourceName = dataId.Source,
-                Symbol = dataId.Symbol,
-                Period = dataId.Period,
-                DataId = dataId,
-                Path = path,
-                StartDate = dataSource.StartDate,
-                EndDate = dataSource.EndDate,
-                IsUseStartDate = dataSource.IsUseStartDate,
-                IsUseEndDate = dataSource.IsUseEndDate,
-                MaximumBars = dataSource.MaximumBars,
-                MaxIntrabarBars = dataSource.MaxIntrabarBars,
-                MinimumBars = dataSource.MinimumBars,
-                IsCheckDataAtLoad = dataSource.IsCheckDataAtLoad,
-                IsCutOffBadData = dataSource.IsCutOffBadData,
+                DataSourceName     = dataId.Source,
+                Symbol             = dataId.Symbol,
+                Period             = dataId.Period,
+                DataId             = dataId,
+                Path               = path,
+                StartDate          = dataSource.StartDate,
+                EndDate            = dataSource.EndDate,
+                IsUseStartDate     = dataSource.IsUseStartDate,
+                IsUseEndDate       = dataSource.IsUseEndDate,
+                MaximumBars        = dataSource.MaximumBars,
+                MaxIntrabarBars    = dataSource.MaxIntrabarBars,
+                MinimumBars        = dataSource.MinimumBars,
+                IsCheckDataAtLoad  = dataSource.IsCheckDataAtLoad,
+                IsCutOffBadData    = dataSource.IsCutOffBadData,
                 IsCutOffSatSunData = dataSource.IsCutOffSatSunData,
-                IsFillInDataGaps = dataSource.IsFillInDataGaps,
-                IsCacheData = dataSource.IsCacheDataFiles,
-                IsLongData = false
+                IsFillInDataGaps   = dataSource.IsFillInDataGaps,
+                IsCacheData        = dataSource.IsCacheDataFiles,
+                IsLongData         = false
             };
 
             return dataParams;
@@ -106,8 +106,8 @@ namespace ForexStrategyBuilder.Services
                 return null;
 
             IDataSet dataSet = new DataSet(dataParams.Symbol, dataParams.Period, bars);
-            dataSet.DataId = dataParams.DataId;
-            dataSet.DataParams = dataParams;
+            dataSet.DataId      = dataParams.DataId;
+            dataSet.DataParams  = dataParams;
             dataSet.LoadingNote = dataParser.LoadingNote;
 
             for (var bar = 0; bar < bars; bar++)

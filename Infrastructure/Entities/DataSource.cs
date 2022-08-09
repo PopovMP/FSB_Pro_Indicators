@@ -25,18 +25,18 @@ namespace ForexStrategyBuilder.Infrastructure.Entities
             {
                 {"EURUSD", instrumentProperties}
             };
-            StartDate = new DateTime(2000, 1, 1);
-            EndDate = new DateTime(2050, 12, 31);
-            IsUseStartDate = false;
-            IsUseEndDate = false;
-            MaximumBars = 20000;
-            MinimumBars = 300;
-            MaxIntrabarBars = 50000;
-            IsCheckDataAtLoad = true;
-            IsCutOffBadData = false;
+            StartDate          = new DateTime(2000,  1,  1);
+            EndDate            = new DateTime(2050, 12, 31);
+            IsUseStartDate     = false;
+            IsUseEndDate       = false;
+            MaximumBars        = 20000;
+            MinimumBars        = 300;
+            MaxIntrabarBars    = 50000;
+            IsCheckDataAtLoad  = true;
+            IsCutOffBadData    = false;
             IsCutOffSatSunData = false;
-            IsFillInDataGaps = false;
-            IsCacheDataFiles = true;
+            IsFillInDataGaps   = false;
+            IsCacheDataFiles   = true;
         }
 
         public Dictionary<string, InstrumentProperties> InstrumentProperties { get; set; }

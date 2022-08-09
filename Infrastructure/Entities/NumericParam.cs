@@ -8,8 +8,8 @@
 // A PARTICULAR PURPOSE.
 //==============================================================
 
-using System;
 using System.Globalization;
+using static System.String;
 
 namespace ForexStrategyBuilder.Infrastructure.Entities
 {
@@ -17,13 +17,13 @@ namespace ForexStrategyBuilder.Infrastructure.Entities
     {
         public NumericParam()
         {
-            Caption = String.Empty;
-            Value = 0;
-            Min = 0;
-            Max = 100;
-            Point = 0;
+            Caption = Empty;
+            Value   = 0;
+            Min     = 0;
+            Max     = 100;
+            Point   = 0;
             Enabled = false;
-            ToolTip = String.Empty;
+            ToolTip = Empty;
         }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace ForexStrategyBuilder.Infrastructure.Entities
         /// </summary>
         public string ValueToString
         {
-            get { return String.Format(CultureInfo.InvariantCulture, "{0:F" + Point + "}", Value); }
+            get { return Format(CultureInfo.InvariantCulture, "{0:F" + Point + "}", Value); }
         }
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace ForexStrategyBuilder.Infrastructure.Entities
         /// </summary>
         public string AnotherValueToString(double anotherValue)
         {
-            return String.Format(CultureInfo.InvariantCulture, "{0:F" + Point + "}", anotherValue);
+            return Format(CultureInfo.InvariantCulture, "{0:F" + Point + "}", anotherValue);
         }
 
         /// <summary>
@@ -85,10 +85,10 @@ namespace ForexStrategyBuilder.Infrastructure.Entities
             return new NumericParam
             {
                 Caption = Caption,
-                Value = Value,
-                Min = Min,
-                Max = Max,
-                Point = Point,
+                Value   = Value,
+                Min     = Min,
+                Max     = Max,
+                Point   = Point,
                 Enabled = Enabled,
                 ToolTip = ToolTip
             };

@@ -9,10 +9,7 @@
 //==============================================================
 
 using System;
-using System.Collections.Generic;
-using System.Globalization;
 using ForexStrategyBuilder.Infrastructure.Enums;
-using ForexStrategyBuilder.Infrastructure.Interfaces;
 
 namespace ForexStrategyBuilder.Infrastructure.Entities
 {

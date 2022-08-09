@@ -8,15 +8,11 @@
 // A PARTICULAR PURPOSE.
 //==============================================================
 
-using ForexStrategyBuilder.Infrastructure.Enums;
-
 namespace ForexStrategyBuilder.Infrastructure.Entities
 {
     public struct InfoRecord
     {
         public string Name { get; set; }
         public string Value { get; set; }
-        public InfoRecordFlag Flag { get; set; }
-        public string Unit { get; set; }
     }
 }

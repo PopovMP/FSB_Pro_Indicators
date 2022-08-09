@@ -49,23 +49,23 @@ namespace ForexStrategyBuilder.Infrastructure.Entities
         {
             if (index >= Bars) throw new IndexOutOfRangeException("index");
 
-            Time[index] = bar.Time;
-            Open[index] = bar.Open;
-            High[index] = bar.High;
-            Low[index] = bar.Low;
-            Close[index] = bar.Close;
+            Time  [index] = bar.Time;
+            Open  [index] = bar.Open;
+            High  [index] = bar.High;
+            Low   [index] = bar.Low;
+            Close [index] = bar.Close;
             Volume[index] = bar.Volume;
         }
 
         private void ResetData(int bars)
         {
-            Bars = bars;
-            Time = new DateTime[bars];
-            Open = new double[bars];
-            High = new double[bars];
-            Low = new double[bars];
-            Close = new double[bars];
-            Volume = new int[bars];
+            Bars   = bars;
+            Time   = new DateTime[bars];
+            Open   = new double[bars];
+            High   = new double[bars];
+            Low    = new double[bars];
+            Close  = new double[bars];
+            Volume = new int   [bars];
         }
 
         public string LoadingNote { get; set; }

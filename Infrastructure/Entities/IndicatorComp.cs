@@ -17,14 +17,14 @@ namespace ForexStrategyBuilder.Infrastructure.Entities
     {
         public IndicatorComp()
         {
-            CompName = "Not defined";
-            DataType = IndComponentType.NotDefined;
-            ChartType = IndChartType.NoChart;
-            ChartColor = Color.Red;
-            FirstBar = 0;
+            CompName       = "Not defined";
+            DataType       = IndComponentType.NotDefined;
+            ChartType      = IndChartType.NoChart;
+            ChartColor     = Color.Red;
+            FirstBar       = 0;
             UsePreviousBar = 0;
-            ShowInDynInfo = true;
-            Value = new double[0];
+            ShowInDynInfo  = true;
+            Value          = new double[0];
             PosPriceDependence = PositionPriceDependence.None;
         }
 
@@ -37,28 +37,5 @@ namespace ForexStrategyBuilder.Infrastructure.Entities
         public bool ShowInDynInfo { get; set; }
         public PositionPriceDependence PosPriceDependence { get; set; }
         public double[] Value { get; set; }
-
-        public IndicatorComp Clone()
-        {
-            var indicatorComp = new IndicatorComp
-            {
-                CompName = CompName,
-                DataType = DataType,
-                ChartType = ChartType,
-                ChartColor = ChartColor,
-                FirstBar = FirstBar,
-                UsePreviousBar = UsePreviousBar,
-                ShowInDynInfo = ShowInDynInfo,
-                PosPriceDependence = PosPriceDependence
-            };
-
-            if (Value != null)
-            {
-                indicatorComp.Value = new double[Value.Length];
-                Value.CopyTo(indicatorComp.Value, 0);
-            }
-
-            return indicatorComp;
-        }
     }
 }

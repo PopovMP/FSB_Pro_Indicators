@@ -18,10 +18,6 @@ namespace ForexStrategyBuilder.Infrastructure.Entities
 {
     public class InstrumentProperties : IInstrumentProperties
     {
-        public InstrumentProperties()
-        {
-        }
-
         public InstrumentProperties(string symbol, InstrumentType instrType)
         {
             if (instrType == InstrumentType.Forex)
@@ -178,33 +174,33 @@ namespace ForexStrategyBuilder.Infrastructure.Entities
         /// <param name="instrType">The instrument type: Index or CFD</param>
         private void SetDefaultIndexParams(string symbol, InstrumentType instrType)
         {
-            Symbol = symbol;
-            InstrType = instrType;
-            Comment = symbol + " " + instrType;
-            Digits = 2;
-            LotSize = 100;
-            Spread = 4;
-            SwapType = CommissionType.Percents;
-            SwapLong = -5.0;
-            SwapShort = -1.0;
-            CommissionType = CommissionType.Percents;
+            Symbol          = symbol;
+            InstrType       = instrType;
+            Comment         = symbol + " " + instrType;
+            Digits          = 2;
+            LotSize         = 100;
+            Spread          = 4;
+            SwapType        = CommissionType.Percents;
+            SwapLong        = -5.0;
+            SwapShort       = -1.0;
+            CommissionType  = CommissionType.Percents;
             CommissionScope = CommissionScope.Deal;
-            CommissionTime = CommissionTime.OpenClose;
-            Commission = 0.25;
-            Slippage = 0;
-            PriceIn = "USD";
-            RateToUSD = 1;
-            RateToEUR = 1;
-            RateToGBP = 1;
-            RateToJPY = 0.01;
-            BaseFileName = symbol;
-            LotSize = 10000;
-            StopLevel = 5;
-            TickValue = LotSize*Point;
-            MinLot = 0.01;
-            MaxLot = 100;
-            LotStep = 0.01;
-            MarginRequired = 1000;
+            CommissionTime  = CommissionTime.OpenClose;
+            Commission      = 0.25;
+            Slippage        = 0;
+            PriceIn         = "USD";
+            RateToUSD       = 1;
+            RateToEUR       = 1;
+            RateToGBP       = 1;
+            RateToJPY       = 0.01;
+            BaseFileName    = symbol;
+            LotSize         = 10000;
+            StopLevel       = 5;
+            TickValue       = LotSize * Point;
+            MinLot          = 0.01;
+            MaxLot          = 100;
+            LotStep         = 0.01;
+            MarginRequired  = 1000;
         }
 
         /// <summary>

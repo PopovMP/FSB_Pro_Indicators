@@ -9,8 +9,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ForexStrategyBuilder</RootNamespace>
     <AssemblyName>ForexStrategyBuilder</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -21,6 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -30,6 +32,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json">
@@ -170,7 +173,6 @@
     <Compile Include="Infrastructure\Entities\DataParams.cs" />
     <Compile Include="Infrastructure\Entities\DataSet.cs" />
     <Compile Include="Infrastructure\Entities\DataSource.cs" />
-    <Compile Include="Infrastructure\Entities\DataStats.cs" />
     <Compile Include="Infrastructure\Entities\IndicatorComp.cs" />
     <Compile Include="Infrastructure\Entities\IndicatorParam.cs" />
     <Compile Include="Infrastructure\Entities\InfoRecord.cs" />
@@ -201,16 +203,13 @@
     <Compile Include="Infrastructure\Interfaces\ITranslationManager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Services\DataJson.cs" />
     <Compile Include="Services\DataLoader.cs" />
     <Compile Include="Services\DataParser.cs" />
-    <Compile Include="Services\DocGenerator.cs" />
-    <Compile Include="Services\IndicatorToTs.cs" />
-    <Compile Include="Services\IndicatorsJson.cs" />
     <Compile Include="Services\IndicatorTester.cs" />
-    <Compile Include="Services\Repository.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="app.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
